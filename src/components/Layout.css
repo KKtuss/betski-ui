@@ -1,0 +1,143 @@
+.layout {
+  /* Locked video panel aspect ratio split into separate width/height numbers
+     so we can also feed them into calc() for grid sizing.
+     Reference points (panel width vs. its 9/16 card):
+       9 / 16  -> matches the card exactly (no right band)
+       5 / 8   -> tight, buttons land on the card edge
+       2 / 3   -> moderate right band (current)
+       11 / 16 -> slightly wider
+       3 / 4   -> wide right band */
+  --video-aspect-w: 2;
+  --video-aspect-h: 3;
+  /* Height actually available to the video stage =
+     viewport - layout top padding - layout-center bottom padding (bottom bar + spacing). */
+  --video-stage-height: calc(
+    100dvh
+    - clamp(8px, 1vw, 12px)
+    - 64px
+    - 24px
+    - env(safe-area-inset-bottom)
+  );
+  /* Width the locked-ratio panel naturally wants from that height.
+     Used as the max of the center grid column so the chart/rules + orderbook
+     side panels grow to fill the rest, instead of leaving blanks. */
+  --video-panel-target-width: calc(
+    var(--video-stage-height) * var(--video-aspect-w) / var(--video-aspect-h) - 11px
+  );
+  --layout-left-min: clamp(365px, 32vw, 565px);
+  --layout-right-min: clamp(292px, 24vw, 412px);
+
+  display: grid;
+  /* Side columns flex (1fr) and absorb leftover width once the center column
+     reaches the panel's ideal width. */
+  grid-template-columns:
+    minmax(var(--layout-left-min), 1.07fr)
+    minmax(0, var(--video-panel-target-width))
+    minmax(var(--layout-right-min), 0.93fr);
+  grid-template-rows: 1fr; /* Single row, full height */
+  width: 100%;
+  max-width: var(--app-shell-max-width);
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  gap: clamp(8px, 1vw, 14px) clamp(8px, 1vw, 14px);
+  padding: clamp(8px, 1vw, 12px) clamp(8px, 1vw, 12px) 0 clamp(8px, 1vw, 12px);
+  padding-bottom: 0;
+  background-color: transparent;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.layout-left {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1vw, 14px);
+  grid-row: 1;
+  grid-column: 1;
+  /* Leave room so content never sits under the fixed bottom bar */
+  padding-bottom: calc(64px + 24px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  height: 100%;
+  min-width: 0;
+  min-height: 0; /* allow internal scrolling in grid/flex */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.layout-center {
+  position: relative;
+  grid-row: 1;
+  grid-column: 2;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(64px + 24px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  height: 100%;
+  min-width: 0;
+  min-height: 0; /* allow internal scrolling in grid/flex */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Holds the video panel inside layout-center and lets it scale while
+   the panel locks its own aspect ratio. */
+.video-stage {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-right {
+  display: flex;
+  flex-direction: column;
+  grid-row: 1;
+  grid-column: 3;
+  padding-bottom: calc(64px + 24px + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  height: 100%;
+  min-width: 0;
+  min-height: 0; /* allow internal scrolling in grid/flex */
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Home feed sits in the same grid column as chart+rules — grid width unchanged, video/center stays same size */
+.layout-home-feed {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Match chart/rules: full width of the first grid column */
+.layout-home-feed .home-panel--rail {
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.layout-right > .panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.layout-home-feed .panel,
+.layout-home-full .panel {
+  min-height: 0;
+}
+
+.layout-home-full {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout-home-full > .home-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+}

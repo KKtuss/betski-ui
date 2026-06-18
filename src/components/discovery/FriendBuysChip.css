@@ -1,0 +1,220 @@
+.discovery-friends-row-name--link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+
+.discovery-friends-row-name--link:hover {
+  color: #ff9966;
+}
+
+/* ----- Friends bought indicator -------------------------------------------- */
+
+.discovery-friends {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 1px 7px 1px 1px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  cursor: default;
+  transition: background 0.18s ease, border-color 0.18s ease;
+  outline: none;
+  width: max-content;
+  max-width: 100%;
+}
+
+.discovery-friends:hover,
+.discovery-friends:focus-visible {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.discovery-friends-stack {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.discovery-friends-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #0b0b0c;
+  background: #1a1a1a;
+  margin-left: -7px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.discovery-friends-avatar:first-child {
+  margin-left: 0;
+}
+
+.discovery-friends-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Tiny coloured ring hints at the side (YES/NO) the friend took */
+.discovery-friends-avatar--yes {
+  box-shadow: 0 0 0 1px rgba(45, 213, 110, 0.7);
+}
+
+.discovery-friends-avatar--no {
+  box-shadow: 0 0 0 1px rgba(255, 77, 77, 0.7);
+}
+
+.discovery-friends-extra {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #0b0b0c;
+  background: rgba(12, 13, 14, 0.96);
+  margin-left: -7px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.discovery-friends-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.15px;
+  white-space: nowrap;
+}
+
+/* Popover is portaled to <body> so it isn't clipped by the row's overflow.
+   Positioning is provided inline via `top`/`left` (style) from React. */
+.discovery-friends-popover--portal {
+  position: fixed;
+  z-index: 1000;
+  width: max-content;
+  min-width: 220px;
+  max-width: 320px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  background: rgba(9, 10, 11, 0.98);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.64), inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  animation: discovery-friends-pop 0.16s ease-out both;
+}
+
+@keyframes discovery-friends-pop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.discovery-friends-popover-head {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 8px;
+}
+
+.discovery-friends-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.discovery-friends-row {
+  display: grid;
+  grid-template-columns: 22px 1fr auto auto auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.discovery-friends-row-avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1a1a1a;
+}
+
+.discovery-friends-row-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.discovery-friends-row-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.discovery-friends-row-time {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.discovery-friends-row-side {
+  font-size: 10px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+}
+
+.discovery-friends-row-side--yes {
+  color: var(--color-green);
+  background: rgba(45, 213, 110, 0.14);
+  border: none;
+}
+
+.discovery-friends-row-side--no {
+  color: var(--color-red);
+  background: rgba(255, 77, 77, 0.14);
+  border: none;
+}
+
+.discovery-friends-row-odds {
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.62);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.discovery-friends-row-amount {
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.88);
+  font-variant-numeric: tabular-nums;
+}

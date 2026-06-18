@@ -1,0 +1,564 @@
+/* Outer shell: slightly richer surface without changing layout */
+.panel.profile-panel {
+  background: linear-gradient(180deg, rgba(20, 20, 22, 0.99) 0%, #0a0a0b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 10px 44px rgba(0, 0, 0, 0.4);
+}
+
+.profile-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Inter — index.html */
+  --profile-font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --profile-label: rgba(255, 255, 255, 0.48);
+  --profile-label-soft: rgba(255, 255, 255, 0.42);
+  --profile-ink: rgba(255, 255, 255, 0.92);
+  --profile-border: rgba(255, 255, 255, 0.072);
+  --profile-border-soft: rgba(255, 255, 255, 0.05);
+  --profile-surface: rgba(255, 255, 255, 0.032);
+  --profile-surface-muted: rgba(255, 255, 255, 0.026);
+  --profile-inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  --profile-inset-hairline: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --profile-shadow-elevated:
+    var(--profile-inset-hairline),
+    var(--profile-inset-top),
+    0 4px 6px rgba(0, 0, 0, 0.12),
+    0 18px 44px rgba(0, 0, 0, 0.32);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-back-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d0d0d0;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.profile-header .time-selector {
+  flex-shrink: 0;
+}
+
+.profile-title {
+  font-family: var(--profile-font-ui);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.profile-content {
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 16px;
+  overflow: auto;
+  min-height: 0;
+}
+
+.profile-grid {
+  width: 100%;
+  min-height: 100%;
+  display: grid;
+  grid-template-columns: clamp(160px, 11vw, 210px) 1fr clamp(340px, 25vw, 460px);
+  /* Fluid rows that ALWAYS fill the available container height (no empty
+     gap at the bottom on tall viewports), while still shrinking on short
+     laptops (1080p/768p) instead of forcing vertical overflow.
+     - fr proportions (0.62 / 0.38) keep the original visual ratio.
+     - Mins (260 / 160) prevent rows from collapsing on short screens. */
+  grid-template-rows:
+    minmax(260px, 0.62fr)
+    minmax(160px, 0.38fr);
+  gap: 14px;
+}
+
+/* Option C: explicit placement (no auto-flow surprises) */
+.profile-left-stack {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.profile-trading {
+  grid-column: auto;
+  grid-row: auto;
+}
+
+.profile-charts {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.profile-last-trades {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+}
+
+.profile-side-panel {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+.profile-lootboxes-panel {
+  grid-column: auto;
+  grid-row: auto;
+}
+
+.profile-center-stack {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  min-width: 0;
+  align-self: stretch;
+  height: 100%;
+  width: 100%;
+}
+
+.profile-center-bottom-row {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: grid;
+  /* Highlights (col 1) narrower; lootboxes (col 2) wider — height unchanged */
+  grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
+  gap: 14px;
+  align-items: stretch;
+  overflow: visible;
+}
+
+.profile-center-bottom-row > * {
+  min-height: 0;
+  min-width: 0;
+}
+
+.profile-left-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 0;
+  align-self: stretch;
+  width: 100%;
+  align-items: center;
+}
+
+.profile-card,
+.profile-trading,
+.profile-charts,
+.profile-last-trades,
+.profile-side-panel,
+.profile-lootboxes-panel,
+.profile-highlights-panel {
+  background: var(--profile-surface);
+  border: 1px solid var(--profile-border);
+  border-radius: 14px;
+  box-shadow: var(--profile-shadow-elevated);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 10px 10px;
+  gap: 8px;
+  /* Match the intended portrait PFP tile proportions */
+  aspect-ratio: 3 / 4;
+  width: min(190px, 100%);
+  justify-self: start;
+  align-self: start;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.04) 0%, var(--profile-surface) 48%);
+}
+
+.profile-card-name {
+  text-align: center;
+  font-family: var(--profile-font-ui);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.45px;
+  background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+}
+
+.profile-mini-stats {
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.038) 0%, var(--profile-surface) 55%);
+  border: 1px solid var(--profile-border);
+  border-radius: 14px;
+  box-shadow: var(--profile-shadow-elevated);
+  overflow: hidden;
+  min-height: 0;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  align-content: start;
+  box-sizing: border-box;
+  width: min(190px, 100%);
+  margin-inline: auto;
+}
+
+.profile-mini-stat {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--profile-border-soft);
+  border-radius: 10px;
+  padding: 8px 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+  box-shadow: none;
+  position: relative;
+  transform: translateY(-3px);
+}
+
+.profile-mini-stat::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ff9966 0%, #ff5e62 100%);
+  opacity: 0.75;
+}
+
+.profile-mini-value {
+  font-family: var(--profile-font-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--profile-ink);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  order: 2;
+  white-space: nowrap;
+}
+
+.profile-mini-label {
+  color: var(--profile-label);
+  font-weight: 600;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  order: 1;
+  white-space: nowrap;
+  padding-left: 8px;
+}
+
+.profile-card-top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+  min-height: 0;
+}
+
+.profile-avatar {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--profile-border);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+  /* Same treatment as Net PnL (profile-trading-summary) + equity chart (profile-chart-surface) */
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 106, 0, 0.12), transparent 60%),
+    radial-gradient(circle at 80% 90%, rgba(255, 94, 98, 0.12), transparent 60%),
+    radial-gradient(circle at 18% 30%, rgba(255, 106, 0, 0.1), transparent 55%),
+    radial-gradient(circle at 80% 70%, rgba(255, 94, 98, 0.1), transparent 60%),
+    rgba(0, 0, 0, 0.35);
+  flex: 1 1 auto;
+}
+
+.profile-avatar-img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  display: block;
+  transform: none;
+  z-index: 1;
+}
+
+.profile-trading {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.profile-trading-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.profile-share-pnl-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: #d0d0d0;
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.profile-share-pnl-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.profile-trading-summary {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--profile-border);
+  background: radial-gradient(circle at 18% 30%, rgba(255, 106, 0, 0.12), transparent 55%),
+    radial-gradient(circle at 80% 70%, rgba(255, 94, 98, 0.1), transparent 60%),
+    rgba(0, 0, 0, 0.38);
+  box-shadow: var(--profile-inset-top), 0 8px 28px rgba(0, 0, 0, 0.22);
+}
+
+.profile-summary-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.profile-summary-label {
+  color: var(--profile-label);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.profile-summary-value {
+  font-family: var(--profile-font-ui);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 32px);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+.profile-summary-value.pos {
+  color: #2DD56E;
+}
+
+.profile-summary-value.neg {
+  color: #FF4D4D;
+}
+
+.profile-summary-right {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 10px 14px;
+  align-items: end;
+}
+
+.profile-summary-kv {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.profile-summary-k {
+  color: var(--profile-label-soft);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.profile-summary-v {
+  font-family: var(--profile-font-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--profile-ink);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: -0.02em;
+}
+
+.profile-trading-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--profile-border-soft);
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.profile-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.profile-detail-k {
+  color: var(--profile-label);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-detail-v {
+  font-family: var(--profile-font-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--profile-ink);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+}
+
+.profile-detail-v.pos {
+  color: var(--color-green);
+}
+
+.profile-detail-v.neg {
+  color: var(--color-red);
+}
+
+.profile-last-trades {
+  grid-column: 1 / span 2;
+  grid-row: 2;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-side-panel {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.profile-section-title {
+  font-family: var(--profile-font-ui);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #ffb088 0%, #ff8a80 42%, #ff5e62 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
+}
+
+.profile-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.profile-metric {
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid var(--profile-border-soft);
+  border-radius: 12px;
+  padding: 10px 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.profile-metric-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FF5E62;
+  background: rgba(255, 94, 98, 0.08);
+  border: 1px solid rgba(255, 94, 98, 0.18);
+  flex: 0 0 auto;
+}
+
+.profile-metric-stack {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.profile-metric-value {
+  font-family: var(--profile-font-ui);
+  font-variant-numeric: tabular-nums;
+  color: var(--profile-ink);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: -0.015em;
+}
+
+.profile-metric-label {
+  color: var(--profile-label);
+  font-weight: 600;
+  font-size: 10px;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 1050px) {
+  .profile-center-bottom-row {
+    grid-template-columns: 1fr;
+  }
+}

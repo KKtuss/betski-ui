@@ -1,0 +1,117 @@
+.video-card {
+  flex: 0 0 auto;
+  container-type: size;
+  --video-card-edge-offset: clamp(8px, min(3.2cqw, 2cqh), 12px);
+  --video-card-icon-size: clamp(24px, min(6cqw, 3.8cqh), 34px);
+  /* Strict 9:16 card driven by available panel height; width derives from aspect-ratio.
+     No hard pixel cap so the card grows/shrinks with the (locked-ratio) panel. */
+  height: calc(100% - (2 * var(--video-gutter, 0px)));
+  max-height: calc(100% - (2 * var(--video-gutter, 0px)));
+  width: auto;
+  max-width: calc(100cqw - clamp(64px, 14cqw, 120px));
+  aspect-ratio: 9 / 16;
+  position: relative;
+  scroll-snap-align: center;
+  background-color: #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.5),
+    -2px 0 8px rgba(0, 0, 0, 0.3);
+  /* Negative margins create the peek of neighboring cards.
+     Scaled off viewport height so the overlap stays proportional to card size.
+     Override via `--video-card-overlap` to tune. */
+  margin-left: calc(-1 * var(--video-card-overlap, clamp(34px, 12cqw, 160px)));
+  margin-right: calc(-1 * var(--video-card-overlap, clamp(34px, 12cqw, 160px)));
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  z-index: 1;
+  opacity: 1;
+}
+
+.video-card:first-child {
+  margin-left: clamp(8px, 2.4cqw, 20px);
+}
+
+.video-card:not(.active) {
+  opacity: 0.85;
+  transform: scale(1); /* No scale down */
+  filter: brightness(0.2); /* Darken inactive videos significantly */
+}
+
+.video-card.active {
+  z-index: 5;
+  opacity: 1;
+  transform: scale(1);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.6),
+    -4px 0 16px rgba(0, 0, 0, 0.4);
+  filter: brightness(1); /* Ensure active video is fully bright */
+}
+
+.video-card:last-child {
+  margin-right: clamp(10px, 3cqw, 28px);
+}
+
+.video-element {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: #1a1a1a;
+}
+
+.media-poster {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+}
+
+.media-embed {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #000;
+}
+
+/* TikTok player/v1 — video-only chrome inside the 9:16 card */
+.media-card--tiktok .media-embed {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #000;
+}
+
+.media-card.active {
+  filter: brightness(1);
+}
+
+.media-sound-toggle {
+  position: absolute;
+  top: 68%;
+  right: var(--video-card-edge-offset);
+  z-index: 12;
+  width: var(--video-card-icon-size);
+  height: var(--video-card-icon-size);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.85));
+}
+
+.media-sound-toggle.active {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.media-sound-toggle svg {
+  width: 100%;
+  height: 100%;
+}

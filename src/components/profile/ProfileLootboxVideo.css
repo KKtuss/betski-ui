@@ -1,0 +1,22 @@
+.lootbox-video-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 6000;
+  margin: 0;
+  padding: 0;
+  background: #000;
+  cursor: pointer;
+}
+
+.lootbox-video-el {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center center;
+  pointer-events: none;
+  /* Hide any browser-default video chrome where supported */
+  appearance: none;
+}

@@ -1,0 +1,143 @@
+.bottom-bar {
+  position: fixed;
+  left: calc((100vw - min(100vw, var(--app-shell-max-width))) / 2 + 12px);
+  right: auto;
+  bottom: 12px;
+  width: calc(min(100vw, var(--app-shell-max-width)) - 24px);
+  height: 64px; /* Explicit tighter height */
+  margin: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  /* Premium dark glass aesthetic */
+  background: rgba(8, 8, 10, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  /* Subtle border glow */
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  /* Elevated depth shadow */
+  box-shadow: 
+    0 4px 24px -1px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 0, 0, 0.2);
+  padding: 0 16px;
+  gap: 8px;
+  border-radius: 20px;
+  overflow: visible;
+}
+
+.bottom-bar-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 2;
+  /* Removed transform to align with other tabs */
+  transform: none;
+}
+
+/* Tiny "+" shown on the center logo while on the main page — hints that
+   tapping again opens the wager creation flow. Sunset gradient glyph,
+   no circular background or outline. */
+.bottom-bar-center-plus {
+  position: absolute;
+  top: 5px;
+  right: 2px;
+  width: 15px;
+  height: 15px;
+  background: linear-gradient(135deg, #c4612f 0%, #a32a35 100%);
+  /* Plus shape with fully rounded line caps for a soft, circular look. */
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='4.5' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='4.5' stroke-linecap='round'%3E%3Cpath d='M12 5v14M5 12h14'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.betski-logo-gradient {
+  width: 62px; /* Increased slightly from 56px */
+  height: 62px;
+  background: #666; /* Default inactive state */
+  -webkit-mask-image: url(/Stems/betskilogo.png);
+  mask-image: url(/Stems/betskilogo.png);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  position: relative;
+  transition: all 0.3s ease;
+  filter: none; /* Removed depth shadow */
+}
+
+.betski-logo-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.bottom-tab {
+  padding: 10px;
+  background-color: transparent;
+  border: none;
+  border-radius: 12px;
+  color: #666; /* Lower contrast for inactive */
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Hover state for tabs */
+.bottom-tab:hover {
+  color: #a0a0a0;
+  background: transparent; /* Removed hover background container */
+}
+
+.bottom-tab.active {
+  color: #ffffff;
+  background-color: transparent; /* Removed background pill */
+  transform: translateY(0);
+}
+
+/* Active indicator accent */
+.bottom-tab.active svg {
+  stroke: #FF5E62;
+  filter: drop-shadow(0 0 8px rgba(255, 94, 98, 0.4)); /* Restored subtle glow */
+}
+
+.bottom-bar-center.active .betski-logo-gradient {
+  background: #fff; /* Brighten base */
+  filter: drop-shadow(0 0 12px rgba(255, 106, 0, 0.5)); /* Logo glow */
+  transform: scale(1.05);
+}
+
+.bottom-bar-center.active .betski-logo-gradient::before {
+  opacity: 1;
+}
+
+/* Hover effect for center logo */
+.bottom-bar-center:hover .betski-logo-gradient {
+  transform: scale(1);
+}
+
+.bottom-bar-center:hover .betski-logo-gradient::before {
+  opacity: 0.8;
+}

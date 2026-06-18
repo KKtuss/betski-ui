@@ -1,0 +1,233 @@
+.profile-highlights-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  /* Extra headroom so the podium winner can lift upward without clipping */
+  padding: 14px 6px 8px 8px;
+  min-width: 0;
+  min-height: 0;
+  border-color: var(--profile-border);
+  background: var(--profile-surface-muted);
+  overflow: visible;
+  position: relative;
+  z-index: 5;
+}
+
+.profile-highlights-grid {
+  display: flex;
+  gap: 12px;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: visible;
+  align-items: flex-end;
+  justify-content: space-between;
+  align-self: stretch;
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  padding: 0 4px 2px;
+  box-sizing: border-box;
+}
+
+/* Podium layout: 1st centered higher; 2nd left; 3rd right */
+.profile-highlights-grid > .profile-highlight-card:nth-child(1) {
+  --podium-y: -6px;
+  --podium-scale: 1.03;
+  order: 2;
+  z-index: 6;
+}
+
+.profile-highlights-grid > .profile-highlight-card:nth-child(2) {
+  --podium-y: 6px;
+  order: 1;
+  z-index: 1;
+}
+
+.profile-highlights-grid > .profile-highlight-card:nth-child(3) {
+  --podium-y: 6px;
+  order: 3;
+  z-index: 1;
+}
+
+/* Portrait tile (2:3) — height follows width; capped by row so nothing looks stretched */
+.profile-highlight-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  flex: 1 1 0;
+  width: 0;
+  max-width: none;
+  aspect-ratio: 2 / 3;
+  height: auto;
+  max-height: 100%;
+  align-self: center;
+  justify-self: center;
+  border: 1px solid var(--profile-border);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.22),
+    0 10px 28px rgba(0, 0, 0, 0.38),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+  contain: layout;
+  --podium-y: 0px;
+  --podium-scale: 1;
+  --podium-hover-y: 0px;
+  transform: translateY(calc(var(--podium-y) + var(--podium-hover-y))) scale(var(--podium-scale)) translateZ(0);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.profile-highlight-card:hover {
+  --podium-hover-y: -1px;
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+    0 14px 34px rgba(0, 0, 0, 0.42),
+    0 2px 10px rgba(0, 0, 0, 0.22);
+}
+
+.profile-highlight-bg {
+  position: absolute;
+  /* Extend under the 1px border so the surface doesn't look inset/shrunk */
+  inset: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
+  object-fit: cover;
+  object-position: center center;
+  filter: brightness(0.52) saturate(1.03) contrast(1.02);
+  border-radius: inherit;
+}
+
+.profile-highlight-overlay {
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 14%, rgba(255, 153, 102, 0.10), transparent 58%),
+    radial-gradient(circle at 85% 85%, rgba(255, 94, 98, 0.09), transparent 52%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.52) 0%, rgba(0, 0, 0, 0.10) 42%, rgba(0, 0, 0, 0.86) 100%);
+  border-radius: inherit;
+}
+
+.profile-highlight-market {
+  position: absolute;
+  top: 7px;
+  left: 6px;
+  right: 6px;
+  margin: 0;
+  font-family: var(--profile-font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.72);
+  z-index: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  padding: 6px 6px 7px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.0) 100%);
+}
+
+.profile-highlight-rank {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  color: rgba(255, 153, 102, 0.98);
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+}
+
+.profile-highlight-rank-sep {
+  color: rgba(255, 255, 255, 0.42);
+  font-weight: 600;
+  flex-shrink: 0;
+  font-size: 0.68em;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  margin: 0 1px;
+  position: relative;
+  top: -0.04em;
+  text-transform: none;
+}
+
+.profile-highlight-market-text {
+  color: rgba(255, 255, 255, 0.96);
+  min-width: 0;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.profile-highlight-footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 11px 6px 8px 8px;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.34) 28%,
+    rgba(0, 0, 0, 0.90) 100%
+  );
+}
+
+.profile-highlight-pnl {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--profile-font-ui);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85);
+  align-self: flex-end;
+}
+
+.profile-highlight-pnl.pos {
+  color: #2dd56e;
+}
+
+.profile-highlight-pnl.neg {
+  color: #ff6b6b;
+}
+
+.profile-highlight-chart {
+  flex: 0 0 auto;
+  width: 102px;
+  max-width: 60%;
+  aspect-ratio: 112 / 52;
+  height: auto;
+  pointer-events: none;
+  overflow: visible;
+  align-self: flex-end;
+  margin-right: -5px;
+}
+
+.profile-highlight-chart-svg,
+.profile-highlight-chart svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.profile-highlight-marker-label {
+  font-family: var(--profile-font-ui);
+  font-size: 8.5px;
+  font-weight: 700;
+  fill: rgba(255, 255, 255, 0.96);
+  stroke: rgba(0, 0, 0, 0.72);
+  stroke-width: 0.55px;
+  paint-order: stroke fill;
+}

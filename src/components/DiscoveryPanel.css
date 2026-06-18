@@ -1,0 +1,1255 @@
+.discovery-panel {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  margin: 0;
+  --discovery-row-height: clamp(80px, 7.8vh, 88px);
+  --discovery-row-pad-y: clamp(9px, 0.9vh, 11px);
+  --discovery-row-pad-x: clamp(9px, 0.75vw, 11px);
+  --discovery-thumb-stack-width: clamp(132px, 8.6vw, 146px);
+  --discovery-thumb-stack-height: clamp(58px, 5.6vh, 64px);
+  --discovery-thumb-size: clamp(54px, 5.2vh, 60px);
+  --discovery-title-size: clamp(13px, 0.84rem, 14px);
+  --discovery-meta-size: clamp(9.5px, 0.68rem, 10.5px);
+  --discovery-stat-size: clamp(11.5px, 0.78rem, 12.5px);
+  --discovery-gap: clamp(16px, 1.25vw, 22px);
+  --discovery-cell-gap: clamp(6px, 0.7vw, 12px);
+  --discovery-action-size: clamp(24px, 1.8vw, 26px);
+}
+
+.discovery-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  height: 52px;
+  /* Match table-head horizontal inset so Quick Buy isn't flush-right */
+  padding: 0 22px 0 12px;
+  flex-shrink: 0; /* Prevent header from shrinking */
+  background: #0B0B0C; /* Ensure opaque background */
+  z-index: 10;
+  position: relative;
+}
+
+.discovery-table-head {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  display: grid;
+  /* Fluid column tracks. Caps (168/120/110/92/92/120/130/80) match the original
+     design exactly on wide screens (>=~1530px), so the 2560px layout is unchanged.
+     On laptops, vw-based mins let columns shrink instead of overflowing. */
+  grid-template-columns:
+    minmax(280px, 1.4fr)
+    clamp(104px, 9vw, 144px)
+    clamp(74px, 6.8vw, 102px)
+    clamp(74px, 6.5vw, 98px)
+    clamp(62px, 5.4vw, 80px)
+    clamp(62px, 5.4vw, 80px)
+    clamp(74px, 6.8vw, 102px)
+    clamp(82px, 7.6vw, 112px)
+    clamp(66px, 5vw, 76px);
+  gap: var(--discovery-cell-gap);
+  align-items: center;
+  padding: 8px clamp(12px, 1.5vw, 22px);
+  margin: 0 0 5px 0;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+  background: #000;
+  backdrop-filter: none;
+}
+
+.discovery-th {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.discovery-th--action {
+  text-align: center;
+}
+
+.discovery-th--spark,
+.discovery-th--vol,
+.discovery-th--holders,
+.discovery-th--top10,
+.discovery-th--hold,
+.discovery-th--price,
+.discovery-th--expires {
+  text-align: center;
+}
+
+.discovery-quickbuy {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+  padding: 3px 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.discovery-quickbuy-label {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  white-space: nowrap;
+  padding-left: 3px;
+}
+
+.discovery-quickbuy-pills {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.discovery-quickbuy-pill {
+  height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 900;
+  font-size: 10px;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+}
+
+.discovery-quickbuy-pill:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.discovery-quickbuy-pill.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.discovery-quickbuy-input {
+  width: 54px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.22);
+  color: #fff;
+  font-weight: 900;
+  font-size: 10px;
+  text-align: center;
+  outline: none;
+}
+
+.discovery-row-right {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  flex-shrink: 0;
+}
+
+.discovery-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 96px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.discovery-stat {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.discovery-stat-k {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  white-space: nowrap;
+}
+
+.discovery-stat-v {
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  letter-spacing: -0.015em;
+}
+.discovery-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.discovery-back {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.discovery-back:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.discovery-title {
+  text-align: left;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.discovery-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  flex: 1;
+  padding-bottom: 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.discovery-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.discovery-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px; /* Space for the border */
+  border-radius: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.discovery-tab-content {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 19px;
+  background: rgba(255, 255, 255, 0.05);
+  width: 100%;
+  height: 100%;
+  color: #ccc;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.discovery-tab:hover .discovery-tab-content {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.discovery-tab.active {
+  background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
+  box-shadow: none;
+}
+
+.discovery-tab.active .discovery-tab-content {
+  background: #0B0B0C; /* Match page background */
+  color: #FF5E62;
+}
+
+.discovery-tab.active .discovery-tab-icon {
+  color: #FF5E62;
+  opacity: 1;
+}
+
+.discovery-tab.active span {
+  background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.discovery-tab-icon {
+  opacity: 0.8;
+}
+
+.discovery-content {
+  /* Fixed top gap below the header â€” sits outside the scroll area so it
+     stays visible even while the list scrolls. */
+  padding: 10px 0 0 0;
+  align-items: stretch;
+  justify-content: flex-start;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative; /* Ensure stacking context */
+  z-index: 1; /* Below header */
+}
+
+.discovery-list {
+  width: 100%;
+  height: 100%; /* Take full height */
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow-y: auto;
+  padding: 0; /* padding is handled by inner wrapper so sticky header fully covers */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+
+.discovery-list-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 12px 16px 12px;
+  padding-right: 5px;
+}
+
+.discovery-row {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  padding: var(--discovery-row-pad-y) var(--discovery-row-pad-x);
+  min-height: var(--discovery-row-height);
+  transition: background 0.15s ease, border-color 0.15s ease;
+  overflow: hidden; /* prevent thumbnails/cards from bleeding above the header band */
+  isolation: isolate; /* keep z-index stacking local to the row */
+  position: relative; /* create positioned stacking context root */
+  z-index: 0; /* ensure rows stay below header band */
+}
+
+.discovery-table-head {
+  border-left: none;
+  border-right: none;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
+.discovery-row:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+.discovery-row--clickable {
+  cursor: pointer;
+}
+
+.discovery-row--clickable:focus-visible {
+  outline: 2px solid rgba(255, 153, 102, 0.45);
+  outline-offset: -2px;
+}
+
+.discovery-row--grid {
+  display: grid;
+  /* MUST mirror .discovery-table-head exactly so headers align with cells. */
+  grid-template-columns:
+    minmax(280px, 1.4fr)
+    clamp(104px, 9vw, 144px)
+    clamp(74px, 6.8vw, 102px)
+    clamp(74px, 6.5vw, 98px)
+    clamp(62px, 5.4vw, 80px)
+    clamp(62px, 5.4vw, 80px)
+    clamp(74px, 6.8vw, 102px)
+    clamp(82px, 7.6vw, 112px)
+    clamp(66px, 5vw, 76px);
+  gap: var(--discovery-cell-gap);
+  align-items: center;
+}
+
+.discovery-td {
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.discovery-td--market {
+  display: flex;
+  align-items: center;
+  gap: var(--discovery-gap);
+  min-width: 0;
+}
+
+.discovery-td--spark {
+  justify-content: center;
+}
+
+.discovery-td--vol,
+.discovery-td--holders,
+.discovery-td--top10,
+.discovery-td--hold,
+.discovery-td--expires {
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  justify-content: center;
+}
+
+.discovery-td--price {
+  justify-content: center;
+}
+
+.discovery-td--action {
+  justify-content: center;
+}
+
+.discovery-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  justify-content: center;
+}
+
+.discovery-title-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.discovery-batch-name {
+  font-size: var(--discovery-title-size);
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.2px;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.discovery-question {
+  font-size: var(--discovery-title-size);
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
+}
+
+.discovery-subtext {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--discovery-meta-size);
+  color: #666;
+  font-weight: 400;
+  margin-top: 1px;
+  min-width: 0;
+}
+
+.discovery-dot {
+  font-size: 8px;
+  opacity: 0.5;
+}
+
+.discovery-td-main {
+  font-size: var(--discovery-stat-size);
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  line-height: 1.05;
+}
+
+.discovery-td-sub {
+  font-size: var(--discovery-meta-size);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  line-height: 1.05;
+}
+
+.discovery-price-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  gap: 2px;
+}
+
+.discovery-price-main {
+  font-size: calc(var(--discovery-stat-size) + 1px);
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+.discovery-price-change {
+  font-size: var(--discovery-meta-size);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+.discovery-price-change.positive { color: var(--color-green); }
+.discovery-price-change.negative { color: var(--color-red); }
+
+.discovery-price-line {
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-top: 3px;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.discovery-price-fill {
+  height: 100%;
+  background: #fff;
+  border-radius: 1px;
+}
+
+/* Responsive: collapse columns on smaller widths.
+   Keep column-hiding behavior, but use fluid tracks so we never overflow. */
+@media (max-width: 1100px) {
+  .discovery-table-head,
+  .discovery-row--grid {
+    grid-template-columns:
+      minmax(240px, 1.6fr)
+      clamp(110px, 14vw, 168px)
+      clamp(80px, 10vw, 120px)
+      clamp(80px, 9vw, 110px)
+      clamp(80px, 10vw, 120px)
+      clamp(70px, 7vw, 80px);
+    gap: clamp(14px, 2.4vw, 30px);
+  }
+  .discovery-table-head {
+    padding-left: clamp(14px, 2vw, 24px);
+    padding-right: clamp(14px, 2vw, 24px);
+  }
+  .discovery-th--holders,
+  .discovery-td--holders {
+    display: none;
+  }
+  .discovery-th--top10,
+  .discovery-td--top10 {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .discovery-table-head,
+  .discovery-row--grid {
+    grid-template-columns:
+      minmax(200px, 1.8fr)
+      clamp(110px, 18vw, 168px)
+      clamp(80px, 13vw, 120px)
+      clamp(64px, 9vw, 80px);
+    gap: clamp(12px, 2.4vw, 22px);
+  }
+  .discovery-table-head {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+  .discovery-th--expires,
+  .discovery-td--expires {
+    display: none;
+  }
+  .discovery-th--hold,
+  .discovery-td--hold {
+    display: none;
+  }
+}
+
+/* =========================================================================
+   Wagers tab â€” simplified table (fixed odds, no chart)
+   ========================================================================= */
+
+.discovery-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* ----- Markets / Wagers top-level toggle ------------------------------ */
+
+.discovery-mode-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  margin-left: 6px;
+  height: 30px;
+  isolation: isolate;
+  flex-shrink: 0;
+}
+
+.discovery-mode-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
+  box-shadow: 0 4px 12px rgba(255, 94, 98, 0.28);
+  z-index: 0;
+}
+
+.discovery-mode-toggle--tri {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.discovery-mode-toggle--tri .discovery-mode-thumb {
+  width: calc((100% - 6px) / 3);
+}
+
+/* Section headers shown when both Markets and Wagers are displayed together */
+.discovery-section-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 2px 6px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: #FF9966;
+}
+
+.discovery-section-head svg {
+  flex-shrink: 0;
+}
+
+.discovery-list + .discovery-list,
+.discovery-list:not(:first-child) {
+  margin-top: 14px;
+}
+
+.discovery-mode-option {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 0 11px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: color 0.18s ease;
+  white-space: nowrap;
+}
+
+.discovery-mode-option:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.discovery-mode-option.active {
+  color: #0B0B0C;
+}
+
+.discovery-mode-option svg {
+  flex-shrink: 0;
+}
+
+/* When the wagers strip replaces the category tabs, keep the sort selector
+   right-aligned with the rest of the controls and reserve the same row height
+   so the layout doesn't jump on toggle. */
+.discovery-tabs--wagers {
+  justify-content: flex-end;
+  align-items: center;
+  overflow: visible;
+}
+
+.discovery-create-wager {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
+  color: #0B0B0C;
+  font-weight: 900;
+  font-size: 10.5px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(255, 94, 98, 0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.discovery-create-wager:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 10px 22px rgba(255, 94, 98, 0.36);
+}
+
+.discovery-create-wager:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(255, 94, 98, 0.28);
+}
+
+.discovery-sort {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.discovery-sort-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.22);
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.discovery-sort-trigger:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.discovery-sort-label {
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+
+.discovery-sort-value {
+  color: #fff;
+}
+
+.discovery-sort-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  list-style: none;
+  padding: 4px;
+  margin: 0;
+  min-width: 220px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 15, 17, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  z-index: 50;
+}
+
+.discovery-sort-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.discovery-sort-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.discovery-sort-option.active {
+  background: linear-gradient(135deg, rgba(255, 153, 102, 0.18) 0%, rgba(255, 94, 98, 0.18) 100%);
+  color: #fff;
+}
+
+/* ----- Wagers table layout -------------------------------------------- */
+
+.discovery-table-head--wagers {
+  grid-template-columns:
+    minmax(260px, 1.3fr)
+    minmax(260px, 1.4fr)
+    clamp(150px, 14vw, 210px)
+    clamp(80px, 7vw, 100px)
+    clamp(70px, 5.5vw, 80px);
+  gap: clamp(8px, 1vw, 18px);
+}
+
+.discovery-row--wager {
+  display: grid;
+  /* MUST mirror .discovery-table-head--wagers exactly. */
+  grid-template-columns:
+    minmax(260px, 1.3fr)
+    minmax(260px, 1.4fr)
+    clamp(150px, 14vw, 210px)
+    clamp(80px, 7vw, 100px)
+    clamp(70px, 5.5vw, 80px);
+  gap: clamp(8px, 1vw, 18px);
+  align-items: center;
+  width: 100%;
+  border: 1px solid rgba(255, 153, 102, 0.10);
+  background: rgba(255, 153, 102, 0.02);
+  border-radius: 10px;
+  padding: var(--discovery-row-pad-y) var(--discovery-row-pad-x);
+  min-height: var(--discovery-row-height);
+  overflow: visible;
+  isolation: isolate;
+  position: relative;
+  z-index: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.discovery-row--wager:hover {
+  background: rgba(255, 153, 102, 0.04);
+  border-color: rgba(255, 153, 102, 0.18);
+}
+
+.discovery-th--wager-heatmap,
+.discovery-th--wager-pool,
+.discovery-th--wager-expires {
+  text-align: center;
+}
+
+.discovery-td--wager-heatmap {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  justify-content: center;
+}
+
+.discovery-td--wager-expires {
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  text-align: center;
+  justify-content: center;
+}
+
+.discovery-td--wager-pool {
+  justify-content: center;
+}
+
+/* ----- Heatmap of tier prices ----------------------------------------- */
+
+.discovery-heatmap-hint-track {
+  position: relative;
+  width: 100%;
+  height: 18px;
+  margin-top: 2px;
+}
+
+.discovery-heatmap-hint {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.discovery-heatmap-hint.is-preview {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.discovery-heatmap-hint.is-preview .discovery-heatmap-hint-strong {
+  color: #FF9966;
+}
+
+.discovery-heatmap-hint-strong {
+  color: #fff;
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 11px;
+}
+
+.discovery-heatmap-hint-sep {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.discovery-heatmap-hint-fill {
+  color: rgba(255, 153, 102, 0.85);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* =========================================================================
+   Liquidity Strip â€” full 1-99 odds spectrum
+   ========================================================================= */
+
+.liquidity-strip-container {
+  position: relative;
+  width: 100%;
+}
+
+.liquidity-strip {
+  position: relative;
+  width: 100%;
+  height: 52px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: crosshair;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.liquidity-strip-bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 77, 77, 0.06) 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(45, 213, 110, 0.06) 100%
+  );
+}
+
+.liquidity-strip-bar {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  min-height: 4px;
+  border-radius: 2px 2px 0 0;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to top,
+    #ff5e62 0%,
+    #ff7a66 50%,
+    #ff9966 100%
+  );
+  opacity: 0.75;
+  transition: opacity 0.15s ease, filter 0.15s ease, width 0.15s ease;
+}
+
+.liquidity-strip-bar.selected {
+  width: 5px;
+  opacity: 1;
+  filter: brightness(1.3);
+  box-shadow: 0 0 8px rgba(255, 153, 102, 0.6);
+}
+
+.liquidity-strip-bar.nearby {
+  opacity: 1;
+  filter: brightness(1.15);
+  width: 4px;
+}
+
+.liquidity-strip-selected {
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+  border-radius: 1px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.liquidity-strip-cursor {
+  position: absolute;
+  bottom: 0;
+  top: 0;
+  width: 1px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.4);
+  pointer-events: none;
+  z-index: 3;
+}
+
+.liquidity-strip-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.04em;
+  padding: 0 2px;
+}
+
+/* Tooltip on hover */
+.liquidity-strip-tooltip {
+  position: absolute;
+  top: -32px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(12, 12, 14, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.liquidity-tooltip-odds {
+  font-size: 10px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.liquidity-tooltip-vol {
+  font-size: 9px;
+  font-weight: 700;
+  color: #FF9966;
+}
+
+.liquidity-tooltip-nearby {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Fill-or-create choice popover */
+.liquidity-fill-choice {
+  position: absolute;
+  top: -8px;
+  transform: translate(-50%, -100%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(12, 12, 14, 0.97);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 153, 102, 0.3);
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 153, 102, 0.08);
+  z-index: 20;
+  min-width: 180px;
+}
+
+.liquidity-fill-title {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 0 4px 4px;
+}
+
+.liquidity-fill-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.liquidity-fill-option:hover {
+  background: rgba(255, 153, 102, 0.12);
+  border-color: rgba(255, 153, 102, 0.35);
+}
+
+.liquidity-fill-option.liquidity-fill-new {
+  border-color: rgba(255, 255, 255, 0.1);
+  margin-top: 2px;
+}
+
+.liquidity-fill-option.liquidity-fill-new:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.liquidity-fill-odds {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.liquidity-fill-vol {
+  font-size: 9px;
+  font-weight: 700;
+  color: #FF9966;
+  letter-spacing: 0.02em;
+}
+
+.discovery-title-row--wager {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.discovery-pool-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+}
+
+.discovery-pool-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.discovery-pool-main {
+  font-size: calc(var(--discovery-stat-size) + 1px);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.05;
+}
+
+.discovery-pool-sep {
+  font-size: var(--discovery-meta-size);
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 700;
+}
+
+.discovery-pool-goal {
+  font-size: var(--discovery-meta-size);
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 700;
+}
+
+.discovery-pool-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.discovery-pool-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #FF9966 0%, #FF5E62 100%);
+  box-shadow: 0 0 8px rgba(255, 94, 98, 0.35);
+}
+
+.discovery-pool-fill.is-close {
+  background: linear-gradient(90deg, var(--color-green) 0%, #62e699 100%);
+  box-shadow: 0 0 10px rgba(45, 213, 110, 0.4);
+}
+
+.discovery-pool-hint {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: left;
+}
+
+.discovery-empty {
+  padding: 40px 14px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* Wagers responsive table adjustments */
+@media (max-width: 1100px) {
+  .discovery-table-head--wagers,
+  .discovery-row--wager {
+    grid-template-columns:
+      minmax(220px, 1.4fr)
+      minmax(220px, 1.5fr)
+      clamp(140px, 16vw, 200px)
+      clamp(70px, 5.5vw, 80px);
+    gap: clamp(12px, 2vw, 26px);
+  }
+  .discovery-th--wager-expires,
+  .discovery-td--wager-expires {
+    display: none;
+  }
+}
+
+@media (max-width: 820px) {
+  .discovery-table-head--wagers,
+  .discovery-row--wager {
+    grid-template-columns:
+      minmax(180px, 1.4fr)
+      minmax(200px, 1.5fr)
+      clamp(64px, 9vw, 80px);
+    gap: clamp(10px, 1.8vw, 20px);
+  }
+  .discovery-th--wager-pool,
+  .discovery-td--wager-pool {
+    display: none;
+  }
+  .discovery-heatcell-vol {
+    display: none;
+  }
+}

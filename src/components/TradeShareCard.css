@@ -1,0 +1,156 @@
+ .trade-share-card {
+   width: min(460px, 88vw);
+   border-radius: 14px;
+   background: #0B0B0C;
+   border: 1px solid rgba(255, 255, 255, 0.1);
+   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+   overflow: hidden;
+   color: #fff;
+   display: flex;
+   flex-direction: column;
+ }
+ 
+ .trade-share-body {
+   display: grid;
+   grid-template-columns: 96px 1fr;
+   gap: 12px;
+   padding: 12px;
+   align-items: stretch;
+ }
+ 
+ .trade-share-icon {
+   width: 96px;
+   aspect-ratio: 9 / 16;
+   border-radius: 12px;
+   background: rgba(255, 255, 255, 0.06);
+   border: 1px solid rgba(255, 255, 255, 0.1);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   overflow: hidden;
+ }
+ 
+ .trade-share-thumb {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+   background: rgba(0, 0, 0, 0.35);
+ }
+ 
+ .trade-share-thumb--empty {
+   width: 100%;
+   height: 100%;
+ }
+ 
+ .trade-share-right {
+   min-width: 0;
+   display: flex;
+   flex-direction: column;
+   gap: 10px;
+   height: 100%;
+   justify-content: space-between;
+ }
+ 
+ .trade-share-head {
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: 10px;
+   min-width: 0;
+ }
+ 
+ .trade-share-title {
+   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+   font-weight: 800;
+   font-size: 13px;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+ }
+ 
+ .trade-share-side {
+   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+   font-weight: 900;
+   font-size: 12px;
+   letter-spacing: 0.4px;
+   padding: 4px 8px;
+   border-radius: 999px;
+   border: 1px solid rgba(255, 255, 255, 0.12);
+   background: rgba(255, 255, 255, 0.06);
+ }
+ 
+ .trade-share-side.yes {
+   border-color: rgba(45, 213, 110, 0.25);
+   color: #2DD56E;
+ }
+ 
+ .trade-share-side.no {
+   border-color: rgba(255, 77, 77, 0.25);
+   color: #FF4D4D;
+ }
+ 
+ .trade-share-metrics {
+   display: flex;
+   flex-direction: column;
+   gap: 6px;
+ }
+ 
+ .trade-share-pnl {
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+   font-variant-numeric: tabular-nums;
+ }
+ 
+ .trade-share-pnl-usd {
+   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+   font-weight: 900;
+   font-size: 16px;
+ }
+ 
+ .trade-share-pnl-pct {
+   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+   font-weight: 800;
+   font-size: 12px;
+   color: rgba(255, 255, 255, 0.78);
+ }
+ 
+ .trade-share-entryexit {
+   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+   font-variant-numeric: tabular-nums;
+   font-size: 12px;
+   color: rgba(255, 255, 255, 0.82);
+   display: inline-flex;
+   align-items: baseline;
+   gap: 6px;
+   white-space: nowrap;
+ }
+ 
+ .trade-share-entryexit .k {
+   color: rgba(255, 255, 255, 0.48);
+   font-weight: 700;
+   font-size: 11px;
+   letter-spacing: 0.04em;
+   text-transform: uppercase;
+ }
+ 
+ .trade-share-entryexit .v {
+   color: rgba(255, 255, 255, 0.92);
+   font-weight: 800;
+ }
+ 
+ .trade-share-entryexit .arrow {
+   color: rgba(255, 255, 255, 0.38);
+   font-weight: 700;
+   margin: 0 2px;
+ }
+ 
+ .trade-share-chart {
+   flex: 1;
+   min-height: 72px;
+   border-radius: 10px;
+   background: rgba(255, 255, 255, 0.04);
+   border: 1px solid rgba(255, 255, 255, 0.08);
+   overflow: hidden;
+ }
+

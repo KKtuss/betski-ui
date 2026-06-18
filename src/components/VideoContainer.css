@@ -1,0 +1,468 @@
+.video-container-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  container-type: size;
+  isolation: isolate;
+  overflow: hidden;
+  /* Overlay scale is derived from this panel/card container, not viewport size. */
+  --video-gutter: clamp(6px, min(1.8cqw, 1.2cqh), 18px);
+  --video-card-overlap: clamp(34px, min(12cqw, 8cqh), 160px);
+  --video-card-max-width: calc(100cqw - clamp(64px, 14cqw, 120px));
+  --video-card-height-width: calc((100cqh - (2 * var(--video-gutter))) * 9 / 16);
+  --video-visible-card-width: min(var(--video-card-height-width), var(--video-card-max-width));
+  --video-bubble-size: clamp(54px, min(12cqw, 8.2cqh), 74px);
+  --video-action-size: clamp(44px, min(8.8cqw, 6.2cqh), 58px);
+  --video-share-size: clamp(44px, min(8.8cqw, 6.2cqh), 58px);
+  --video-card-edge-inset: clamp(7px, min(1.7cqw, 1.15cqh), 12px);
+  --video-card-left-bias: clamp(16px, min(5cqw, 3.3cqh), 28px);
+  --video-card-bottom-inset: clamp(14px, min(3.2cqw, 2.1cqh), 24px);
+  --video-action-gutter: clamp(48px, min(10.5cqw, 7cqh), 66px);
+  --video-top-control-size: clamp(36px, min(7.4cqw, 5cqh), 46px);
+  --video-edge-offset: clamp(10px, min(3.2cqw, 2.1cqh), 18px);
+  --video-bottom-offset: clamp(10px, min(2.8cqw, 1.9cqh), 18px);
+  --video-overlay-title-font: clamp(15px, min(3.5cqw, 2.3cqh), 18px);
+  --video-overlay-meta-font: clamp(12px, min(2.65cqw, 1.75cqh), 14px);
+  --video-overlay-handle-font: clamp(14px, min(3.1cqw, 2.05cqh), 17px);
+  --video-overlay-avatar-size: clamp(38px, min(8.2cqw, 5.5cqh), 50px);
+  --video-overlay-icon-size: clamp(22px, min(5cqw, 3.4cqh), 30px);
+}
+
+.video-scroller {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  /* Disable scroll snapping for now to let manual JS control handle exact positioning */
+  /* scroll-snap-type: x mandatory; */
+  scroll-behavior: smooth;
+  background-color: transparent; /* Revert to transparent to respect panel styling */
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  padding-block: var(--video-gutter);
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.video-scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.video-scroll-wrapper {
+  display: flex;
+  height: 100%;
+  width: max-content;
+  align-items: center;
+  justify-content: center;
+  padding-left: 8px;
+  box-sizing: border-box;
+  gap: 0;
+}
+
+.video-overlay-info {
+  position: absolute;
+  /* Anchor to the visible 9:16 card, not the wider outer panel. */
+  left: calc(((100cqw - var(--video-visible-card-width)) / 2) + var(--video-card-edge-inset) - var(--video-card-left-bias));
+  right: auto;
+  bottom: calc(var(--video-gutter, 0px) + var(--video-card-bottom-inset));
+  z-index: 50;
+  width: calc(var(--video-visible-card-width) - var(--video-action-gutter) - (var(--video-card-edge-inset) * 2));
+  max-width: calc(var(--video-visible-card-width) - var(--video-action-gutter) - (var(--video-card-edge-inset) * 2));
+  min-width: 0;
+  pointer-events: none;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.creator-profile {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(6px, min(1.8cqw, 1.2cqh), 10px);
+  align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.creator-header {
+  display: flex;
+  align-items: center;
+  gap: clamp(7px, min(2cqw, 1.35cqh), 12px);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.creator-avatar {
+  width: var(--video-overlay-avatar-size);
+  height: var(--video-overlay-avatar-size);
+  border-radius: 50%;
+  overflow: hidden;
+  border: none;
+  flex-shrink: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.creator-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.creator-details {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(2px, min(0.8cqw, 0.5cqh), 4px);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.creator-name {
+  color: #ffffff;
+  font-size: var(--video-overlay-handle-font);
+  font-weight: 800;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+}
+
+.market-description {
+  color: #ffffff;
+  font-size: var(--video-overlay-title-font);
+  line-height: 1.5;
+  margin: 0;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.creator-details .market-description + .market-description {
+  font-size: var(--video-overlay-meta-font) !important;
+  margin-top: clamp(2px, min(0.8cqw, 0.5cqh), 4px) !important;
+  line-height: 1.25;
+  white-space: nowrap;
+  display: block;
+}
+
+.container-controls {
+  position: absolute;
+  right: clamp(4px, min(1.5cqw, 1cqh), 9px);
+  --controls-gap: clamp(12px, min(3cqw, 2cqh), 22px);
+  --controls-button-size: var(--video-bubble-size);
+  top: 42%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--controls-gap);
+  z-index: 100;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.container-controls > * {
+  pointer-events: auto;
+}
+
+/* --- Search Bar --- */
+.video-search-bar {
+  position: absolute;
+  top: var(--video-edge-offset);
+  right: var(--video-edge-offset);
+  width: var(--video-top-control-size); /* Initially collapsed */
+  height: var(--video-top-control-size);
+  z-index: 150;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+}
+
+.video-search-bar:focus-within,
+.video-search-bar:hover {
+  width: min(200px, calc(100cqw - 32px)); /* Expanded width */
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  width: min(200px, calc(100cqw - 32px)); /* Ensure inner content doesn't shrink */
+  height: 100%;
+}
+
+.search-icon-btn {
+  width: var(--video-top-control-size);
+  height: var(--video-top-control-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  outline: none;
+  padding-right: 12px;
+  min-width: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.video-search-bar:focus-within .search-input,
+.video-search-bar:hover .search-input {
+  opacity: 1;
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.action-button {
+  width: var(--controls-button-size);
+  height: var(--controls-button-size);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  overflow: hidden;
+}
+
+.action-button:hover {
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+
+.action-button:active {
+  transform: scale(0.95);
+}
+
+.position-amount {
+  font-size: clamp(13px, min(3.1cqw, 2cqh), 18px);
+  font-weight: 900;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  padding: 0;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.market-action-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2px, min(0.7cqw, 0.45cqh), 4px);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.market-action-side {
+  font-size: clamp(15px, min(3.6cqw, 2.35cqh), 22px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.long-button .market-action-side,
+.long-button .market-action-change {
+  color: #2DD56E;
+}
+
+.short-button .market-action-side,
+.short-button .market-action-change {
+  color: #FF4D4D;
+}
+
+.market-action-price {
+  color: #fff;
+  font-size: clamp(11px, min(2.55cqw, 1.65cqh), 15px);
+  font-weight: 800;
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
+}
+
+.market-action-change {
+  font-size: clamp(7px, min(1.7cqw, 1.1cqh), 9px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.market-action-change.negative {
+  color: #FF4D4D;
+}
+
+.market-action-face--position {
+  gap: 3px;
+}
+
+.market-action-label {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: clamp(8px, min(1.8cqw, 1.15cqh), 10px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.09em;
+}
+
+.long-button {
+  position: relative;
+  background: rgba(7, 48, 27, 0.82);
+  border: 1px solid rgba(45, 213, 110, 0.42);
+  box-shadow: inset 0 0 24px rgba(45, 213, 110, 0.07);
+}
+
+.long-button:hover {
+  background: rgba(9, 61, 33, 0.9);
+}
+
+.short-button {
+  position: relative;
+  background: rgba(57, 13, 13, 0.84);
+  border: 1px solid rgba(255, 77, 77, 0.42);
+  box-shadow: inset 0 0 24px rgba(255, 77, 77, 0.07);
+}
+
+.short-button:hover {
+  background: rgba(72, 16, 16, 0.92);
+}
+
+.share-controls {
+  --controls-gap: clamp(12px, min(3cqw, 2cqh), 22px);
+  --controls-button-size: var(--video-action-size);
+  --share-button-size: var(--video-share-size);
+  position: absolute;
+  top: calc(100% + 12px);
+  right: auto;
+  left: 50%;
+  margin-left: calc(var(--share-button-size) / -2);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.share-controls > * {
+  pointer-events: auto;
+}
+
+.share-icon-button {
+  width: var(--share-button-size);
+  height: var(--share-button-size);
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  opacity: 1;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.65));
+}
+
+.share-icon-button svg,
+.search-icon-btn svg {
+  width: var(--video-overlay-icon-size);
+  height: var(--video-overlay-icon-size);
+}
+
+.share-icon-button:hover {
+  transform: scale(1.06);
+  opacity: 1;
+}
+
+.share-icon-button:active {
+  transform: scale(0.96);
+}
+
+@container (max-width: 430px) {
+  .video-overlay-info,
+  .container-controls,
+  .video-search-bar {
+    --video-bubble-size: clamp(50px, min(13cqw, 8.6cqh), 62px);
+    --video-action-size: clamp(40px, min(9cqw, 6.2cqh), 50px);
+    --video-share-size: clamp(40px, min(9cqw, 6.2cqh), 50px);
+    --video-card-edge-inset: clamp(6px, min(1.7cqw, 1.1cqh), 10px);
+    --video-card-left-bias: clamp(14px, min(5cqw, 3.3cqh), 24px);
+    --video-card-bottom-inset: clamp(12px, min(3cqw, 2cqh), 18px);
+    --video-action-gutter: clamp(44px, min(10.8cqw, 7.2cqh), 58px);
+    --video-top-control-size: clamp(34px, min(8cqw, 5.4cqh), 40px);
+    --video-edge-offset: clamp(8px, min(2.5cqw, 1.7cqh), 12px);
+    --video-bottom-offset: clamp(8px, min(2.4cqw, 1.6cqh), 12px);
+    --video-overlay-title-font: clamp(14px, min(3.5cqw, 2.3cqh), 16px);
+    --video-overlay-meta-font: clamp(11px, min(2.65cqw, 1.75cqh), 13px);
+    --video-overlay-handle-font: clamp(13px, min(3.1cqw, 2.05cqh), 15px);
+    --video-overlay-avatar-size: clamp(36px, min(8.4cqw, 5.6cqh), 42px);
+    --video-overlay-icon-size: clamp(20px, min(5.2cqw, 3.5cqh), 26px);
+  }
+}
+
+@container (min-width: 620px) {
+  .video-overlay-info,
+  .container-controls,
+  .video-search-bar {
+    --video-bubble-size: clamp(66px, min(11cqw, 7.4cqh), 82px);
+    --video-action-size: clamp(52px, min(8.2cqw, 5.8cqh), 64px);
+    --video-share-size: clamp(52px, min(8.2cqw, 5.8cqh), 64px);
+    --video-card-edge-inset: clamp(8px, min(1.45cqw, 1cqh), 13px);
+    --video-card-left-bias: clamp(18px, min(4.2cqw, 2.8cqh), 30px);
+    --video-card-bottom-inset: clamp(16px, min(2.8cqw, 1.9cqh), 26px);
+    --video-action-gutter: clamp(54px, min(9cqw, 6cqh), 72px);
+    --video-top-control-size: clamp(42px, min(6.8cqw, 4.6cqh), 50px);
+    --video-overlay-title-font: clamp(15px, min(2.65cqw, 1.8cqh), 18px);
+    --video-overlay-meta-font: clamp(12px, min(2.15cqw, 1.45cqh), 14px);
+    --video-overlay-handle-font: clamp(14px, min(2.35cqw, 1.6cqh), 17px);
+    --video-overlay-avatar-size: clamp(38px, min(6.3cqw, 4.25cqh), 50px);
+    --video-overlay-icon-size: clamp(24px, min(4.5cqw, 3cqh), 32px);
+  }
+}

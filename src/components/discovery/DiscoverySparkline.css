@@ -1,0 +1,12 @@
+.discovery-sparkline {
+  width: clamp(128px, 8.2vw, 140px);
+  height: clamp(26px, 2.6vh, 29px);
+  margin: 0;
+  transform: none;
+}
+
+.discovery-sparkline-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}

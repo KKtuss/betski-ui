@@ -1,0 +1,121 @@
+.discovery-actions {
+  display: flex;
+  gap: 3px;
+}
+
+.discovery-actions-buttons {
+  display: flex;
+  gap: 3px;
+}
+
+.discovery-trade-feedback {
+  pointer-events: none;
+}
+
+.feedback-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: rgba(20, 20, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 2px 6px;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.36);
+  min-width: 58px;
+}
+
+.feedback-action {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.7px;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+
+.feedback-details {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.feedback-side {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.discovery-trade-feedback.yes .feedback-side { color: var(--color-green); }
+.discovery-trade-feedback.no .feedback-side { color: var(--color-red); }
+
+.feedback-price {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  font-variant-numeric: tabular-nums;
+}
+
+.discovery-action-btn {
+  width: var(--discovery-action-size, 26px);
+  height: var(--discovery-action-size, 26px);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.discovery-action-btn.yes {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+.discovery-action-btn.no {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+}
+
+.discovery-action-btn:hover {
+  border-color: rgba(255, 255, 255, 0.24);
+}
+
+.discovery-action-btn.yes:hover {
+  color: var(--color-green);
+  border-color: var(--color-green);
+  background: rgba(45, 213, 110, 0.08);
+  box-shadow: 0 0 8px rgba(45, 213, 110, 0.18);
+}
+
+.discovery-action-btn.no:hover {
+  color: var(--color-red);
+  border-color: var(--color-red);
+  background: rgba(255, 77, 77, 0.08);
+  box-shadow: 0 0 8px rgba(255, 77, 77, 0.18);
+}
+
+.discovery-action-letter {
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.discovery-action-btn.yes .discovery-action-letter {
+  color: var(--color-green);
+}
+
+.discovery-action-btn.no .discovery-action-letter {
+  color: var(--color-red);
+}
