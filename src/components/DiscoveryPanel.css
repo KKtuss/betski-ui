@@ -1253,3 +1253,36 @@
     display: none;
   }
 }
+
+/* Phone: align the grid to exactly the visible cells so prices/actions never clip. */
+@media (max-width: 900px) {
+  .discovery-table-head,
+  .discovery-row--grid {
+    grid-template-columns:
+      minmax(0, 1fr)            /* market */
+      clamp(40px, 12vw, 58px)   /* sparkline */
+      clamp(52px, 16vw, 72px)   /* price */
+      clamp(38px, 12vw, 52px);  /* actions */
+    gap: clamp(8px, 2.5vw, 14px);
+  }
+
+  .discovery-th--vol,
+  .discovery-td--vol {
+    display: none;
+  }
+
+  .discovery-table-head {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* Wagers: let the wide text columns shrink to fit instead of overflowing. */
+  .discovery-table-head--wagers,
+  .discovery-row--wager {
+    grid-template-columns:
+      minmax(0, 1.4fr)
+      minmax(0, 1.5fr)
+      clamp(56px, 16vw, 80px);
+    gap: clamp(8px, 2.4vw, 16px);
+  }
+}
