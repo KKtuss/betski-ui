@@ -1,5 +1,7 @@
 import { mulberry32 } from '../utils/random'
 import { emitWagerFillNotification } from '../utils/notificationEmitter'
+import { PROFILE_SEEDS, TREND_MARKETS } from './profileRegistry'
+import { tradeRecordsToProfileTrades } from '../utils/tradeHistory'
 
 export type MarketId = string
 
@@ -63,7 +65,7 @@ export type UserProfile = {
 }
 
 export type AppState = {
-  version: 1
+  version: 2
   wallet: { balanceUsd: number }
   positions: Record<MarketId, Position>
   trades: TradeRecord[]
@@ -74,7 +76,8 @@ export type AppState = {
   }
 }
 
-const STORAGE_KEY = 'betski-app-state-viral-markets-2026-06-16'
+const STORAGE_KEY = 'betski-app-state-v2-profiles-2026-06-29'
+const LEGACY_STORAGE_KEY = 'betski-app-state-viral-markets-2026-06-16'
 const CURRENT_USER = 'BenBetski'
 
 const seedFriendTrades = (handle: string, markets: string[]): FriendTrade[] => {
@@ -146,40 +149,22 @@ const seedFriendPositions = (handle: string, markets: string[]): FriendPosition[
     }
   })
 
-const FRIEND_SEEDS: { handle: string; avatar: string; followers: number; following: number; markets: number }[] = [
-  { handle: 'BenBetski', avatar: '/Stems/BetskiPEFFPEE.png', followers: 8420, following: 142, markets: 23 },
-  { handle: 'moggorrr', avatar: '/Stems/moggorrr transparent.png', followers: 12400, following: 89, markets: 31 },
-  { handle: 'epstein', avatar: '/Stems/epstein transparent.png', followers: 3200, following: 210, markets: 12 },
-  { handle: 'MarkDiTob', avatar: '/Stems/moggorrr transparent.png', followers: 5600, following: 178, markets: 19 },
-  { handle: 'DeskWhale', avatar: '/Stems/betskuu.png', followers: 18900, following: 44, markets: 47 },
-  { handle: 'ClipQueen', avatar: '/Stems/betskuu.png', followers: 9100, following: 312, markets: 28 }
-]
-
-const TREND_MARKETS = [
-  'Triple T going 10x virality before EOM ?',
-  'Dah Bih Gahh going 2x in virality in 3 days ?',
-  "D4vd's story having a 3x regain in virality over 2 weeks ?",
-  'Daffy Duck Money Edits going 5x virality in 2 months ?',
-  'Hullo - 25 Dollar Max going 2x virality before EOW ?',
-  'Drooling cat going 10x virality before EOM ?'
-]
-
 export const seedAppState = (): AppState => {
   const users: Record<string, UserProfile> = {}
-  for (const f of FRIEND_SEEDS) {
+  for (const f of PROFILE_SEEDS) {
     users[f.handle] = {
       handle: f.handle,
-      displayName: f.handle,
+      displayName: f.displayName,
       avatar: f.avatar,
       followers: f.followers,
       following: f.following,
       markets: f.markets,
       positions: f.handle === CURRENT_USER ? [] : seedFriendPositions(f.handle, TREND_MARKETS),
-      trades: seedFriendTrades(f.handle, TREND_MARKETS)
+      trades: f.handle === CURRENT_USER ? [] : seedFriendTrades(f.handle, TREND_MARKETS)
     }
   }
   return {
-    version: 1,
+    version: 2,
     wallet: { balanceUsd: 13501 },
     positions: {},
     trades: [],
@@ -191,27 +176,99 @@ export const seedAppState = (): AppState => {
   }
 }
 
+const syncCurrentUserProfile = (state: AppState): AppState => {
+  const profileTrades = tradeRecordsToProfileTrades(state.trades, (id) => ({
+    name: state.positions[id]?.marketName ?? state.trades.find((t) => t.marketId === id)?.marketName
+  }))
+  const friendTrades: FriendTrade[] = profileTrades.map((t) => ({
+    id: t.id,
+    timestamp: t.timestamp,
+    timestampMs: t.timestampMs,
+    market: t.market,
+    side: t.side,
+    price: t.price,
+    sizeUsd: t.sizeUsd,
+    pnlUsd: t.pnlUsd,
+    pairId: t.pairId,
+    outcome: t.outcome
+  }))
+
+  const friendPositions: FriendPosition[] = Object.values(state.positions).map((pos) => ({
+    id: `self-pos-${pos.marketId}`,
+    marketId: pos.marketId,
+    marketName: pos.marketName,
+    side: pos.side === 'long' ? 'YES' : 'NO',
+    fillPrice: pos.avgEntry,
+    heldUsd: Number((pos.shares * pos.avgEntry).toFixed(0)),
+    pnlPct: 0
+  }))
+
+  const base = state.users[CURRENT_USER] ?? seedAppState().users[CURRENT_USER]
+  return {
+    ...state,
+    users: {
+      ...state.users,
+      [CURRENT_USER]: {
+        ...base,
+        positions: friendPositions,
+        trades: friendTrades,
+        markets: Math.max(base.markets, new Set(state.trades.map((t) => t.marketId)).size)
+      }
+    }
+  }
+}
+
 type Listener = () => void
 const listeners = new Set<Listener>()
 
 const notify = () => listeners.forEach((fn) => fn())
 
-/** Stable in-memory snapshot — required for useSyncExternalStore (getSnapshot must not change reference unless data changed). */
 let cachedState: AppState | null = null
+
+const readLegacyState = (): Partial<AppState> | null => {
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = localStorage.getItem(LEGACY_STORAGE_KEY)
+    if (!raw) return null
+    return JSON.parse(raw) as Partial<AppState>
+  } catch {
+    return null
+  }
+}
 
 const hydrateFromStorage = (): AppState => {
   if (typeof window === 'undefined') return seedAppState()
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
+    const legacy = readLegacyState()
     if (!raw) {
-      const state = seedAppState()
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-      return state
+      const seeded = seedAppState()
+      const migrated: AppState = legacy
+        ? {
+            ...seeded,
+            wallet: legacy.wallet ?? seeded.wallet,
+            positions: legacy.positions ?? {},
+            trades: legacy.trades ?? [],
+            ui: { ...seeded.ui, ...legacy.ui }
+          }
+        : seeded
+      const synced = syncCurrentUserProfile(migrated)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(synced))
+      return synced
     }
     const parsed = JSON.parse(raw) as AppState
-    if (parsed?.version !== 1) return seedAppState()
+    if (parsed?.version !== 2) {
+      const seeded = seedAppState()
+      return syncCurrentUserProfile({
+        ...seeded,
+        wallet: parsed.wallet ?? seeded.wallet,
+        positions: parsed.positions ?? {},
+        trades: parsed.trades ?? [],
+        ui: { ...seeded.ui, ...parsed.ui }
+      })
+    }
     const seeded = seedAppState()
-    return {
+    const merged: AppState = {
       ...seeded,
       ...parsed,
       wallet: parsed.wallet ?? seeded.wallet,
@@ -220,6 +277,7 @@ const hydrateFromStorage = (): AppState => {
       users: { ...seeded.users, ...parsed.users },
       ui: { ...seeded.ui, ...parsed.ui }
     }
+    return syncCurrentUserProfile(merged)
   } catch {
     return seedAppState()
   }
@@ -247,7 +305,7 @@ export const saveAppState = (state: AppState): void => {
 export const getAppState = (): AppState => loadAppState()
 
 export const updateAppState = (updater: (prev: AppState) => AppState): AppState => {
-  const next = updater(loadAppState())
+  const next = syncCurrentUserProfile(updater(loadAppState()))
   saveAppState(next)
   return next
 }
@@ -279,30 +337,28 @@ export const executeTrade = (params: ExecuteTradeParams): { ok: boolean; error?:
     const prevAvg = pos?.avgEntry ?? price
     const newShares = prevShares + sharesAmount
     const newAvg = prevShares > 0 ? (prevAvg * prevShares + price * sharesAmount) / newShares : price
-    const next: AppState = {
+    const record: TradeRecord = {
+      id: `trade-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      marketId,
+      marketName,
+      side,
+      action,
+      outcome,
+      price,
+      usdAmount,
+      sharesAmount,
+      timestamp: Date.now(),
+      source
+    }
+    const next: AppState = syncCurrentUserProfile({
       ...state,
       wallet: { balanceUsd: state.wallet.balanceUsd - usdAmount },
       positions: {
         ...state.positions,
         [marketId]: { marketId, marketName, side, shares: newShares, avgEntry: newAvg }
       },
-      trades: [
-        {
-          id: `trade-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-          marketId,
-          marketName,
-          side,
-          action,
-          outcome,
-          price,
-          usdAmount,
-          sharesAmount,
-          timestamp: Date.now(),
-          source
-        },
-        ...state.trades
-      ]
-    }
+      trades: [record, ...state.trades]
+    })
     saveAppState(next)
     if (source === 'wager') {
       emitWagerFillNotification({
@@ -325,27 +381,25 @@ export const executeTrade = (params: ExecuteTradeParams): { ok: boolean; error?:
   if (remaining <= 0.0001) delete nextPositions[marketId]
   else nextPositions[marketId] = { ...pos!, shares: remaining }
 
-  const next: AppState = {
+  const record: TradeRecord = {
+    id: `trade-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    marketId,
+    marketName,
+    side,
+    action,
+    outcome,
+    price,
+    usdAmount: proceeds,
+    sharesAmount: sellShares,
+    timestamp: Date.now(),
+    source
+  }
+  const next: AppState = syncCurrentUserProfile({
     ...state,
     wallet: { balanceUsd: state.wallet.balanceUsd + proceeds },
     positions: nextPositions,
-    trades: [
-      {
-        id: `trade-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        marketId,
-        marketName,
-        side,
-        action,
-        outcome,
-        price,
-        usdAmount: proceeds,
-        sharesAmount: sellShares,
-        timestamp: Date.now(),
-        source
-      },
-      ...state.trades
-    ]
-  }
+    trades: [record, ...state.trades]
+  })
   saveAppState(next)
   return { ok: true }
 }
@@ -362,3 +416,5 @@ export const getPositionForMarket = (marketId: MarketId): Position | undefined =
   loadAppState().positions[marketId]
 
 export const getWalletBalance = (): number => loadAppState().wallet.balanceUsd
+
+export const getUserProfile = (handle: string): UserProfile | undefined => loadAppState().users[handle]

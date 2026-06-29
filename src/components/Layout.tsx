@@ -23,6 +23,7 @@ import { useHashNavigation } from '../hooks/useHashNavigation'
 import { useHomeMobileLayout } from '../hooks/useHomeMobileLayout'
 import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
 import { useNotificationWatcher } from '../hooks/useNotificationWatcher'
+import { useSocialStore } from '../hooks/useSocialStore'
 import {
   executeTrade,
   setSelectedMarketId,
@@ -39,12 +40,14 @@ import { buildShareMarket } from '../utils/buildShareMarket'
 import { consensusYesFromOpenBets, getWagerFills } from '../utils/wagerFills'
 import { parseNotificationTargetRoute } from '../utils/notificationEmitter'
 import type { AppNotification } from '../types/notifications'
+import { addDmChat, hasUnreadMessages, markChatRead } from '../data/socialStore'
 import { RECENT_TRADES_MAX } from '../constants/layout'
 import './Layout.css'
 
 const Layout = () => {
   const appState = useAppStore()
   const discoveryCatalog = useDiscoveryCatalog()
+  const socialState = useSocialStore()
   const { route, navigate } = useHashNavigation()
   useNotificationWatcher()
 
@@ -181,84 +184,15 @@ const Layout = () => {
     navigate({ type: 'main', marketId: selectedMarketId })
   }, [])
 
-  const [chats, setChats] = useState([
-    {
-      id: 'group-1',
-      kind: 'group' as const,
-      title: 'Betskiing',
-      subtitle: 'lets go lets go lets go',
-      unreadCount: 2,
-      verified: true,
-      online: true,
-      members: ['/Stems/BetskiPEFFPEE.png', '/Stems/moggorrr transparent.png', '/Stems/epstein transparent.png']
-    },
-    {
-      id: 'dm-1',
-      kind: 'dm' as const,
-      title: 'MarkDiTob',
-      subtitle: 'got fills?',
-      unreadCount: 0,
-      online: true,
-      avatar: '/Stems/moggorrr transparent.png'
-    },
-    {
-      id: 'dm-3',
-      kind: 'dm' as const,
-      title: 'BenBetski',
-      subtitle: 'Betski',
-      unreadCount: 1,
-      avatar: '/Stems/BetskiPEFFPEE.png'
-    },
-    {
-      id: 'dm-4',
-      kind: 'dm' as const,
-      title: 'CryptoKiwi',
-      subtitle: 'same',
-      unreadCount: 0,
-      avatar: '/Stems/epstein transparent.png'
-    },
-    {
-      id: 'group-2',
-      kind: 'group' as const,
-      title: 'Alpha Chat',
-      subtitle: 'New batch just dropped',
-      unreadCount: 0,
-      members: ['/Stems/BetskiPEFFPEE.png', '/Stems/betskuu.png']
-    },
-    {
-      id: 'sys-1',
-      kind: 'system' as const,
-      title: 'News Flow',
-      subtitle: 'D4vd batch trending +18%',
-      unreadCount: 0,
-      systemIcon: 'news' as const
-    },
-    {
-      id: 'sys-2',
-      kind: 'system' as const,
-      title: 'Watchlist Alerts',
-      subtitle: '2 markets near resolution',
-      unreadCount: 1,
-      systemIcon: 'alerts' as const
-    }
-  ])
+  const chats = socialState.chats
 
-  const addFriendChat = (handle: string) => {
-    const trimmed = handle.trim()
-    const title = trimmed.startsWith('@') ? trimmed : `@${trimmed}`
-    const chatId = `dm-${Date.now()}`
-    setChats((prev) => [
-      { id: chatId, kind: 'dm' as const, title, subtitle: 'Say hi 👋', unreadCount: 0, avatar: '/Stems/betskuu.png' },
-      ...prev
-    ])
-    return chatId
-  }
+  const addFriendChat = (handle: string) => addDmChat(handle)
 
   const handleChatRead = (chatId: string) => {
-    setChats((prev) => prev.map((c) => (c.id === chatId ? { ...c, unreadCount: 0 } : c)))
+    markChatRead(chatId)
   }
 
-  const hasUnreadMessages = chats.some((c) => c.unreadCount > 0)
+  const hasUnreadMessagesFlag = hasUnreadMessages()
 
   const effectiveMarketId =
     activeMode === 'long' || activeMode === 'short'
@@ -527,7 +461,11 @@ const Layout = () => {
             )
           }
         }}
-        shareTargets={chats.filter((c) => c.kind === 'dm' || c.kind === 'group')}
+        shareTargets={chats.filter((c) => c.kind === 'dm' || c.kind === 'group') as Array<{
+          id: string
+          kind: 'dm' | 'group'
+          title: string
+        }>}
         onShareToChat={(chatId) => {
           setSocialsInitialChatId(chatId)
           setPendingShare({
@@ -741,7 +679,7 @@ const Layout = () => {
                 ? 'tab3'
                 : 'tab4'
         }
-        hasUnreadMessages={hasUnreadMessages}
+        hasUnreadMessages={hasUnreadMessagesFlag}
         onTabClick={(tabId) => {
           setMobileSheetOpen(false)
           if (tabId === 'tab1') {

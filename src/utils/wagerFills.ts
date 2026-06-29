@@ -1,18 +1,22 @@
 import type { OpenBet, SelectedLineFill, Wager, WagerFill } from '../types/discovery'
 import type { TradeRecord } from '../data/appStore'
 import { CURRENT_USER_HANDLE } from '../data/appStore'
+import { PROFILE_AVATARS } from '../data/profileRegistry'
 import { mulberry32 } from './random'
 
-const FILL_AVATARS: Record<string, string> = {
-  BenBetski: '/Stems/BetskiPEFFPEE.png',
-  moggorrr: '/Stems/moggorrr transparent.png',
-  epstein: '/Stems/epstein transparent.png',
-  MarkDiTob: '/Stems/moggorrr transparent.png',
-  DeskWhale: '/Stems/betskuu.png',
-  ClipQueen: '/Stems/betskuu.png'
-}
-
-const FILL_HANDLES = ['moggorrr', 'MarkDiTob', 'DeskWhale', 'ClipQueen', 'epstein', 'BenBetski']
+const FILL_HANDLES = [
+  'moggorrr',
+  'MarkDiTob',
+  'DeskWhale',
+  'ClipQueen',
+  'epstein',
+  'BenBetski',
+  'CryptoKiwi',
+  'NovaTape',
+  'ViralVince',
+  'ChartChad',
+  'LootLord'
+]
 
 /** Seed plausible fills from aggregated open bets when no ledger exists yet. */
 export const synthesizeWagerFills = (wager: Wager): WagerFill[] => {
@@ -59,7 +63,7 @@ export const synthesizeWagerFills = (wager: Wager): WagerFill[] => {
       fills.push({
         id: `${wager.id}-seed-${fillIdx++}`,
         handle,
-        avatar: FILL_AVATARS[handle],
+        avatar: PROFILE_AVATARS[handle],
         side,
         yesOdds: bet.yesOdds,
         usdAmount,
@@ -77,7 +81,7 @@ export const getWagerFills = (wager: Wager, userTrades: TradeRecord[]): WagerFil
     .map((t) => ({
       id: t.id,
       handle: CURRENT_USER_HANDLE,
-      avatar: FILL_AVATARS[CURRENT_USER_HANDLE],
+      avatar: PROFILE_AVATARS[CURRENT_USER_HANDLE],
       side: t.outcome,
       yesOdds: Math.round(t.price * 100),
       usdAmount: Math.round(t.usdAmount),
