@@ -562,3 +562,58 @@
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 900px) {
+  /* Phone: stack every section into one scrolling column (no 3-col overflow). */
+  .profile-content {
+    padding: 12px;
+  }
+
+  .profile-grid {
+    display: flex;
+    flex-direction: column;
+    /* Grow with content and let .profile-content scroll, instead of being
+       height-constrained (which made zero-min-height sections collapse). */
+    height: auto;
+    min-height: 0;
+    gap: 12px;
+  }
+
+  /* Never let a section shrink below its content on phone. */
+  .profile-grid > * {
+    flex: 0 0 auto;
+  }
+
+  .profile-left-stack {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .profile-card,
+  .profile-mini-stats {
+    flex: 1 1 150px;
+    width: auto;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .profile-card {
+    aspect-ratio: auto;
+    min-height: 170px;
+  }
+
+  .profile-charts {
+    min-height: 280px;
+  }
+
+  .profile-last-trades {
+    min-height: 260px;
+    max-height: 70vh;
+  }
+
+  .profile-side-panel {
+    min-height: 200px;
+  }
+}

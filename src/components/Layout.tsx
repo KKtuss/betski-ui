@@ -8,6 +8,7 @@ import type { Trade } from '../types/trading'
 import WagerHeatmapPanel from './WagerHeatmapPanel'
 import WagerLiquidityPanel from './WagerLiquidityPanel'
 import BottomBar from './BottomBar'
+import MobileTradeSheet from './MobileTradeSheet'
 import SocialsPanel from './SocialsPanel'
 import DiscoveryPanel from './DiscoveryPanel'
 import { CreateWagerView } from './discovery/CreateWagerView'
@@ -53,6 +54,7 @@ const Layout = () => {
   const [createWagerOpen, setCreateWagerOpen] = useState(false)
   const [pendingWager, setPendingWager] = useState<Wager | null>(null)
   const [homeFeedOpen, setHomeFeedOpen] = useState(false)
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false)
   const homeMobileLayout = useHomeMobileLayout()
   const [homeFeedSide, setHomeFeedSide] = useState<'left' | 'right'>('left')
   const [activeMode, setActiveMode] = useState<'orderbook' | 'long' | 'short' | 'share'>('orderbook')
@@ -236,6 +238,13 @@ const Layout = () => {
   const openTrade = (mode: 'long' | 'short') => {
     setTradeMarketId(selectedMarketId)
     setActiveMode(mode)
+    if (homeMobileLayout) setMobileSheetOpen(true)
+  }
+
+  const closeMobileSheet = () => {
+    setMobileSheetOpen(false)
+    setActiveMode('orderbook')
+    setTradeMarketId(null)
   }
 
   const longPos = appState.positions[selectedMarketId]?.side === 'long' ? appState.positions[selectedMarketId] : undefined
@@ -363,6 +372,7 @@ const Layout = () => {
           onShareClick={() => {
             setActiveMode('share')
             setTradeMarketId(null)
+            if (homeMobileLayout) setMobileSheetOpen(true)
           }}
           requestedIndex={requestedPreviewIndex}
           onRequestedIndexHandled={() => setRequestedPreviewIndex(null)}
@@ -439,12 +449,21 @@ const Layout = () => {
       />
     )
 
+  const mobileActivityBlock = (
+    <OrderbookPanel
+      activeMode="orderbook"
+      currentPrice={livePrice / 100}
+      recentTrades={liveTrades}
+      walletBalance={appState.wallet.balanceUsd}
+    />
+  )
+
   const showHomeMobileFull = activeTab === 'main' && homeFeedOpen && homeMobileLayout
   const isMobileMain = activeTab === 'main' && homeMobileLayout && !showHomeMobileFull
 
   return (
     <motion.div
-      className={`layout${homeMobileLayout ? ' layout--mobile' : ''}`}
+      className={`layout${homeMobileLayout ? ' layout--mobile' : ''}${isMobileMain ? ' layout--mobile-main' : ''}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
@@ -468,36 +487,6 @@ const Layout = () => {
         >
           <section className="mobile-video-section" aria-label="Market video">
             {videoBlock}
-          </section>
-
-          <section className="mobile-section mobile-section--market" aria-label="Market details">
-            <div className="mobile-section-header">
-              <span className="mobile-section-kicker">Market</span>
-              <span className="mobile-section-title">{selectedMarket.name}</span>
-            </div>
-            <div className="mobile-panel-stack">{chartsRulesBlock}</div>
-          </section>
-
-          <section className="mobile-section mobile-section--trade" aria-label="Trading">
-            <div className="mobile-section-header">
-              <span className="mobile-section-kicker">
-                {activeMode === 'long' || activeMode === 'short' ? 'Trade' : activeMode === 'share' ? 'Share' : 'Activity'}
-              </span>
-              <span className="mobile-section-title">
-                {activeMode === 'long'
-                  ? isWagerMarket
-                    ? 'Buy YES'
-                    : 'Long'
-                  : activeMode === 'short'
-                    ? isWagerMarket
-                      ? 'Buy NO'
-                      : 'Short'
-                    : activeMode === 'share'
-                      ? 'Send this market'
-                      : 'Recent trades'}
-              </span>
-            </div>
-            <div className="mobile-panel-stack">{orderbookBlock}</div>
           </section>
         </motion.main>
       ) : activeTab === 'main' ? (
@@ -618,6 +607,18 @@ const Layout = () => {
         />
       </div>
 
+      {isMobileMain && (
+        <MobileTradeSheet
+          open={mobileSheetOpen}
+          initialPage={1}
+          onClose={closeMobileSheet}
+          tradeLabel={isWagerMarket ? (activeMode === 'short' ? 'Buy NO' : 'Buy YES') : activeMode === 'short' ? 'Short' : 'Long'}
+          rules={chartsRulesBlock}
+          trade={orderbookBlock}
+          activity={mobileActivityBlock}
+        />
+      )}
+
       <BottomBar
         currentTab={
           activeTab === 'main'
@@ -630,6 +631,7 @@ const Layout = () => {
         }
         hasUnreadMessages={hasUnreadMessages}
         onTabClick={(tabId) => {
+          setMobileSheetOpen(false)
           if (tabId === 'tab1') {
             setActiveTab('main')
             setHomeFeedOpen((prev) => !prev)

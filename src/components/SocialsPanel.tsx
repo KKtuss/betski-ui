@@ -95,6 +95,7 @@ const SocialsPanel = ({ onBack, chats: providedChats, shareMarket, initialActive
   const handledPendingShareTradeKeyRef = useRef<string | null>(null)
   const [addFriendOpen, setAddFriendOpen] = useState(false)
   const [addFriendHandle, setAddFriendHandle] = useState('')
+  const [mobileChatOpen, setMobileChatOpen] = useState(false)
 
   useEffect(() => {
     if (activeChatId) {
@@ -146,6 +147,7 @@ const SocialsPanel = ({ onBack, chats: providedChats, shareMarket, initialActive
     handledPendingShareKeyRef.current = pendingShare.key
     const targetChat = chats.find(c => c.id === pendingShare.chatId)
     setActiveChatId(pendingShare.chatId)
+    setMobileChatOpen(true)
     setMessages(prev => ([
       ...prev,
       {
@@ -167,6 +169,7 @@ const SocialsPanel = ({ onBack, chats: providedChats, shareMarket, initialActive
     handledPendingShareTextKeyRef.current = pendingShareText.key
     const targetChat = chats.find(c => c.id === pendingShareText.chatId)
     setActiveChatId(pendingShareText.chatId)
+    setMobileChatOpen(true)
     setMessages(prev => ([
       ...prev,
       {
@@ -188,6 +191,7 @@ const SocialsPanel = ({ onBack, chats: providedChats, shareMarket, initialActive
     handledPendingShareTradeKeyRef.current = pendingShareTrade.key
     const targetChat = chats.find(c => c.id === pendingShareTrade.chatId)
     setActiveChatId(pendingShareTrade.chatId)
+    setMobileChatOpen(true)
     setMessages(prev => ([
       ...prev,
       {
@@ -329,7 +333,7 @@ const SocialsPanel = ({ onBack, chats: providedChats, shareMarket, initialActive
         </div>
       )}
 
-      <div className="socials-body">
+      <div className={`socials-body${mobileChatOpen ? ' show-chat' : ''}`}>
         <div className="socials-left">
           <div className="socials-search">
             <Search size={16} />
@@ -346,7 +350,10 @@ const SocialsPanel = ({ onBack, chats: providedChats, shareMarket, initialActive
                 key={chat.id}
                 type="button"
                 className={`socials-chat ${chat.id === activeChat.id ? 'active' : ''}`}
-                onClick={() => setActiveChatId(chat.id)}
+                onClick={() => {
+                  setActiveChatId(chat.id)
+                  setMobileChatOpen(true)
+                }}
               >
                 <div className={`socials-chat-avatar ${(chat.kind === 'group' || chat.avatar) ? 'has-image' : ''}`}>
                   {chat.kind === 'group' ? (
@@ -377,6 +384,14 @@ const SocialsPanel = ({ onBack, chats: providedChats, shareMarket, initialActive
 
         <div className="socials-right">
           <div className="socials-chat-header">
+            <button
+              type="button"
+              className="socials-chat-back"
+              onClick={() => setMobileChatOpen(false)}
+              aria-label="Back to chats"
+            >
+              <ArrowLeft size={18} />
+            </button>
             <button
               type="button"
               className={`socials-chat-header-profile${activeChat.kind === 'dm' ? ' is-clickable' : ''}`}
