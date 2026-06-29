@@ -320,24 +320,31 @@ function normalizePreview(preview: BatchPreviewItem): { preview: BatchPreviewIte
 }
 
 async function repairStaleCachedPreview(preview: BatchPreviewItem): Promise<BatchPreviewItem | null> {
-  if (!preview.thumbnailUrl.startsWith('/cache/thumbnails/')) return null
-
-  try {
-    const res = await fetch(preview.thumbnailUrl, { method: 'HEAD', signal: AbortSignal.timeout(5000) })
-    if (res.ok) return null
-  } catch {
-    // stale cache path — repair below
-  }
-
+  const thumb = preview.thumbnailUrl
   const sourceUrl = preview.sourceUrl?.trim()
-  if (sourceUrl) {
-    const thumb = await resolveThumbForSource(sourceUrl)
-    if (thumb && !isPlaceholderThumbnail(thumb)) {
-      return { ...preview, thumbnailUrl: thumb }
+  const needsVerify =
+    thumb.startsWith('/cache/thumbnails/') || thumb.startsWith('/api/thumbnail-proxy')
+
+  if (needsVerify) {
+    try {
+      const res = await fetch(thumb, { method: 'HEAD', signal: AbortSignal.timeout(8000) })
+      const type = res.headers.get('content-type') ?? ''
+      if (res.ok && type.startsWith('image/')) return null
+    } catch {
+      // stale or unreachable — repair below
     }
+
+    if (sourceUrl) {
+      const resolved = await resolveThumbForSource(sourceUrl)
+      if (resolved && !isPlaceholderThumbnail(resolved)) {
+        return { ...preview, thumbnailUrl: resolved }
+      }
+    }
+
+    return { ...preview, thumbnailUrl: PLACEHOLDER_THUMB }
   }
 
-  return { ...preview, thumbnailUrl: PLACEHOLDER_THUMB }
+  return null
 }
 
 async function hydratePreviews(
@@ -398,11 +405,13 @@ const failedRepairs = new Set<string>()
 
 function catalogHasMissingThumbs(catalog: DiscoveryCatalog): boolean {
   const check = (previews: BatchPreviewItem[]) =>
-    previews.some(
-      (p) =>
-        p.thumbnailUrl.startsWith('/cache/thumbnails/') ||
-        Boolean(p.sourceUrl?.trim() && isPlaceholderThumbnail(p.thumbnailUrl))
-    )
+    previews.some((p) => {
+      if (!p.sourceUrl?.trim()) return false
+      if (isPlaceholderThumbnail(p.thumbnailUrl)) return true
+      if (p.thumbnailUrl.startsWith('/cache/thumbnails/')) return true
+      if (p.thumbnailUrl.startsWith('/api/thumbnail-proxy')) return true
+      return false
+    })
   return catalog.batches.some((b) => check(b.previews)) || catalog.wagers.some((w) => check(w.previews))
 }
 

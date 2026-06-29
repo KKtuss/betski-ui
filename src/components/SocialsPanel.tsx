@@ -295,8 +295,8 @@ const SocialsPanel = ({ onBack, chats: providedChats, shareMarket, initialActive
             type="button"
             className="socials-header-btn"
             onClick={() => setAddFriendOpen(true)}
-            aria-label="Add friend"
-            title="Add friend"
+            aria-label="Add friendski"
+            title="Add friendski"
           >
             <UserPlus size={18} />
           </button>
@@ -305,9 +305,9 @@ const SocialsPanel = ({ onBack, chats: providedChats, shareMarket, initialActive
 
       {addFriendOpen && (
         <div className="socials-modal-backdrop" role="presentation" onClick={() => setAddFriendOpen(false)}>
-          <div className="socials-modal" role="dialog" aria-modal="true" aria-label="Add friend" onClick={(e) => e.stopPropagation()}>
+          <div className="socials-modal" role="dialog" aria-modal="true" aria-label="Add friendski" onClick={(e) => e.stopPropagation()}>
             <div className="socials-modal-head">
-              <div className="socials-modal-title">Add friend</div>
+              <div className="socials-modal-title">Add friendski</div>
               <button type="button" className="socials-modal-close" onClick={() => setAddFriendOpen(false)} aria-label="Close">
                 <X size={18} />
               </button>

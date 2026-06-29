@@ -212,7 +212,7 @@ const WagerHeatmapPanel = ({
                 <div className="wager-line-note">
                   {lineFills.length === 0
                     ? 'No opponents at this line yet'
-                    : `Partial coverage · ${friendCountAtLine} friends · ${lineFills.length} open opponents`}
+                    : `Partial coverage · ${friendCountAtLine} friendskis · ${lineFills.length} open opponents`}
                 </div>
               </div>
             </motion.div>

@@ -66,7 +66,7 @@ export const FriendBuysChip = ({
           onMouseEnter={() => setOpen(true)}
           onMouseLeave={handleClose}
         >
-          <div className="discovery-friends-popover-head">Friends in this market</div>
+          <div className="discovery-friends-popover-head">Friendskis in this market</div>
           <ul className="discovery-friends-list">
             {buys.map((f, i) => (
               <li key={`${f.handle}-row-${i}`} className="discovery-friends-row">
@@ -114,7 +114,7 @@ export const FriendBuysChip = ({
       className="discovery-friends"
       tabIndex={0}
       role="group"
-      aria-label={`${buys.length} friends bought this market`}
+      aria-label={`${buys.length} friendskis bought this market`}
       onMouseEnter={handleOpen}
       onMouseLeave={handleClose}
       onFocus={handleOpen}
@@ -143,7 +143,7 @@ export const FriendBuysChip = ({
         )}
       </div>
       <span className="discovery-friends-label">
-        {buys.length === 1 ? '1 friend bought' : `${buys.length} friends bought`}
+        {buys.length === 1 ? '1 friendski bought' : `${buys.length} friendskis bought`}
       </span>
       {popover}
     </div>

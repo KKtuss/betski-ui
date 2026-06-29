@@ -424,7 +424,7 @@ const linkPreviewMiddleware: Connect.NextHandleFunction = async (req, res, next)
   }
 }
 
-async function fetchThumbnailBuffer(imgUrl: string): Promise<{ buffer: Buffer; contentType: string } | null> {
+export async function fetchThumbnailBuffer(imgUrl: string): Promise<{ buffer: Buffer; contentType: string } | null> {
   const parsed = new URL(imgUrl)
   if (!['http:', 'https:'].includes(parsed.protocol)) return null
 
