@@ -48,6 +48,7 @@
 .socials-header-btn,
 .socials-icon-btn,
 .socials-compose-add,
+.socials-send,
 .socials-trade-context-close {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
@@ -70,7 +71,8 @@
 .socials-back:hover,
 .socials-header-btn:hover,
 .socials-icon-btn:hover,
-.socials-compose-add:hover {
+.socials-compose-add:hover,
+.socials-send:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.12);
 }
@@ -638,6 +640,7 @@
 
 .socials-message.other {
   justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .socials-msg-avatar {
@@ -654,6 +657,7 @@
   flex-direction: column;
   align-items: flex-start;
   max-width: min(520px, 78%);
+  min-width: 0;
 }
 
 .socials-message.me .socials-message-stack {
@@ -707,7 +711,9 @@
 }
 
 .socials-embed {
-  max-width: min(460px, 92%);
+  width: 100%;
+  max-width: min(460px, 100%);
+  min-width: 0;
 }
 
 .socials-compose {
@@ -745,54 +751,23 @@
   color: rgba(255, 255, 255, 0.35);
 }
 
-.socials-quick-trades {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.socials-quick-trade {
-  height: 32px;
-  padding: 0 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-  font-size: 10px;
-  font-weight: 800;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.socials-quick-trade--yes {
-  color: #2dd56e;
-  border-color: rgba(45, 213, 110, 0.24);
-  background: rgba(45, 213, 110, 0.08);
-}
-
-.socials-quick-trade--no {
-  color: #ff6b6b;
-  border-color: rgba(255, 77, 77, 0.24);
-  background: rgba(255, 77, 77, 0.08);
-}
-
 .socials-send {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: none;
-  background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   flex-shrink: 0;
-  box-shadow: 0 4px 14px rgba(255, 94, 98, 0.35);
+  color: #ff9966;
 }
 
-.socials-send:hover {
-  filter: brightness(1.06);
+.socials-send:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.socials-send:not(:disabled):hover {
+  color: #ffb088;
+  border-color: rgba(255, 153, 102, 0.28);
+  background: rgba(255, 153, 102, 0.08);
 }
 
 .socials-chat-back {
@@ -939,27 +914,8 @@
     padding-top: 8px;
   }
 
-  .socials-quick-trades {
-    order: 3;
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .socials-compose {
-    flex-wrap: wrap;
-  }
-
   .socials-compose input {
-    flex: 1 1 calc(100% - 96px);
-    order: 1;
-  }
-
-  .socials-compose-add {
-    order: 0;
-  }
-
-  .socials-send {
-    order: 2;
+    flex: 1 1 auto;
   }
 
   .socials-snapshot-grid {
@@ -976,6 +932,21 @@
 
   .socials-message-stack {
     max-width: min(520px, 86%);
+    min-width: 0;
+  }
+
+  .socials-message.other:has(.socials-embed) .socials-message-stack {
+    flex: 1;
+    max-width: calc(100% - 36px);
+  }
+
+  .socials-message.me:has(.socials-embed) .socials-message-stack {
+    flex: 1;
+    max-width: 100%;
+  }
+
+  .socials-embed {
+    max-width: 100%;
   }
 }
 

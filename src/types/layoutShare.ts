@@ -7,6 +7,7 @@ export type ShareMarketPayload = {
   timeLeftLabel: string
   thumbnailVideoUrl?: string
   thumbnailFallbackSrc?: string
+  thumbnailUrls?: string[]
   volume24h?: number
   holders?: number
   winRate?: number

@@ -55,6 +55,7 @@ interface Message {
     timeLeftLabel: string
     thumbnailVideoUrl?: string
     thumbnailFallbackSrc?: string
+    thumbnailUrls?: string[]
     volume24h?: number
     holders?: number
     winRate?: number
@@ -86,6 +87,7 @@ interface SocialsPanelProps {
     timeLeftLabel: string
     thumbnailVideoUrl?: string
     thumbnailFallbackSrc?: string
+    thumbnailUrls?: string[]
     volume24h?: number
     holders?: number
     winRate?: number
@@ -412,8 +414,6 @@ const SocialsPanel = ({
     return { ...DEFAULT_TRADE_CONTEXT }
   }, [activeMessages, shareMarket])
 
-  const quickTradeLabel = tradeContextMarket.title.split(' ')[0] || 'Market'
-
   const sendMessage = (textOverride?: string) => {
     const text = (textOverride ?? draft).trim()
     if (!text) return
@@ -720,6 +720,7 @@ const SocialsPanel = ({
                         <MarketShareCard
                           thumbnailVideoUrl={marketView.thumbnailVideoUrl}
                           thumbnailFallbackSrc={marketView.thumbnailFallbackSrc}
+                          thumbnailUrls={marketView.thumbnailUrls}
                           title={marketView.title || 'Market'}
                           yesOdds={marketView.yesOdds ?? 50}
                           chart={marketView.chart ?? []}
@@ -772,23 +773,13 @@ const SocialsPanel = ({
                 if (e.key === 'Enter') sendMessage()
               }}
             />
-            <div className="socials-quick-trades">
-              <button
-                type="button"
-                className="socials-quick-trade socials-quick-trade--yes"
-                onClick={() => sendMessage(`${quickTradeLabel} YES @ ${tradeContextMarket.yesOdds.toFixed(2)}¢`)}
-              >
-                {quickTradeLabel} YES {tradeContextMarket.yesOdds.toFixed(2)}¢
-              </button>
-              <button
-                type="button"
-                className="socials-quick-trade socials-quick-trade--no"
-                onClick={() => sendMessage(`${quickTradeLabel} NO @ ${tradeContextMarket.noOdds.toFixed(2)}¢`)}
-              >
-                {quickTradeLabel} NO {tradeContextMarket.noOdds.toFixed(2)}¢
-              </button>
-            </div>
-            <button type="button" onClick={() => sendMessage()} className="socials-send" aria-label="Send">
+            <button
+              type="button"
+              onClick={() => sendMessage()}
+              className="socials-send"
+              aria-label="Send"
+              disabled={!draft.trim()}
+            >
               <Send size={16} />
             </button>
           </div>

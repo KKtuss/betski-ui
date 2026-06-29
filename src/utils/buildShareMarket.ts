@@ -27,6 +27,9 @@ export const buildShareMarket = (params: {
     timeLeftLabel: selectedMarket.timeLeftLabel,
     thumbnailVideoUrl: selectedMarket.previews[0]?.videoUrl ?? selectedMarket.legacyVideoUrl,
     thumbnailFallbackSrc: selectedMarket.previews[0]?.thumbnailUrl ?? '/Stems/betskuu.png',
+    thumbnailUrls: selectedMarket.previews
+      .slice(0, 3)
+      .map((preview) => preview.thumbnailUrl ?? '/Stems/betskuu.png'),
     volume24h: selectedMarket.volume24h,
     holders: selectedMarket.holders,
     winRate: batch?.top10WinRate ?? 76,

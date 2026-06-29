@@ -11,6 +11,7 @@ export type ResolvedMarketShare = {
   timeLeftLabel: string
   thumbnailVideoUrl?: string
   thumbnailFallbackSrc?: string
+  thumbnailUrls: string[]
   volume24h: number
   holders: number
   winRate: number
@@ -34,6 +35,9 @@ export const resolveMarketShareData = (marketId: string): ResolvedMarketShare | 
     timeLeftLabel: market.timeLeftLabel,
     thumbnailVideoUrl: market.previews[0]?.videoUrl,
     thumbnailFallbackSrc: market.previews[0]?.thumbnailUrl ?? '/Stems/betskuu.png',
+    thumbnailUrls: market.previews
+      .slice(0, 3)
+      .map((preview) => preview.thumbnailUrl ?? '/Stems/betskuu.png'),
     volume24h: market.volume24h,
     holders: market.holders,
     winRate: batch?.top10WinRate ?? 76
