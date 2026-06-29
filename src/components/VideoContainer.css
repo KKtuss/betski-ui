@@ -68,8 +68,8 @@
   right: auto;
   bottom: calc(var(--video-gutter, 0px) + var(--video-card-bottom-inset));
   z-index: 50;
-  width: calc(var(--video-visible-card-width) - var(--video-action-gutter) - (var(--video-card-edge-inset) * 2));
-  max-width: calc(var(--video-visible-card-width) - var(--video-action-gutter) - (var(--video-card-edge-inset) * 2));
+  width: calc(var(--video-visible-card-width) - var(--video-action-gutter) - (var(--video-card-edge-inset) * 2) - clamp(20px, min(4cqw, 2.5cqh), 32px));
+  max-width: calc(var(--video-visible-card-width) - var(--video-action-gutter) - (var(--video-card-edge-inset) * 2) - clamp(20px, min(4cqw, 2.5cqh), 32px));
   min-width: 0;
   pointer-events: none;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
@@ -408,6 +408,39 @@
   transition: transform 0.15s ease, opacity 0.15s ease;
   opacity: 1;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.65));
+}
+
+.sound-toggle-button {
+  width: var(--share-button-size);
+  height: var(--share-button-size);
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: transform 0.15s ease, opacity 0.15s ease, color 0.15s ease;
+  opacity: 1;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.65));
+  margin-top: 8px;
+}
+
+.sound-toggle-button:hover {
+  transform: scale(1.06);
+  opacity: 1;
+  color: rgba(255, 255, 255, 1);
+}
+
+.sound-toggle-button:active {
+  transform: scale(0.96);
+}
+
+.sound-toggle-button.active {
+  color: rgba(255, 255, 255, 1);
 }
 
 .share-icon-button svg,

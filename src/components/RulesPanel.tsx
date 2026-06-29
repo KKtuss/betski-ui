@@ -53,7 +53,6 @@ const RulesPanel = ({
 
   const defaultRules = [
     { label: 'Resolution', value: 'never' },
-    { label: 'Virality score', value: 'yes' },
     { label: 'Liquidity', value: 'approximately' },
     { label: 'Volume (24h)', value: '$12.4K' }
   ]
@@ -188,7 +187,7 @@ const RulesPanel = ({
           {activeTab === 'rules' && (
             <motion.div
               key="rules"
-              className="rules-list"
+              className="rules-list rules-tab-content"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 10 }}
@@ -212,7 +211,7 @@ const RulesPanel = ({
           {activeTab === 'pool' && isWager && (
             <motion.div
               key="pool"
-              className="rules-list"
+              className="rules-list wager-rules-pool"
               initial={{ opacity: 0, x: 10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}

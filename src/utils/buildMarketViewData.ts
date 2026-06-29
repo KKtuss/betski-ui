@@ -52,7 +52,6 @@ export const buildMarketViewData = (
       label: 'Outcome',
       value: outcomeSide === 'yes' ? `YES on "${market.name}"` : `NO on "${market.name}"`
     },
-    { label: 'Metric', value: market.type === 'wager' ? 'Promotion pool' : 'Trend bundle volume' },
     { label: 'Liquidity', value: formatCompactUsd(liquidityUsd) },
     { label: 'Volume (24h)', value: formatCompactUsd(volume24hUsd) },
     { label: 'Resolves', value: market.resolutionDateLabel }

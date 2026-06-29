@@ -263,21 +263,21 @@ const WAGER_SPECS: {
  *  clustered around a consensus center with natural volume falloff. */
 export const buildOpenBets = (totalPool: number, consensus: number, rng: () => number): OpenBet[] => {
   if (totalPool <= 0) return []
-  // Generate 5-12 open bets, concentrated near consensus
-  const count = Math.max(5, Math.round(5 + rng() * 7))
+  // Generate 7-15 open bets, concentrated near consensus
+  const count = Math.max(7, Math.round(7 + rng() * 8))
   const bets: OpenBet[] = []
   const weights: number[] = []
 
   for (let i = 0; i < count; i++) {
     // Spread bets from tight to wide around the consensus
     const t = count === 1 ? 0 : (i / (count - 1)) * 2 - 1 // -1 to 1
-    const spread = t * (20 + rng() * 25) // ±20-45 from center
-    const jitter = (rng() - 0.5) * 6
+    const spread = t * (25 + rng() * 30) // ±25-55 from center
+    const jitter = (rng() - 0.5) * 8
     const yesOdds = Math.round(clamp(consensus + spread + jitter, 3, 97))
     // Skip if duplicate
     if (bets.some(b => b.yesOdds === yesOdds)) continue
     const dist = Math.abs(yesOdds - consensus)
-    const w = Math.exp(-(dist * dist) / 200) * (0.4 + rng() * 0.8)
+    const w = Math.exp(-(dist * dist) / 200) * (0.3 + rng() * 0.9)
     weights.push(w)
     bets.push({ yesOdds, volume: 0 })
   }
@@ -289,7 +289,7 @@ export const buildOpenBets = (totalPool: number, consensus: number, rng: () => n
     const alloc = i === bets.length - 1
       ? remaining
       : Math.round((weights[i] / wSum) * totalPool)
-    bets[i].volume = Math.max(1, alloc)
+    bets[i].volume = Math.max(10, alloc)
     remaining -= bets[i].volume
   }
 
@@ -306,8 +306,8 @@ export const buildWagers = (): Wager[] => {
     const createdHoursAgo = Math.round(rng() * 120)
     const createdAtTimestamp = now - createdHoursAgo * 60 * 60 * 1000
 
-    const promotionThreshold = Math.round((2500 + rng() * 5500) / 250) * 250
-    const fillRatio = clamp(0.05 + rng() * 0.78, 0.04, 0.96)
+    const promotionThreshold = Math.round((7500 + rng() * 12500) / 500) * 500
+    const fillRatio = clamp(0.25 + rng() * 0.65, 0.2, 0.9)
     const pool = Math.round(promotionThreshold * fillRatio)
 
     // Pick a consensus center for this wager (where most bets cluster)

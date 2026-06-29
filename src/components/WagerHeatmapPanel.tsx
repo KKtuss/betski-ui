@@ -30,6 +30,7 @@ const WagerHeatmapPanel = ({
   const [stripHoverOdds, setStripHoverOdds] = useState<number | null>(null)
   const [displayHoverOdds, setDisplayHoverOdds] = useState<number | null>(null)
   const [quickAmount, setQuickAmount] = useState(50)
+  const [customAmount, setCustomAmount] = useState<string>('50')
   const fillPct = Math.min(100, (wager.pool / Math.max(1, wager.promotionThreshold)) * 100)
   const consensus = consensusYesFromOpenBets(wager.openBets)
   const closeToPromo = fillPct >= 80
@@ -140,15 +141,12 @@ const WagerHeatmapPanel = ({
             >
               <div className="wager-heatmap-buyers-head">
                 <div>
-                  <span className="wager-heatmap-buyers-label">
-                    {isHovering ? 'Opponents at this line' : 'Opponents at selected line'}
-                  </span>
                   <span className="wager-heatmap-buyers-odds">
                     {activeLineOdds}¢ YES · {100 - activeLineOdds}¢ NO
                   </span>
                   {!isHovering && fillTarget && fillTarget.yesOdds === activeLineOdds && (
                     <span className="wager-heatmap-selection-fill">
-                      Matching existing · {formatCompactUsd(fillTarget.volume)} at line
+                      Matching existing · {formatCompactUsd(fillTarget.volume)}
                     </span>
                   )}
                 </div>
@@ -176,16 +174,29 @@ const WagerHeatmapPanel = ({
                 <div className="wager-line-amount-picker" aria-label="Quick fill amount">
                   <span>Amount</span>
                   <div>
+                    <input
+                      type="number"
+                      value={customAmount}
+                      onChange={(e) => {
+                        setCustomAmount(e.target.value)
+                        const num = parseInt(e.target.value, 10)
+                        if (!isNaN(num)) setQuickAmount(num)
+                      }}
+                      className="wager-line-custom-input"
+                    />
                     {QUICK_FILL_AMOUNTS.map((amount) => (
-                      <button
-                        key={amount}
-                        type="button"
-                        className={quickAmount === amount ? 'active' : ''}
-                        onClick={() => setQuickAmount(amount)}
-                      >
-                        ${amount}
-                      </button>
-                    ))}
+                        <button
+                          key={amount}
+                          type="button"
+                          className={quickAmount === amount ? 'active' : ''}
+                          onClick={() => {
+                            setQuickAmount(amount)
+                            setCustomAmount(String(amount))
+                          }}
+                        >
+                          ${amount}
+                        </button>
+                      ))}
                   </div>
                 </div>
 
