@@ -106,18 +106,31 @@
 }
 
 /* Home feed sits in the same grid column as chart+rules — grid width unchanged, video/center stays same size */
+.layout-left.layout-home-feed,
+.layout-right.layout-home-feed {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
 .layout-home-feed {
   min-width: 0;
   overflow-x: hidden;
 }
 
-/* Match chart/rules: full width of the first grid column */
+/* Match chart/rules: full width of the side column; panel scrolls internally */
 .layout-home-feed .home-panel--rail {
   width: 100%;
+  max-width: 100%;
   min-width: 0;
   align-self: stretch;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 .layout-right > .panel {
@@ -135,11 +148,15 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .layout-home-full > .home-panel {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
 }
 
 .mobile-app {

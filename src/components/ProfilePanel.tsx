@@ -2,12 +2,12 @@ import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowLeft, Send } from 'lucide-react'
 import { useAppStore } from '../hooks/useAppStore'
+import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
 import { CURRENT_USER_HANDLE } from '../data/appStore'
-import { getMarketById } from '../data/marketCatalog'
+import { buildMarketCatalog, type Market } from '../data/marketCatalog'
 import type { MarketId } from '../data/appStore'
-import { generateSeededTrades, type ProfileTrade } from '../data/profileMock'
+import { generateSeededTrades, type MarketRef, type ProfileTrade } from '../data/profileMock'
 import {
-  HIGHLIGHT_CARD_TITLES,
   PROFILE_TIME_WINDOWS,
   type ProfileTimeWindow
 } from '../data/profileConstants'
@@ -48,6 +48,12 @@ const ProfilePanel = ({
   onOpenMarket?: (marketId: MarketId) => void
 }) => {
   const appState = useAppStore()
+  const catalog = useDiscoveryCatalog()
+  // Single source of truth for market identity/labels/thumbnails across the app.
+  const markets = useMemo(() => buildMarketCatalog(), [catalog])
+  const marketById = useMemo(() => new Map<string, Market>(markets.map((m) => [m.id, m])), [markets])
+  const marketByName = useMemo(() => new Map<string, Market>(markets.map((m) => [m.name, m])), [markets])
+  const marketThumb = (m: Market | undefined) => m?.previews.find((p) => p.thumbnailUrl)?.thumbnailUrl
   const isSelf = !viewingHandle || viewingHandle === CURRENT_USER_HANDLE
   const profileUser = isSelf
     ? appState.users[CURRENT_USER_HANDLE]
@@ -56,30 +62,39 @@ const ProfilePanel = ({
   const rawPfpSrc = profileUser?.avatar ?? '/Stems/BetskiPEFFPEE.png'
   const displayName = profileUser?.displayName ?? CURRENT_USER_HANDLE
   const [profileTimeWindow, setProfileTimeWindow] = useState<ProfileTimeWindow>('30d')
-  /** Random market-style vertical thumbs per visit (not profile assets) */
-  const highlightThumbSeeds = useMemo(
-    () => Array.from({ length: 3 }, () => Math.floor(Math.random() * 2_147_483_646)),
-    []
-  )
   const [tapeView, setTapeView] = useState<'activity' | 'history'>('activity')
   const [lootboxVideoOpen, setLootboxVideoOpen] = useState(false)
 
-  const seededTrades = useMemo<ProfileTrade[]>(() => generateSeededTrades(), [])
+  // Seed demo history over *real* markets so the activity tape, highlights and
+  // positions all reference the same markets shown everywhere else in the app.
+  const marketRefs = useMemo<MarketRef[]>(
+    () =>
+      markets
+        .filter((m) => m.type !== 'legacy')
+        .map((m) => ({ id: m.id, name: m.name, thumbnailUrl: marketThumb(m) })),
+    [markets]
+  )
+  const seededTrades = useMemo<ProfileTrade[]>(() => generateSeededTrades(marketRefs), [marketRefs])
 
   const trades = useMemo<ProfileTrade[]>(() => {
     if (!isSelf) {
-      return (profileUser?.trades ?? []).map((t) => ({
-        id: t.id,
-        timestamp: t.timestamp,
-        timestampMs: t.timestampMs,
-        market: t.market,
-        side: t.side,
-        price: t.price,
-        sizeUsd: t.sizeUsd,
-        pnlUsd: t.pnlUsd,
-        pairId: t.pairId,
-        outcome: t.outcome
-      }))
+      return (profileUser?.trades ?? []).map((t) => {
+        const m = marketByName.get(t.market)
+        return {
+          id: t.id,
+          timestamp: t.timestamp,
+          timestampMs: t.timestampMs,
+          market: m?.name ?? t.market,
+          marketId: m?.id,
+          thumbnailUrl: marketThumb(m),
+          side: t.side,
+          price: t.price,
+          sizeUsd: t.sizeUsd,
+          pnlUsd: t.pnlUsd,
+          pairId: t.pairId,
+          outcome: t.outcome
+        }
+      })
     }
 
     const fmt = (ms: number) =>
@@ -90,21 +105,26 @@ const ProfilePanel = ({
         second: '2-digit'
       })
 
-    const liveTrades: ProfileTrade[] = appState.trades.map((t) => ({
-      id: t.id,
-      timestamp: fmt(t.timestamp),
-      timestampMs: t.timestamp,
-      market: t.marketName,
-      side: t.action,
-      price: t.price,
-      sizeUsd: t.usdAmount,
-      pnlUsd: t.action === 'sell' ? t.usdAmount * 0.05 : 0,
-      pairId: `live-${t.id}`,
-      outcome: t.outcome
-    }))
+    const liveTrades: ProfileTrade[] = appState.trades.map((t) => {
+      const m = marketById.get(t.marketId)
+      return {
+        id: t.id,
+        timestamp: fmt(t.timestamp),
+        timestampMs: t.timestamp,
+        market: m?.name ?? t.marketName,
+        marketId: t.marketId,
+        thumbnailUrl: marketThumb(m),
+        side: t.action,
+        price: t.price,
+        sizeUsd: t.usdAmount,
+        pnlUsd: t.action === 'sell' ? t.usdAmount * 0.05 : 0,
+        pairId: `live-${t.id}`,
+        outcome: t.outcome
+      }
+    })
 
     return [...liveTrades, ...seededTrades].sort((a, b) => b.timestampMs - a.timestampMs)
-  }, [isSelf, profileUser?.trades, appState.trades, seededTrades])
+  }, [isSelf, profileUser?.trades, appState.trades, seededTrades, marketById, marketByName])
 
   const windowedTrades = useMemo(() => {
     const now    = Date.now()
@@ -128,6 +148,8 @@ const ProfilePanel = ({
     const rows: {
       pairId: string
       market: string
+      marketId?: string
+      thumbnailUrl?: string
       outcome: 'YES' | 'NO'
       buyPrice: number
       sellPrice: number
@@ -139,6 +161,8 @@ const ProfilePanel = ({
       rows.push({
         pairId: buy.pairId,
         market: buy.market,
+        marketId: buy.marketId,
+        thumbnailUrl: buy.thumbnailUrl,
         outcome: buy.outcome,
         buyPrice: buy.price,
         sellPrice: sell.price,
@@ -159,20 +183,24 @@ const ProfilePanel = ({
       else cur.sell = t
       map.set(t.pairId, cur)
     }
-    const rows: { market: string; buyPrice: number; sellPrice: number; pnlUsd: number }[] = []
+    const rows: { market: string; thumbnailUrl?: string; buyPrice: number; sellPrice: number; pnlUsd: number }[] = []
     for (const { buy, sell } of map.values()) {
       if (!buy || !sell) continue
       rows.push({
         market: buy.market,
+        thumbnailUrl: buy.thumbnailUrl,
         buyPrice: buy.price,
         sellPrice: sell.price,
         pnlUsd: sell.pnlUsd
       })
     }
     rows.sort((a, b) => b.pnlUsd - a.pnlUsd)
-    return rows.slice(0, 3).map((row, i) => ({
-      ...row,
-      displayTitle: HIGHLIGHT_CARD_TITLES[i] ?? row.market
+    return rows.slice(0, 3).map((row) => ({
+      displayTitle: row.market,
+      thumbnailUrl: row.thumbnailUrl,
+      buyPrice: row.buyPrice,
+      sellPrice: row.sellPrice,
+      pnlUsd: row.pnlUsd
     }))
   }, [trades])
 
@@ -227,7 +255,7 @@ const ProfilePanel = ({
       return (profileUser?.positions ?? []).map((p) => ({
         id: p.id,
         marketId: p.marketId,
-        market: p.marketName,
+        market: marketById.get(p.marketId)?.name ?? p.marketName,
         side: p.side,
         fillPrice: p.fillPrice,
         heldUsd: p.heldUsd,
@@ -236,7 +264,7 @@ const ProfilePanel = ({
     }
 
     return Object.values(appState.positions).map((pos) => {
-      const market = getMarketById(pos.marketId)
+      const market = marketById.get(pos.marketId)
       const odds = pos.side === 'long' ? market?.yesOdds ?? 50 : market?.noOdds ?? 50
       const currentPrice = odds / 100
       const heldUsd = pos.shares * currentPrice
@@ -244,14 +272,14 @@ const ProfilePanel = ({
       return {
         id: pos.marketId,
         marketId: pos.marketId,
-        market: pos.marketName,
+        market: market?.name ?? pos.marketName,
         side: pos.side === 'long' ? 'YES' : 'NO',
         fillPrice: pos.avgEntry,
         heldUsd: Number(heldUsd.toFixed(0)),
         pnlPct: Number((pos.side === 'long' ? rawPnl : -rawPnl).toFixed(1))
       }
     })
-  }, [isSelf, profileUser?.positions, appState.positions])
+  }, [isSelf, profileUser?.positions, appState.positions, marketById])
 
   return (
     <motion.div
@@ -391,7 +419,7 @@ const ProfilePanel = ({
             </div>
 
             <div className="profile-center-bottom-row">
-              <ProfileHighlightsGrid rows={topTradeHighlights} thumbSeeds={highlightThumbSeeds} />
+              <ProfileHighlightsGrid rows={topTradeHighlights} />
 
               <ProfileLootboxesStrip onOpenLootbox={() => setLootboxVideoOpen(true)} />
             </div>

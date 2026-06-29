@@ -6,6 +6,8 @@ export interface ProfileTrade {
   timestamp: string
   timestampMs: number
   market: string
+  marketId?: string
+  thumbnailUrl?: string
   side: 'buy' | 'sell'
   price: number
   sizeUsd: number
@@ -14,14 +16,11 @@ export interface ProfileTrade {
   outcome: 'YES' | 'NO'
 }
 
-export const generateSeededTrades = (): ProfileTrade[] => {
-  const baseMarkets = [
-    'NPC Stream (Ice Cream) comeback?',
-    'GRWM: Clean Girl 2.0 still trending?',
-    'Skibidi Toilet still #1?',
-    'Taylor Swift Eras Tour clips flood?',
-    'Girl Dinner still viral?'
-  ]
+/** Lightweight market reference so seeded history points at real, app-wide markets. */
+export type MarketRef = { id: string; name: string; thumbnailUrl?: string }
+
+export const generateSeededTrades = (markets: MarketRef[]): ProfileTrade[] => {
+  const baseMarkets: MarketRef[] = markets.length > 0 ? markets : [{ id: 'batch-1', name: 'Market' }]
   const rng = mulberry32(90842)
   const now = Date.now()
   const DAY_MS = 24 * 60 * 60 * 1000
@@ -49,12 +48,15 @@ export const generateSeededTrades = (): ProfileTrade[] => {
 
     const pairId = `pair-${i}`
     const outcome: 'YES' | 'NO' = rng() > 0.48 ? 'YES' : 'NO'
+    const ref = baseMarkets[i % baseMarkets.length]
     pairs.push([
       {
         id: `t-${i}-buy`,
         timestamp: fmt(new Date(buyMs)),
         timestampMs: buyMs,
-        market: baseMarkets[i % baseMarkets.length],
+        market: ref.name,
+        marketId: ref.id,
+        thumbnailUrl: ref.thumbnailUrl,
         side: 'buy',
         price: Number(buyPrice.toFixed(3)),
         sizeUsd: Number(buySizeUsd.toFixed(0)),
@@ -66,7 +68,9 @@ export const generateSeededTrades = (): ProfileTrade[] => {
         id: `t-${i}-sell`,
         timestamp: fmt(new Date(sellMs)),
         timestampMs: sellMs,
-        market: baseMarkets[i % baseMarkets.length],
+        market: ref.name,
+        marketId: ref.id,
+        thumbnailUrl: ref.thumbnailUrl,
         side: 'sell',
         price: Number(sellPrice.toFixed(3)),
         sizeUsd: Number(sellSizeUsd.toFixed(0)),

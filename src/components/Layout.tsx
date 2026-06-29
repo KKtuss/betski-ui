@@ -278,10 +278,6 @@ const Layout = () => {
     livePrice
   })
 
-  const openMarketFromHome = (videoId: number) => {
-    openMarket(legacyVideoIdToMarketId(videoId))
-  }
-
   const handleDiscoveryTrade = useCallback(
     (params: { marketId: MarketId; marketName: string; side: 'yes' | 'no'; usdAmount: number; price: number }) => {
       const isWager = params.marketId.startsWith('wager')
@@ -307,7 +303,7 @@ const Layout = () => {
   )
 
   const homePanelProps = {
-    onOpenMarket: openMarketFromHome,
+    onOpenMarket: openMarket,
     onViewProfile: (handle: string) => openProfile(handle),
     onCollapse: () => setHomeFeedOpen(false),
     side: homeFeedSide,
