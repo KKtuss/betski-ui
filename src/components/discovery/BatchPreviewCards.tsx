@@ -42,19 +42,19 @@ export const BatchPreviewCards = ({ items }: { items: BatchPreviewItem[] }) => {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const displayItems = items.slice(0, 5)
   const transforms = [
-    { left: 22, top: 0, rotate: 0, zIndex: 5, opacity: 1 },
-    { left: 40, top: 0, rotate: 0, zIndex: 4, opacity: 1 },
-    { left: 58, top: 0, rotate: 0, zIndex: 3, opacity: 1 },
-    { left: 76, top: 0, rotate: 0, zIndex: 2, opacity: 1 },
-    { left: 94, top: 0, rotate: 0, zIndex: 1, opacity: 1 }
+    { left: 15, top: 0, rotate: 0, zIndex: 5, opacity: 1 },
+    { left: 27, top: 0, rotate: 0, zIndex: 4, opacity: 1 },
+    { left: 40, top: 0, rotate: 0, zIndex: 3, opacity: 1 },
+    { left: 52, top: 0, rotate: 0, zIndex: 2, opacity: 1 },
+    { left: 64, top: 0, rotate: 0, zIndex: 1, opacity: 1 }
   ]
-  const step = transforms.length > 1 ? transforms[1].left - transforms[0].left : 1
 
   const handleMouseMoveCapture = (e: React.MouseEvent<HTMLDivElement>) => {
     if (displayItems.length <= 1) return
     const rect = e.currentTarget.getBoundingClientRect()
     const relativeX = e.clientX - rect.left
-    const estimatedIndex = Math.round((relativeX - transforms[0].left) / step)
+    const stackWidth = rect.width || 1
+    const estimatedIndex = Math.round((relativeX / stackWidth) * (displayItems.length - 1))
     const idx = clamp(estimatedIndex, 0, displayItems.length - 1)
     if (hoveredIndex !== idx) setHoveredIndex(idx)
   }
@@ -76,7 +76,7 @@ export const BatchPreviewCards = ({ items }: { items: BatchPreviewItem[] }) => {
             key={`${item.id}-${idx}`}
             className="discovery-preview-card"
             style={{
-              left: `${style.left}px`,
+              left: `${style.left}%`,
               top: `${style.top}px`,
               transform: `rotate(${style.rotate}deg) scale(${scale})`,
               zIndex: effectiveZ,

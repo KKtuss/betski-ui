@@ -49,7 +49,12 @@ const MarketRow = ({
           <span className="discovery-time-left">{batch.timeLeftLabel}</span>
           <span className="discovery-dot">•</span>
           <span className="discovery-related">
-            {Math.max(7, 6 + Math.floor(batch.volume / 2500))} related markets
+            <span className="discovery-related-long">
+              {Math.max(7, 6 + Math.floor(batch.volume / 2500))} related markets
+            </span>
+            <span className="discovery-related-short">
+              {Math.max(7, 6 + Math.floor(batch.volume / 2500))} mkts
+            </span>
           </span>
         </div>
         <FriendBuysChip buys={batch.friendBuys} onViewProfile={onViewProfile} />

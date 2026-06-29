@@ -115,3 +115,16 @@
   width: 100%;
   height: 100%;
 }
+
+@media (max-width: 900px) {
+  .layout--mobile-main .video-card:not(.active) {
+    filter: brightness(0.55);
+    opacity: 0.92;
+  }
+
+  .layout--mobile-main .video-card.active + .video-card,
+  .layout--mobile-main .video-card:has(+ .video-card.active) {
+    filter: brightness(0.78);
+    opacity: 0.96;
+  }
+}
