@@ -28,6 +28,22 @@
   --video-overlay-icon-size: clamp(22px, min(5cqw, 3.4cqh), 30px);
 }
 
+.video-stage-row {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.video-main-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+  min-width: 0;
+}
+
 .video-scroller {
   width: 100%;
   height: 100%;
@@ -456,6 +472,116 @@
 
 .share-icon-button:active {
   transform: scale(0.96);
+}
+
+@media (max-width: 900px) {
+  .layout--mobile-main .video-container-wrapper {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    --video-mobile-rail: clamp(64px, 16vw, 72px);
+    --video-card-max-width: calc(100cqw - var(--video-mobile-rail) - 14px);
+    --video-action-gutter: 8px;
+    --video-card-overlap: clamp(16px, 4.5cqw, 36px);
+    --video-overlay-engagement-gutter: 56px;
+  }
+
+  .layout--mobile-main .video-search-bar {
+    position: relative;
+    top: auto;
+    right: auto;
+    width: 100%;
+    height: 44px;
+    flex-shrink: 0;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    overflow: visible;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .layout--mobile-main .video-search-bar:focus-within,
+  .layout--mobile-main .video-search-bar:hover {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .layout--mobile-main .video-search-bar .search-form {
+    width: 100%;
+  }
+
+  .layout--mobile-main .video-search-bar .search-input {
+    opacity: 1;
+  }
+
+  /* Full-width scroller; controls float on a transparent rail so next-card peeks show through. */
+  .layout--mobile-main .video-stage-row {
+    container-type: size;
+  }
+
+  .layout--mobile-main .video-main-stage {
+    width: 100%;
+    height: 100%;
+  }
+
+  .layout--mobile-main .video-scroller {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .layout--mobile-main .video-overlay-info {
+    left: var(--overlay-sync-left, 10px);
+    bottom: var(--overlay-sync-bottom, 12px);
+    width: var(--overlay-sync-width, calc(100% - 72px));
+    max-width: var(--overlay-sync-width, calc(100% - 72px));
+    right: auto;
+  }
+
+  .layout--mobile-main .container-controls {
+    position: absolute;
+    left: var(--mobile-controls-left, auto);
+    right: auto;
+    top: 42%;
+    transform: translateY(-50%);
+    align-self: auto;
+    height: auto;
+    flex-shrink: 0;
+    width: var(--video-mobile-rail);
+    justify-content: center;
+    padding: 0;
+    will-change: transform, left;
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  .layout--mobile-main .container-controls > * {
+    pointer-events: auto;
+  }
+
+  .layout--mobile-main .share-controls {
+    position: static;
+    top: auto;
+    left: auto;
+    margin-left: 0;
+    transform: none;
+    margin-top: 4px;
+  }
+
+  .layout--mobile-main .video-card {
+    max-width: calc(100cqw - var(--video-mobile-rail, 72px) - 14px);
+  }
+
+  .layout--mobile-main .creator-profile {
+    max-width: 100%;
+  }
+
+  .layout--mobile-main .creator-details .market-description:first-of-type {
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    padding-right: 2px;
+  }
 }
 
 @container (max-width: 430px) {

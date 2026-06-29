@@ -1256,14 +1256,48 @@
 
 /* Phone: align the grid to exactly the visible cells so prices/actions never clip. */
 @media (max-width: 900px) {
+  .discovery-panel {
+    --discovery-row-height: auto;
+    --discovery-row-pad-y: 10px;
+    --discovery-row-pad-x: 10px;
+    --discovery-thumb-stack-width: 72px;
+    --discovery-thumb-stack-height: 44px;
+    --discovery-thumb-size: 40px;
+    --discovery-gap: 8px;
+    --discovery-title-size: 12px;
+    --discovery-meta-size: 10px;
+    --discovery-stat-size: 11px;
+    --discovery-cell-gap: 8px;
+    --discovery-action-size: 32px;
+  }
+
+  .discovery-header {
+    height: 48px;
+    padding: 0 10px;
+    gap: 10px;
+  }
+
+  .discovery-mode-option {
+    padding: 0 8px;
+    font-size: 10px;
+  }
+
+  .discovery-list-inner {
+    padding: 0 8px 16px;
+  }
+
+  .discovery-table-head {
+    display: none;
+  }
+
   .discovery-table-head,
   .discovery-row--grid {
     grid-template-columns:
-      minmax(0, 1fr)            /* market */
-      clamp(40px, 12vw, 58px)   /* sparkline */
-      clamp(52px, 16vw, 72px)   /* price */
-      clamp(38px, 12vw, 52px);  /* actions */
-    gap: clamp(8px, 2.5vw, 14px);
+      minmax(0, 1fr)
+      clamp(44px, 12vw, 56px)
+      clamp(50px, 14vw, 66px)
+      clamp(44px, 12vw, 56px);
+    gap: clamp(6px, 2vw, 10px);
   }
 
   .discovery-th--vol,
@@ -1271,9 +1305,74 @@
     display: none;
   }
 
-  .discovery-table-head {
-    padding-left: 12px;
-    padding-right: 12px;
+  .discovery-td--market {
+    gap: 8px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .discovery-info {
+    flex: 1 1 0;
+    min-width: 0;
+    gap: 3px;
+  }
+
+  .discovery-batch-name {
+    -webkit-line-clamp: 2;
+    line-height: 1.2;
+  }
+
+  .discovery-subtext {
+    flex-wrap: nowrap;
+    gap: 4px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .discovery-related-long {
+    display: none;
+  }
+
+  .discovery-related-short {
+    display: inline;
+  }
+
+  .discovery-friends {
+    margin-top: 3px;
+    max-width: 100%;
+  }
+
+  .discovery-friends-label {
+    font-size: 9px;
+  }
+
+  .discovery-sparkline {
+    width: 100%;
+    max-width: 52px;
+    height: 24px;
+  }
+
+  .discovery-td--spark {
+    align-self: center;
+  }
+
+  .discovery-td--price {
+    align-self: center;
+  }
+
+  .discovery-td--action {
+    align-self: center;
+  }
+
+  .discovery-price-line {
+    display: none;
+  }
+
+  .discovery-price-block {
+    align-items: flex-end;
+  }
+
+  .discovery-action-btn {
+    border-radius: 6px;
   }
 
   /* Wagers: let the wide text columns shrink to fit instead of overflowing. */
@@ -1285,4 +1384,8 @@
       clamp(56px, 16vw, 80px);
     gap: clamp(8px, 2.4vw, 16px);
   }
+}
+
+.discovery-related-short {
+  display: none;
 }

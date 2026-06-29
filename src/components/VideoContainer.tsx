@@ -56,6 +56,8 @@ const VideoContainer = ({
 }: VideoContainerProps) => {
   const slides = useMemo(() => marketToSlides(market), [market])
   const containerRef = useRef<HTMLDivElement>(null)
+  const mainStageRef = useRef<HTMLDivElement>(null)
+  const stageRowRef = useRef<HTMLDivElement>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [showPositions, setShowPositions] = useState(false)
@@ -79,16 +81,83 @@ const VideoContainer = ({
     return Array.from(container.querySelectorAll('.video-card')) as HTMLElement[]
   }
 
+  const getControlRailOffset = () => {
+    const container = containerRef.current
+    if (!container?.closest('.layout--mobile-main')) return 0
+    const controls = container
+      .closest('.video-stage-row')
+      ?.querySelector('.container-controls') as HTMLElement | null
+    if (!controls) return 0
+    return controls.offsetWidth + 6
+  }
+
+  const syncMobileCardLayout = () => {
+    const container = containerRef.current
+    const mainStage = mainStageRef.current
+    const stageRow = stageRowRef.current
+    if (!container || !mainStage || !stageRow) return
+
+    const clearSyncedLayout = () => {
+      mainStage.style.removeProperty('--overlay-sync-left')
+      mainStage.style.removeProperty('--overlay-sync-bottom')
+      mainStage.style.removeProperty('--overlay-sync-width')
+      stageRow.style.removeProperty('--mobile-controls-left')
+    }
+
+    if (!container.closest('.layout--mobile-main')) {
+      clearSyncedLayout()
+      return
+    }
+
+    const activeCard = container.querySelector('.video-card.active') as HTMLElement | null
+    if (!activeCard) return
+
+    const stageRect = mainStage.getBoundingClientRect()
+    const rowRect = stageRow.getBoundingClientRect()
+    const cardRect = activeCard.getBoundingClientRect()
+
+    const edgeInset = 10
+    const bottomInset = 12
+    const engagementGutter = 56
+    const controlGap = 6
+
+    const overlayLeft = cardRect.left - stageRect.left + edgeInset
+    const overlayBottom = stageRect.bottom - cardRect.bottom + bottomInset
+    const overlayWidth = Math.max(120, cardRect.width - edgeInset * 2 - engagementGutter)
+
+    mainStage.style.setProperty('--overlay-sync-left', `${overlayLeft}px`)
+    mainStage.style.setProperty('--overlay-sync-bottom', `${overlayBottom}px`)
+    mainStage.style.setProperty('--overlay-sync-width', `${overlayWidth}px`)
+
+    const controlsEl = stageRow.querySelector('.container-controls') as HTMLElement | null
+    const controlsWidth = controlsEl?.offsetWidth ?? 68
+    const desiredControlsLeft = cardRect.right - rowRect.left + controlGap
+    const clampedControlsLeft = Math.min(
+      Math.max(0, desiredControlsLeft),
+      Math.max(0, rowRect.width - controlsWidth)
+    )
+    stageRow.style.setProperty('--mobile-controls-left', `${clampedControlsLeft}px`)
+  }
+
   const getDesiredCenterX = () => {
     const container = containerRef.current
     if (!container) return 0
     const rect = container.getBoundingClientRect()
+    const railOffset = getControlRailOffset()
+    if (railOffset > 0) {
+      return rect.left + (rect.width - railOffset) / 2 - 3
+    }
     return desiredCenterXRef.current ?? rect.left + rect.width / 2 - 3
   }
 
   const computeDesiredCenterXFromFirstCard = (): number | null => {
     const container = containerRef.current
     if (!container) return null
+    const railOffset = getControlRailOffset()
+    if (railOffset > 0) {
+      const rect = container.getBoundingClientRect()
+      return rect.left + (rect.width - railOffset) / 2 - 3
+    }
     const cards = getVideoCards()
     const firstCard = cards[0]
     if (!firstCard) return null
@@ -135,6 +204,7 @@ const VideoContainer = ({
       onPreviewChange?.(index)
       window.setTimeout(() => {
         isSnappingRef.current = false
+        syncMobileCardLayout()
       }, 260)
     }
   }
@@ -146,6 +216,7 @@ const VideoContainer = ({
       setCurrentIndex(index)
       onPreviewChange?.(index)
     }
+    syncMobileCardLayout()
     if (snapTimerRef.current != null) window.clearTimeout(snapTimerRef.current)
     snapTimerRef.current = window.setTimeout(() => scrollToIndex(getNearestIndex()), 120)
   }
@@ -154,6 +225,10 @@ const VideoContainer = ({
   useEffect(() => {
     currentIndexRef.current = currentIndex
   }, [currentIndex])
+
+  useEffect(() => {
+    syncMobileCardLayout()
+  }, [currentIndex, market.id])
 
   useEffect(() => {
     setCurrentIndex(0)
@@ -172,11 +247,13 @@ const VideoContainer = ({
         if (x == null) return
         desiredCenterXRef.current = x
         scrollToIndex(currentIndexRef.current, 'auto')
+        syncMobileCardLayout()
       })
     }
     recompute()
     const observer = new ResizeObserver(recompute)
     observer.observe(container)
+    if (mainStageRef.current) observer.observe(mainStageRef.current)
     return () => {
       observer.disconnect()
       if (raf != null) window.cancelAnimationFrame(raf)
@@ -258,51 +335,54 @@ const VideoContainer = ({
         </form>
       </motion.div>
 
-      <div ref={containerRef} className="video-scroller" onScroll={handleScroll}>
-        <div className="video-scroll-wrapper">
-          {slides.map((slide, index) => (
-            <MediaCard
-              key={slide.id}
-              slide={slide}
-              isActive={index === currentIndex}
-              index={index}
-              currentIndex={currentIndex}
-              totalSlides={slides.length}
-              onMediaResolved={onMediaResolved}
-            />
-          ))}
-        </div>
-      </div>
-
-      <motion.div
-        className="video-overlay-info"
-        key={`info-${market.id}-${currentIndex}`}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="creator-profile">
-          <div className="creator-header">
-            <div className="creator-avatar">
-              <img src={avatar} alt="creator" referrerPolicy="no-referrer" />
+      <div className="video-stage-row" ref={stageRowRef}>
+        <div className="video-main-stage" ref={mainStageRef}>
+          <div ref={containerRef} className="video-scroller" onScroll={handleScroll}>
+            <div className="video-scroll-wrapper">
+              {slides.map((slide, index) => (
+                <MediaCard
+                  key={slide.id}
+                  slide={slide}
+                  isActive={index === currentIndex}
+                  index={index}
+                  currentIndex={currentIndex}
+                  totalSlides={slides.length}
+                  onMediaResolved={onMediaResolved}
+                />
+              ))}
             </div>
-            <h3 className="creator-name">{creator}</h3>
           </div>
-          <div className="creator-details">
-            <p className="market-description">{description}</p>
-            <p className="market-description" style={{ opacity: 0.7, fontSize: '12px', marginTop: 4 }}>
-              {livePrice.toFixed(1)}¢ YES · {market.timeLeftLabel} left
-            </p>
-          </div>
-        </div>
-      </motion.div>
 
-      <motion.div
-        className="container-controls"
-        initial={{ x: 20, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
+          <motion.div
+            className="video-overlay-info"
+            key={`info-${market.id}-${currentIndex}`}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="creator-profile">
+              <div className="creator-header">
+                <div className="creator-avatar">
+                  <img src={avatar} alt="creator" referrerPolicy="no-referrer" />
+                </div>
+                <h3 className="creator-name">{creator}</h3>
+              </div>
+              <div className="creator-details">
+                <p className="market-description">{description}</p>
+                <p className="market-description" style={{ opacity: 0.7, fontSize: '12px', marginTop: 4 }}>
+                  {livePrice.toFixed(1)}¢ YES · {market.timeLeftLabel} left
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        <motion.div
+          className="container-controls"
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
         <motion.button
           className="action-button long-button"
           onClick={() => onLongClick?.()}
@@ -389,6 +469,7 @@ const VideoContainer = ({
           </button>
         </motion.div>
       </motion.div>
+      </div>
     </div>
   )
 }

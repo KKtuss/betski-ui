@@ -226,7 +226,15 @@
     width: 100%;
     height: 100%;
     aspect-ratio: auto;
-    border-radius: 22px;
-    background: #050505;
+    align-items: stretch;
+    justify-content: stretch;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .layout--mobile-main .mobile-video-section .video-panel:hover {
+    border-color: transparent;
   }
 }

@@ -439,16 +439,16 @@ const HomePanel = ({
                     onClick={() => item.marketId && onOpenMarket?.(item.marketId)}
                   >
                     <span className="home-activity-handle">{item.handle}</span>
-                    <span className="home-activity-desc">
-                      {item.action} {item.market}
-                    </span>
-                    <span className="home-activity-meta">
-                      {item.amount} · {item.timeAgo}
-                    </span>
+                    <span className="home-activity-action">{item.action}</span>
+                    <span className="home-activity-market">{item.market}</span>
                   </button>
                   <span className={`home-activity-outcome home-activity-outcome--${item.outcomeClass}`}>
                     {item.outcome}
                   </span>
+                  <div className="home-activity-side">
+                    <span className="home-activity-amount">{item.amount}</span>
+                    <span className="home-activity-time">{item.timeAgo}</span>
+                  </div>
                 </div>
               ))}
             </div>
