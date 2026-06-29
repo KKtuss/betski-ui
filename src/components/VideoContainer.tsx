@@ -65,8 +65,11 @@ const VideoContainer = ({
   const snapTimerRef = useRef<number | null>(null)
   const isSnappingRef = useRef(false)
   const desiredCenterXRef = useRef<number | null>(null)
-  const scrollGestureStartRef = useRef(0)
   const currentIndexRef = useRef(0)
+  const gestureAnchorRef = useRef({ scrollLeft: 0, index: 0 })
+  const gestureActiveRef = useRef(false)
+  const gestureSettledRef = useRef(true)
+  const momentumSettleTimerRef = useRef<number | null>(null)
 
   const isMobileMainScroller = () =>
     Boolean(containerRef.current?.closest('.layout--mobile-main'))
@@ -78,11 +81,26 @@ const VideoContainer = ({
     isSnappingRef.current = false
     syncMobileCardLayout()
     const container = containerRef.current
-    if (container) scrollGestureStartRef.current = container.scrollLeft
+    if (container && isMobileMainScroller()) {
+      gestureAnchorRef.current = {
+        scrollLeft: container.scrollLeft,
+        index: currentIndexRef.current
+      }
+      gestureActiveRef.current = false
+      gestureSettledRef.current = true
+    }
+  }
+
+  const clearMomentumSettleTimer = () => {
+    if (momentumSettleTimerRef.current != null) {
+      window.clearTimeout(momentumSettleTimerRef.current)
+      momentumSettleTimerRef.current = null
+    }
   }
 
   const beginSnap = () => {
     isSnappingRef.current = true
+    clearMomentumSettleTimer()
     if (snapTimerRef.current != null) {
       window.clearTimeout(snapTimerRef.current)
       snapTimerRef.current = null
@@ -188,44 +206,60 @@ const VideoContainer = ({
     return firstRect.left + container.scrollLeft + firstRect.width / 2 - 3
   }
 
-  const getSettleTargetIndex = () => {
-    const cards = getVideoCards()
-    if (cards.length === 0) return 0
-
-    if (!isMobileMainScroller()) {
-      return getNearestIndex()
-    }
-
+  const getMobileStepTargetIndex = () => {
     const container = containerRef.current
-    if (!container) return currentIndexRef.current
+    const cards = getVideoCards()
+    if (!container || cards.length === 0) return 0
 
-    const current = currentIndexRef.current
-    const delta = container.scrollLeft - scrollGestureStartRef.current
+    const { scrollLeft: startScroll, index: startIndex } = gestureAnchorRef.current
+    const delta = container.scrollLeft - startScroll
     const cardStep =
       cards[1] && cards[0]
         ? Math.max(48, cards[1].offsetLeft - cards[0].offsetLeft)
         : Math.max(48, container.clientWidth * 0.18)
-    const threshold = Math.min(cardStep * 0.22, 56)
+    const threshold = Math.min(cardStep * 0.18, 48)
 
-    if (Math.abs(delta) < threshold) return current
-    if (delta > 0) return Math.min(current + 1, cards.length - 1)
-    return Math.max(current - 1, 0)
+    if (Math.abs(delta) < threshold) return startIndex
+    if (delta > 0) return Math.min(startIndex + 1, cards.length - 1)
+    return Math.max(startIndex - 1, 0)
+  }
+
+  const settleMobileGesture = () => {
+    if (!isMobileMainScroller()) return
+    if (!gestureActiveRef.current || gestureSettledRef.current || isSnappingRef.current) return
+
+    gestureSettledRef.current = true
+    clearMomentumSettleTimer()
+    scrollToIndex(getMobileStepTargetIndex(), 'auto')
+  }
+
+  const scheduleMomentumSettleFallback = () => {
+    if (!isMobileMainScroller() || gestureSettledRef.current) return
+    clearMomentumSettleTimer()
+    momentumSettleTimerRef.current = window.setTimeout(() => {
+      momentumSettleTimerRef.current = null
+      settleMobileGesture()
+    }, 320)
   }
 
   const settleScroller = () => {
     if (isSnappingRef.current) return
-    const targetIndex = getSettleTargetIndex()
-    scrollToIndex(targetIndex, getSnapScrollBehavior())
+    if (isMobileMainScroller()) {
+      settleMobileGesture()
+      return
+    }
+    scrollToIndex(getNearestIndex(), getSnapScrollBehavior())
   }
 
   const scheduleSettle = () => {
-    if (isSnappingRef.current) return
+    if (isSnappingRef.current || isMobileMainScroller()) return
     if (snapTimerRef.current != null) window.clearTimeout(snapTimerRef.current)
     snapTimerRef.current = window.setTimeout(() => {
       snapTimerRef.current = null
       settleScroller()
-    }, isMobileMainScroller() ? 140 : 120)
+    }, 120)
   }
+
   const getNearestIndex = () => {
     const container = containerRef.current
     if (!container) return 0
@@ -275,20 +309,42 @@ const VideoContainer = ({
 
   const handleScroll = () => {
     if (isSnappingRef.current) return
+    syncMobileCardLayout()
     if (!isMobileMainScroller()) {
       const index = getNearestIndex()
       if (index !== currentIndex) {
         setCurrentIndex(index)
         onPreviewChange?.(index)
       }
+      scheduleSettle()
     }
-    syncMobileCardLayout()
-    scheduleSettle()
   }
 
-  const handleScrollerPointerDown = () => {
-    if (!containerRef.current) return
-    scrollGestureStartRef.current = containerRef.current.scrollLeft
+  const beginMobileGesture = (target: HTMLDivElement) => {
+    if (isSnappingRef.current) return
+    clearMomentumSettleTimer()
+    gestureActiveRef.current = true
+    gestureSettledRef.current = false
+    gestureAnchorRef.current = {
+      scrollLeft: target.scrollLeft,
+      index: currentIndexRef.current
+    }
+  }
+
+  const handleScrollerPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isMobileMainScroller()) return
+    beginMobileGesture(e.currentTarget)
+    e.currentTarget.setPointerCapture(e.pointerId)
+  }
+
+  const handleScrollerPointerUp = () => {
+    if (!isMobileMainScroller()) return
+    scheduleMomentumSettleFallback()
+  }
+
+  const handleScrollerPointerCancel = () => {
+    if (!isMobileMainScroller()) return
+    scheduleMomentumSettleFallback()
   }
 
   useEffect(() => {
@@ -304,17 +360,29 @@ const VideoContainer = ({
     onPreviewChange?.(0)
     if (containerRef.current) {
       containerRef.current.scrollLeft = 0
-      scrollGestureStartRef.current = 0
+      gestureAnchorRef.current = { scrollLeft: 0, index: 0 }
+      gestureActiveRef.current = false
+      gestureSettledRef.current = true
+      clearMomentumSettleTimer()
     }
   }, [market.id])
 
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
-    const onScrollEnd = () => scheduleSettle()
+    const onScrollEnd = () => {
+      if (isMobileMainScroller()) {
+        settleMobileGesture()
+        return
+      }
+      scheduleSettle()
+    }
     container.addEventListener('scrollend', onScrollEnd)
-    scrollGestureStartRef.current = container.scrollLeft
-    return () => container.removeEventListener('scrollend', onScrollEnd)
+    gestureAnchorRef.current = { scrollLeft: container.scrollLeft, index: currentIndexRef.current }
+    return () => {
+      container.removeEventListener('scrollend', onScrollEnd)
+      clearMomentumSettleTimer()
+    }
   }, [slides.length, market.id])
 
   useEffect(() => {
@@ -324,6 +392,13 @@ const VideoContainer = ({
     const recompute = () => {
       if (raf != null) window.cancelAnimationFrame(raf)
       raf = window.requestAnimationFrame(() => {
+        if (
+          isMobileMainScroller() &&
+          gestureActiveRef.current &&
+          !gestureSettledRef.current
+        ) {
+          return
+        }
         const x = computeDesiredCenterXFromFirstCard()
         if (x == null) return
         desiredCenterXRef.current = x
@@ -344,6 +419,7 @@ const VideoContainer = ({
   useEffect(() => {
     return () => {
       if (snapTimerRef.current != null) window.clearTimeout(snapTimerRef.current)
+      clearMomentumSettleTimer()
     }
   }, [])
 
@@ -423,7 +499,8 @@ const VideoContainer = ({
             className="video-scroller"
             onScroll={handleScroll}
             onPointerDown={handleScrollerPointerDown}
-            onTouchStart={handleScrollerPointerDown}
+            onPointerUp={handleScrollerPointerUp}
+            onPointerCancel={handleScrollerPointerCancel}
           >
             <div className="video-scroll-wrapper">
               {slides.map((slide, index) => (
