@@ -22,6 +22,7 @@ type WagerLiquidityPanelProps = {
     usdAmount: number
     price: number
   }) => void
+  compact?: boolean
 }
 
 const QUICK_AMOUNTS = [10, 25, 50, 100]
@@ -76,7 +77,8 @@ const WagerLiquidityPanel = ({
   walletBalance,
   activeMode,
   onBack,
-  onExecuteTrade
+  onExecuteTrade,
+  compact = false
 }: WagerLiquidityPanelProps) => {
   const [customAmount, setCustomAmount] = useState('250')
   const [fillMode, setFillMode] = useState<'any' | 'specific'>('specific')
@@ -182,10 +184,11 @@ const WagerLiquidityPanel = ({
   }
 
   const defaultUserSide = userSide
+  const displayBookRows = compact ? WAGER_BOOK_ROWS.slice(0, 3) : WAGER_BOOK_ROWS
 
   return (
     <motion.div
-      className="panel orderbook-panel wager-liquidity-panel wager-liquidity-panel--trading"
+      className={`panel orderbook-panel wager-liquidity-panel wager-liquidity-panel--trading${compact ? ' wager-liquidity-panel--compact' : ''}`}
       initial={{ opacity: 0, scale: 0.98, y: 12 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.98, y: 12 }}
@@ -238,7 +241,7 @@ const WagerLiquidityPanel = ({
             <span className="wager-ref-green">YES SIDE</span>
           </div>
           <div className="wager-ref-book-rows">
-            {WAGER_BOOK_ROWS.map((row, index) => {
+            {displayBookRows.map((row, index) => {
               const noOpponent = row.no
               const yesOpponent = row.yes
               const noWidth = noOpponent ? Math.max(10, (noOpponent.wagered / maxOpponentWagered) * 100) : 0
@@ -364,7 +367,7 @@ const WagerLiquidityPanel = ({
           </button>
         </div>
 
-        {selectedOpponent && (
+        {selectedOpponent && !compact && (
           <div className="wager-ref-selected-fill">
             <div className="wager-ref-selected-label">Wagering against</div>
             <div className="wager-ref-selected-body">

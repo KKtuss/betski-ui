@@ -1535,3 +1535,203 @@ div.wager-ref-book-rows::-webkit-scrollbar-thumb,
   gap: 6px;
   font-size: 10.5px;
 }
+
+/* Phone bottom sheet — fit panel without scroll. */
+.wager-liquidity-panel--compact .wager-ref-shell {
+  gap: 4px;
+  padding: 6px 8px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-head {
+  gap: 6px;
+  align-items: center;
+}
+
+.wager-liquidity-panel--compact .wager-ref-title {
+  font-size: 12px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-line-label {
+  margin-top: 2px;
+  font-size: 8px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-line-value {
+  margin-top: 1px;
+  font-size: 13px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-mode-toggle {
+  max-width: 168px;
+  gap: 4px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-mode-btn {
+  height: 24px;
+  border-radius: 6px;
+  font-size: 9px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-totals {
+  min-height: 32px;
+  padding: 3px 8px;
+  border-radius: 8px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-totals span {
+  font-size: 8px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-totals strong {
+  font-size: 14px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-totals i {
+  height: 20px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-book {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.wager-liquidity-panel--compact .wager-ref-book-head {
+  padding: 5px 10px 4px;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+
+.wager-liquidity-panel--compact .wager-ref-book-rows {
+  overflow: hidden;
+  padding-bottom: 3px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-book-row {
+  min-height: 32px;
+  padding: 0 8px;
+  grid-template-columns: minmax(78px, 0.88fr) minmax(44px, 1fr) 2px minmax(44px, 1fr) minmax(78px, 0.88fr);
+}
+
+.wager-liquidity-panel--compact .wager-ref-avatar {
+  width: 22px;
+  height: 22px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-person {
+  gap: 5px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-person-copy {
+  font-size: 9px;
+  gap: 1px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-name-line strong {
+  font-size: 10px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-bar-cell {
+  height: 18px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-bar-container {
+  min-height: 16px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-empty-side {
+  font-size: 9px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-fill-radios {
+  gap: 10px;
+  padding: 0 2px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-fill-radios button {
+  font-size: 8px;
+  gap: 4px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-fill-radios button span {
+  width: 10px;
+  height: 10px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-bottom-grid {
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.wager-liquidity-panel--compact .wager-ref-amount-card,
+.wager-liquidity-panel--compact .wager-ref-gain-card {
+  padding: 8px 9px;
+  border-radius: 9px;
+  min-height: 72px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-amount-card {
+  gap: 6px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-amount-label,
+.wager-liquidity-panel--compact .wager-ref-gain-label {
+  font-size: 9px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-amount-picker {
+  gap: 10px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-amount-currency {
+  left: 8px;
+  font-size: 11px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-amount-input {
+  width: 76px;
+  padding: 5px 8px 5px 20px;
+  font-size: 13px;
+  border-radius: 7px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-quick-amounts {
+  gap: 5px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-quick-btn {
+  padding: 5px 8px;
+  font-size: 10px;
+  border-radius: 5px;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+}
+
+.wager-liquidity-panel--compact .wager-ref-gain-card {
+  gap: 3px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-gain-card strong {
+  font-size: 21px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-gain-card em {
+  font-size: 8px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-submit {
+  min-height: 38px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.wager-liquidity-panel--compact .wager-ref-footer {
+  font-size: 8px;
+  gap: 4px;
+  line-height: 1.2;
+}
+
+.wager-liquidity-panel--compact .wager-ref-footer svg {
+  width: 11px;
+  height: 11px;
+}

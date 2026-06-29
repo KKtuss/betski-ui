@@ -5,11 +5,12 @@ import type { OrderbookPanelProps } from '../types/orderbook'
 import { createDefaultRecentTrades } from '../data/mockRecentTrades'
 import './Panel.css'
 
-const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTrades: externalTrades, walletBalance = 0, holdingShares = 0, currentPrice = 68.5, onTradeExecuted, shareTargets, onShareToChat }: OrderbookPanelProps) => {
+const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTrades: externalTrades, walletBalance = 0, holdingShares = 0, currentPrice = 68.5, onTradeExecuted, shareTargets, onShareToChat, compact = false }: OrderbookPanelProps) => {
 
   const defaultRecentTrades = createDefaultRecentTrades()
 
   const recentTrades = externalTrades ?? defaultRecentTrades
+  const visibleTrades = compact ? recentTrades.slice(0, 8) : recentTrades
 
   return (
     <AnimatePresence mode="wait">
@@ -29,6 +30,7 @@ const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTra
             holdingShares={holdingShares}
             currentPrice={currentPrice}
             onTradeExecuted={onTradeExecuted}
+            compact={compact}
           />
         </motion.div>
       ) : activeMode === 'share' ? (
@@ -45,7 +47,7 @@ const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTra
       ) : (
         <motion.div 
           key="orderbook"
-          className="panel orderbook-panel"
+          className={`panel orderbook-panel${compact ? ' orderbook-panel--compact' : ''}`}
           initial={{ opacity: 0, scale: 0.98, y: -12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.98, y: -12 }}
@@ -57,8 +59,9 @@ const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTra
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2, delay: 0.1 }}
+            style={compact ? { padding: '8px 12px' } : undefined}
           >
-            <span className="orderbook-title">RECENT TRADES</span>
+            <span className="orderbook-title" style={compact ? { fontSize: '11px' } : undefined}>RECENT TRADES</span>
           </motion.div>
           <div className="panel-content orderbook-content" style={{ padding: 0, width: '100%' }}>
             <motion.div
@@ -67,16 +70,17 @@ const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTra
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.15 }}
+              style={compact ? { padding: '6px 8px' } : undefined}
             >
               <div
                 className="trade-row header-row"
                 style={{
-                  padding: '8px 12px',
+                  padding: compact ? '4px 8px' : '8px 12px',
                   color: '#666',
-                  fontSize: '11px',
+                  fontSize: compact ? '9px' : '11px',
                   fontWeight: '600',
                   borderBottom: '1px solid rgba(255,255,255,0.05)',
-                  marginBottom: '4px',
+                  marginBottom: compact ? '2px' : '4px',
                   display: 'grid',
                   gridTemplateColumns: '1fr 1fr 1fr',
                   alignItems: 'center'
@@ -96,14 +100,16 @@ const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTra
               <div
                 className="recent-trades-list"
                 style={{
-                  overflowY: 'auto',
+                  overflowY: compact ? 'hidden' : 'auto',
                   overflowX: 'hidden',
-                  height: 'calc(100% - 32px)',
-                  paddingBottom: '8px'
+                  height: compact ? '100%' : 'calc(100% - 32px)',
+                  paddingBottom: compact ? '4px' : '8px',
+                  flex: compact ? '1 1 auto' : undefined,
+                  minHeight: compact ? 0 : undefined
                 }}
               >
                 <AnimatePresence initial={false}>
-                  {recentTrades.map((trade, index) => (
+                  {visibleTrades.map((trade, index) => (
                     <motion.div
                       key={trade.id ?? `${trade.time}-${index}`}
                       className="trade-row"
@@ -120,8 +126,9 @@ const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTra
                       style={{
                         display: 'grid',
                         gridTemplateColumns: '1fr 1fr 1fr',
-                        padding: '4px 12px',
-                        alignItems: 'center'
+                        padding: compact ? '2px 8px' : '4px 12px',
+                        alignItems: 'center',
+                        fontSize: compact ? '10px' : undefined
                       }}
                     >
                       <span className="trade-time" style={{ textAlign: 'left' }}>

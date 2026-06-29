@@ -39,6 +39,7 @@ const MobileTradeSheet = ({
   const [width, setWidth] = useState(0)
   const viewportRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef(initialPage)
+  const blockSwipeRef = useRef(false)
   const x = useMotionValue(0)
 
   useEffect(() => {
@@ -71,6 +72,15 @@ const MobileTradeSheet = ({
 
   const handleHorizontalDragEnd = (_e: unknown, info: PanInfo) => {
     if (width <= 0) return
+    if (blockSwipeRef.current) {
+      blockSwipeRef.current = false
+      animate(x, -pageRef.current * width, {
+        type: 'spring',
+        stiffness: 420,
+        damping: 40
+      })
+      return
+    }
     const currentPage = pageRef.current
     const threshold = Math.max(48, width * 0.2)
     if (info.offset.x <= -threshold && currentPage < 2) {
@@ -134,7 +144,15 @@ const MobileTradeSheet = ({
               </div>
             </motion.div>
 
-            <div className="mts-viewport" ref={viewportRef}>
+            <div
+              className="mts-viewport"
+              ref={viewportRef}
+              onPointerDownCapture={(e) => {
+                blockSwipeRef.current =
+                  e.target instanceof Element &&
+                  Boolean(e.target.closest('[data-sheet-no-swipe]'))
+              }}
+            >
               {pageWidth ? (
                 <motion.div
                   className="mts-track"
@@ -143,6 +161,16 @@ const MobileTradeSheet = ({
                   dragDirectionLock
                   dragConstraints={{ left: -2 * pageWidth, right: 0 }}
                   dragElastic={0.14}
+                  onDragStart={(e) => {
+                    blockSwipeRef.current =
+                      e.target instanceof Element &&
+                      Boolean(e.target.closest('[data-sheet-no-swipe]'))
+                  }}
+                  onDrag={(_e, _info) => {
+                    if (blockSwipeRef.current && width > 0) {
+                      x.set(-pageRef.current * width)
+                    }
+                  }}
                   onDragEnd={handleHorizontalDragEnd}
                 >
                   <div className="mts-page" style={{ width: pageWidth }}>

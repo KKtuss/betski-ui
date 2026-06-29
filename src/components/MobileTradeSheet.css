@@ -13,8 +13,8 @@
   right: 0;
   bottom: 0;
   z-index: 90;
-  height: 72dvh;
-  max-height: 72dvh;
+  height: 78dvh;
+  max-height: 78dvh;
   display: flex;
   flex-direction: column;
   background: #0b0b0c;
@@ -28,7 +28,7 @@
 
 .mts-handle-zone {
   flex: 0 0 auto;
-  padding: 8px 12px 6px;
+  padding: 6px 12px 4px;
   cursor: grab;
   touch-action: none;
 }
@@ -40,7 +40,7 @@
 .mts-grab {
   width: 40px;
   height: 4px;
-  margin: 0 auto 10px;
+  margin: 0 auto 8px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.22);
 }
@@ -58,13 +58,13 @@
 
 .mts-tab {
   flex: 1 1 0;
-  height: 30px;
+  height: 28px;
   border: none;
   border-radius: 999px;
   background: transparent;
   color: rgba(255, 255, 255, 0.6);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -95,20 +95,128 @@
   flex: 0 0 auto;
   height: 100%;
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 4px 12px 12px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  touch-action: pan-y;
+  gap: 6px;
+  padding: 2px 10px 8px;
+  overflow: hidden;
+  touch-action: pan-x;
 }
 
+/* Single panel pages fill the sheet — no scroll. */
 .mts-page > .panel {
   flex: 1 1 auto;
-  min-height: 280px;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+  overflow: hidden;
 }
 
-.mts-page > .panel + .panel {
-  min-height: 260px;
+/* Rules tab: heatmap (strip + slider) gets more room than rules metadata. */
+.mts-page > .chart-panel,
+.mts-page > .wager-heatmap-panel {
+  flex: 0 0 54%;
+  min-height: 0;
+  max-height: 54%;
+  overflow: hidden;
+}
+
+.mts-page > .rules-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 46%;
+  overflow: hidden;
+}
+
+.mts-page > .chart-panel .panel-header,
+.mts-page > .wager-heatmap-panel .panel-header,
+.mts-page > .rules-panel .panel-header {
+  padding: 8px 12px;
+}
+
+.mts-page > .chart-panel .panel-content,
+.mts-page > .wager-heatmap-panel .panel-content,
+.mts-page > .rules-panel .panel-content {
+  padding: 8px 10px !important;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.mts-page > .chart-panel .chart-title-block {
+  margin-bottom: 2px;
+}
+
+.mts-page > .chart-panel .chart-resolution-pill,
+.mts-page > .chart-panel .chart-time-left {
+  font-size: 10px;
+}
+
+.mts-page > .chart-panel .chart-price-row {
+  font-size: 16px;
+}
+
+.mts-page > .rules-panel .panel-tabs {
+  gap: 8px;
+}
+
+.mts-page > .rules-panel .panel-tab {
+  font-size: 10px;
+}
+
+.mts-page > .rules-panel .rules-list {
+  gap: 4px;
+}
+
+.mts-page > .rules-panel .rule-item {
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
+/* Wager matching: prioritize strip + slider; line fill UI lives on Trade tab. */
+.mts-page > .wager-heatmap-panel .panel-header {
+  padding: 6px 12px;
+}
+
+.mts-page > .wager-heatmap-panel .wager-heatmap-content {
+  gap: 6px;
+  padding: 6px 10px 8px;
+}
+
+.mts-page > .wager-heatmap-panel .wager-heatmap-pool-main {
+  font-size: 13px;
+}
+
+.mts-page > .wager-heatmap-panel .wager-heatmap-interactive {
+  flex: 0 0 auto;
+  gap: 0;
+}
+
+.mts-page > .wager-heatmap-panel .wager-heatmap-strip-wrap {
+  flex: 0 0 auto;
+  min-height: 0;
+}
+
+.mts-page > .wager-heatmap-panel .wager-heatmap-buyers {
+  display: none;
+}
+
+.mts-page > .panel.orderbook-panel .orderbook-content {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.mts-page > .panel.orderbook-panel--compact .recent-trades-section {
+  padding: 4px 6px;
+  overflow: hidden;
+}
+
+.mts-page > .panel.wager-liquidity-panel {
+  font-size: 12px;
+}
+
+.mts-page > .panel.wager-liquidity-panel .wager-ref-book-rows {
+  overflow: hidden;
 }
