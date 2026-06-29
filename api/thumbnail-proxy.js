@@ -1,4 +1,4 @@
-import { fetchThumbnailBuffer } from './_lib/linkPreviewCore.js'
+import { fetchThumbnailBuffer } from '../lib/linkPreviewCore.js'
 
 /** Vercel serverless handler — proxies hotlink-blocked CDN thumbnails (TikTok, IG, etc.). */
 export default async function handler(req, res) {

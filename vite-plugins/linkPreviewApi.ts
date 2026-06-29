@@ -14,11 +14,11 @@ import {
   fetchThumbnailBuffer,
   resolveLinkPreview,
   type LinkPreviewResult
-} from '../api/_lib/linkPreviewCore.ts'
+} from '../lib/linkPreviewCore.ts'
 
 export { needsThumbnailProxy, proxiedThumbnailUrl }
 export type { LinkPreviewResult }
-export { resolveLinkPreview, fetchThumbnailBuffer } from '../api/_lib/linkPreviewCore.ts'
+export { resolveLinkPreview, fetchThumbnailBuffer } from '../lib/linkPreviewCore.ts'
 
 const DISCOVERY_STORAGE_FILE = join(process.cwd(), '.discovery-catalog.json')
 

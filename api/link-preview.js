@@ -1,4 +1,4 @@
-import { resolveLinkPreview } from './_lib/linkPreviewCore.js'
+import { resolveLinkPreview } from '../lib/linkPreviewCore.js'
 
 /** Vercel serverless handler — mirrors the Vite dev /api/link-preview middleware. */
 export default async function handler(req, res) {
