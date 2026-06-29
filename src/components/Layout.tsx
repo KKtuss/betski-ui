@@ -87,8 +87,9 @@ const Layout = () => {
     (marketId: MarketId) => {
       setSelectedMarketId(marketId)
       setOutcomeSide('yes')
-      setActiveMode('orderbook')
-      setTradeMarketId(null)
+      const market = getMarketById(marketId)
+      setActiveMode(market?.type === 'wager' ? 'long' : 'orderbook')
+      setTradeMarketId(market?.type === 'wager' ? marketId : null)
       setWagerFillTarget(undefined)
       setActiveTab('main')
       setHomeFeedOpen(false)
@@ -201,8 +202,8 @@ const Layout = () => {
     if (!isWagerMarket || !liveWager) return
     setWagerSelectedOdds(consensusYesFromOpenBets(liveWager.openBets))
     setWagerFillTarget(undefined)
-    setActiveMode('orderbook')
-    setTradeMarketId(null)
+    setActiveMode('long')
+    setTradeMarketId(liveWager.id)
   }, [selectedMarketId, isWagerMarket, liveWager?.id])
 
   useEffect(() => {

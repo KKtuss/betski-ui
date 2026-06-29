@@ -20,21 +20,49 @@ export const synthesizeWagerFills = (wager: Wager): WagerFill[] => {
   const fills: WagerFill[] = []
   let fillIdx = 0
   for (const bet of wager.openBets) {
-    const chunks = 1 + Math.floor(rng() * 3)
+    // Generate more chunks, ensure we have both YES and NO sides
+    const chunks = 3 + Math.floor(rng() * 5)
     let remaining = bet.volume
+    let hasYES = false
+    let hasNO = false
+
     for (let i = 0; i < chunks && remaining > 0; i++) {
-      const share = i === chunks - 1 ? remaining : Math.round(remaining * (0.25 + rng() * 0.45))
+      const share = i === chunks - 1 ? remaining : Math.round(remaining * (0.1 + rng() * 0.4))
       if (share <= 0) continue
       remaining -= share
       const handle = FILL_HANDLES[Math.floor(rng() * FILL_HANDLES.length)]
-      const side: 'YES' | 'NO' = rng() > 0.42 ? 'YES' : 'NO'
+
+      // Ensure we have both sides
+      let side: 'YES' | 'NO'
+      if (!hasYES) {
+        side = 'YES'
+        hasYES = true
+      } else if (!hasNO) {
+        side = 'NO'
+        hasNO = true
+      } else {
+        side = rng() > 0.45 ? 'YES' : 'NO'
+      }
+
+      // Calculate fill amount based on odds
+      // If betting YES at Y cents, amount is the share
+      // If betting NO at Y cents, amount is share * (100 - Y) / Y
+      let usdAmount: number
+      if (side === 'YES') {
+        // Betting YES: amount is the share
+        usdAmount = share
+      } else {
+        // Betting NO: amount is share * (100 - yesOdds) / yesOdds
+        usdAmount = Math.round(share * (100 - bet.yesOdds) / bet.yesOdds)
+      }
+
       fills.push({
         id: `${wager.id}-seed-${fillIdx++}`,
         handle,
         avatar: FILL_AVATARS[handle],
         side,
         yesOdds: bet.yesOdds,
-        usdAmount: share,
+        usdAmount,
         timestamp: wager.createdAtTimestamp + Math.round(rng() * 72 * 60 * 60 * 1000)
       })
     }

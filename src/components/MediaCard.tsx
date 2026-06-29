@@ -18,15 +18,6 @@ export type MediaSlide = {
   legacyMp4?: string
 }
 
-type MediaCardProps = {
-  slide: MediaSlide
-  isActive: boolean
-  index: number
-  currentIndex: number
-  totalSlides: number
-  onMediaResolved?: (id: string, patch: Partial<MediaSlide>) => void
-}
-
 const pickPlaybackMode = (
   slide: MediaSlide,
   data: Pick<MediaSlide, 'videoUrl' | 'embedUrl' | 'legacyMp4'>
@@ -51,6 +42,15 @@ const pickPlaybackMode = (
 const postToTikTokPlayer = (iframe: HTMLIFrameElement | null, type: 'play' | 'pause' | 'unMute' | 'mute') => {
   console.log('Sending to TikTok player:', type)
   iframe?.contentWindow?.postMessage({ type, value: undefined, 'x-tiktok-player': true }, '*')
+}
+
+type MediaCardProps = {
+  slide: MediaSlide
+  isActive: boolean
+  index: number
+  currentIndex: number
+  totalSlides: number
+  onMediaResolved?: (id: string, patch: Partial<MediaSlide>) => void
 }
 
 const MediaCard = ({
@@ -270,7 +270,7 @@ const MediaCard = ({
         />
       )}
 
-      {isActive && mode !== 'image' && (
+      {isActive && mode !== 'image' && false && (
         <button
           type="button"
           className={`media-sound-toggle ${soundEnabled ? 'active' : ''}`}

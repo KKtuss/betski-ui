@@ -50,8 +50,8 @@ body {
 }
 
 :root {
-  font-size: clamp(14px, 0.85vw, 16px);
-  --app-shell-max-width: 1920px;
+  font-size: clamp(12.6px, 0.765vw, 14.4px);
+  --app-shell-max-width: 1728px;
   --color-green: #2DD56E;
   --color-red: #FF4D4D;
   --color-orange: #ff9966;

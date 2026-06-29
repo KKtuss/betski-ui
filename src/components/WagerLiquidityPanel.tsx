@@ -1,9 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeft, ChevronDown, ShieldCheck } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 import type { OpenBet, Wager, WagerFill } from '../types/discovery'
-import { TradeActions } from './discovery/TradeActions'
-import { formatCompactUsd } from '../utils/formatCompact'
 import { getSelectedLineFills } from '../utils/wagerFills'
 import './WagerLiquidityPanel.css'
 import './Panel.css'
@@ -28,132 +26,29 @@ type WagerLiquidityPanelProps = {
 
 const QUICK_AMOUNTS = [10, 25, 50, 100]
 
-type OpponentBadge = 'Friend' | 'Whale' | 'Following'
-
 type WagerOpponent = {
   id: string
   side: 'YES' | 'NO'
   username: string
-  badge?: OpponentBadge
   avatar: string
   wagered: number
+  filledAmount: number
   partialFillAllowed: boolean
 }
 
-const NO_SIDE_OPPONENTS: WagerOpponent[] = [
-  {
-    id: 'no-moontrader',
-    side: 'NO',
-    username: 'MoonTrader',
-    badge: 'Whale',
-    avatar: '/Stems/moggorrr transparent.png',
-    wagered: 580,
-    partialFillAllowed: true
-  },
-  {
-    id: 'no-jessieb',
-    side: 'NO',
-    username: 'JessieB',
-    badge: 'Friend',
-    avatar: '/Stems/epstein transparent.png',
-    wagered: 320,
-    partialFillAllowed: true
-  },
-  {
-    id: 'no-alphak',
-    side: 'NO',
-    username: 'AlphaK',
-    badge: 'Following',
-    avatar: '/Stems/BetskiPEFFPEE.png',
-    wagered: 250,
-    partialFillAllowed: false
-  },
-  {
-    id: 'no-oxdegen',
-    side: 'NO',
-    username: 'OxDegen',
-    avatar: '/Stems/betskuu.png',
-    wagered: 180,
-    partialFillAllowed: true
-  },
-  {
-    id: 'no-pandabet',
-    side: 'NO',
-    username: 'PandaBet',
-    badge: 'Friend',
-    avatar: '/Stems/moggorrr transparent.png',
-    wagered: 70,
-    partialFillAllowed: true
-  }
-]
-
-const YES_SIDE_OPPONENTS: WagerOpponent[] = [
-  {
-    id: 'yes-kassandra-1100',
-    side: 'YES',
-    username: 'kassandra',
-    avatar: '/Stems/epstein transparent.png',
-    wagered: 1100,
-    partialFillAllowed: true
-  },
-  {
-    id: 'yes-kassandra-750',
-    side: 'YES',
-    username: 'Kassandra',
-    badge: 'Friend',
-    avatar: '/Stems/betskuu.png',
-    wagered: 750,
-    partialFillAllowed: true
-  },
-  {
-    id: 'yes-whaleshark',
-    side: 'YES',
-    username: 'WhaleShark',
-    badge: 'Whale',
-    avatar: '/Stems/BetskiPEFFPEE.png',
-    wagered: 420,
-    partialFillAllowed: false
-  },
-  {
-    id: 'yes-chartnerd',
-    side: 'YES',
-    username: 'ChartNerd',
-    badge: 'Following',
-    avatar: '/Stems/moggorrr transparent.png',
-    wagered: 220,
-    partialFillAllowed: true
-  },
-  {
-    id: 'yes-satoshibet',
-    side: 'YES',
-    username: 'SatoshiBet',
-    avatar: '/Stems/epstein transparent.png',
-    wagered: 90,
-    partialFillAllowed: true
-  }
-]
-
-const ALL_WAGER_OPPONENTS = [...NO_SIDE_OPPONENTS, ...YES_SIDE_OPPONENTS]
-
-const WAGER_BOOK_ROWS: Array<{ no?: WagerOpponent; yes?: WagerOpponent }> = [
-  { no: NO_SIDE_OPPONENTS[0], yes: YES_SIDE_OPPONENTS[0] },
-  { no: NO_SIDE_OPPONENTS[1] },
-  { yes: YES_SIDE_OPPONENTS[1] },
-  { no: NO_SIDE_OPPONENTS[2], yes: YES_SIDE_OPPONENTS[2] },
-  { no: NO_SIDE_OPPONENTS[3] },
-  { yes: YES_SIDE_OPPONENTS[3] },
-  { no: NO_SIDE_OPPONENTS[4], yes: YES_SIDE_OPPONENTS[4] }
-]
+const FILL_AVATARS: Record<string, string> = {
+  BenBetski: '/Stems/BetskiPEFFPEE.png',
+  moggorrr: '/Stems/moggorrr transparent.png',
+  epstein: '/Stems/epstein transparent.png',
+  MarkDiTob: '/Stems/moggorrr transparent.png',
+  DeskWhale: '/Stems/betskuu.png',
+  ClipQueen: '/Stems/betskuu.png'
+}
 
 const formatWagerAmount = (value: number) =>
   value >= 1000 ? `${(value / 1000).toFixed(value >= 10000 ? 1 : 2)}K` : Math.round(value).toLocaleString()
 
 const formatCurrencyAmount = (value: number) => `$${formatWagerAmount(value)}`
-
-const OpponentBadgePill = ({ badge }: { badge?: OpponentBadge }) => {
-  if (!badge) return null
-  return <span className={`wager-ref-badge wager-ref-badge--${badge.toLowerCase()}`}>{badge}</span>
-}
 
 const OpponentIdentity = ({
   opponent,
@@ -163,14 +58,14 @@ const OpponentIdentity = ({
   align?: 'left' | 'right'
 }) => (
   <span className={`wager-ref-person wager-ref-person--${align}`}>
-    <img src={opponent.avatar} alt="" className="wager-ref-avatar" />
+    {align === 'left' && <img src={opponent.avatar} alt="" className="wager-ref-avatar" />}
     <span className="wager-ref-person-copy">
       <span className="wager-ref-name-line">
         <strong>{opponent.username}</strong>
-        <OpponentBadgePill badge={opponent.badge} />
       </span>
       <span>{formatWagerAmount(opponent.wagered)} wagered</span>
     </span>
+    {align === 'right' && <img src={opponent.avatar} alt="" className="wager-ref-avatar" />}
   </span>
 )
 
@@ -181,17 +76,15 @@ const WagerLiquidityPanel = ({
   walletBalance,
   activeMode,
   onBack,
-  onSelectSide,
   onExecuteTrade
 }: WagerLiquidityPanelProps) => {
-  const [buyAmount, setBuyAmount] = useState(25)
   const [customAmount, setCustomAmount] = useState('250')
   const [fillMode, setFillMode] = useState<'any' | 'specific'>('specific')
-  const [selectedOpponentId, setSelectedOpponentId] = useState('yes-kassandra-750')
+  const [selectedOpponentId, setSelectedOpponentId] = useState<string | null>(null)
   const [fillRestriction, setFillRestriction] = useState<'partial' | 'full'>('partial')
 
   const isTrading = activeMode === 'long' || activeMode === 'short'
-  const tradeSide = activeMode === 'long' ? 'yes' : activeMode === 'short' ? 'no' : null
+  const tradeSide = isTrading ? (activeMode === 'long' ? 'yes' : 'no') : 'yes'
   const yesOdds = selectedOdds
   const noOdds = 100 - selectedOdds
   const tradePrice = tradeSide === 'yes' ? yesOdds : noOdds
@@ -201,67 +94,111 @@ const WagerLiquidityPanel = ({
     () => getSelectedLineFills(wager, fills, selectedOdds),
     [wager, fills, selectedOdds]
   )
-  const selectedOpponent = ALL_WAGER_OPPONENTS.find((opponent) => opponent.id === selectedOpponentId) ?? YES_SIDE_OPPONENTS[1]
-  const noWageredTotal = NO_SIDE_OPPONENTS.reduce((sum, opponent) => sum + opponent.wagered, 0)
-  const yesWageredTotal = YES_SIDE_OPPONENTS.reduce((sum, opponent) => sum + opponent.wagered, 0)
+  
+  // Convert selectedLineFills to WagerOpponent format
+  const lineOpponents: WagerOpponent[] = useMemo(() => {
+    return selectedLineFills.map((fill) => {
+      // 70% fully filled, 30% partial (using hash of fill.id for consistency)
+      const hash = fill.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+      const isFullyFilled = (hash % 10) < 7
+      let filledAmount: number
+      if (isFullyFilled) {
+        filledAmount = fill.availableSize
+      } else {
+        // For partial, use a random percentage between 10-60%
+        const partialHash = fill.counterpartyName.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+        const filledPercent = (partialHash % 50) + 10 // 10-60% filled
+        filledAmount = Math.round((fill.availableSize * filledPercent) / 100)
+      }
+      return {
+        id: fill.id,
+        side: fill.side,
+        username: fill.counterpartyName,
+        avatar: FILL_AVATARS[fill.counterpartyName] || '/Stems/BetskiPEFFPEE.png',
+        wagered: fill.availableSize,
+        filledAmount,
+        partialFillAllowed: fill.partialFillAllowed
+      }
+    }).sort((a, b) => b.wagered - a.wagered)
+  }, [selectedLineFills])
+
+  const noOpponents = lineOpponents.filter(o => o.side === 'NO')
+  const yesOpponents = lineOpponents.filter(o => o.side === 'YES')
+  
+  // Build WAGER_BOOK_ROWS from lineOpponents
+  const WAGER_BOOK_ROWS = useMemo(() => {
+    const maxLen = Math.max(noOpponents.length, yesOpponents.length)
+    const rows: Array<{ no?: WagerOpponent; yes?: WagerOpponent }> = []
+    for (let i = 0; i < maxLen; i++) {
+      const row: { no?: WagerOpponent; yes?: WagerOpponent } = {}
+      if (i < noOpponents.length) row.no = noOpponents[i]
+      if (i < yesOpponents.length) row.yes = yesOpponents[i]
+      rows.push(row)
+    }
+    return rows
+  }, [noOpponents, yesOpponents])
+  
+  // Set default selected opponent if needed
+  const selectedOpponent = useMemo(() => {
+    if (selectedOpponentId) {
+      return lineOpponents.find((o: WagerOpponent) => o.id === selectedOpponentId)
+    }
+    const defaultSide = tradeSide === 'no' ? 'NO' : 'YES'
+    return lineOpponents.find((o: WagerOpponent) => o.side === defaultSide) || null
+  }, [lineOpponents, selectedOpponentId, tradeSide])
+
+  // Update selected opponent when selectedOdds changes (only if no opponent is selected)
+  useEffect(() => {
+    if (!selectedOpponentId) {
+      const defaultSide = tradeSide === 'no' ? 'NO' : 'YES'
+      const firstSideOpponent = lineOpponents.find((o: WagerOpponent) => o.side === defaultSide)
+      setSelectedOpponentId(firstSideOpponent?.id || null)
+    }
+  }, [selectedOdds, lineOpponents, tradeSide, selectedOpponentId])
+  
+  const noWageredTotal = noOpponents.reduce((sum, o) => sum + o.wagered, 0)
+  const yesWageredTotal = yesOpponents.reduce((sum, o) => sum + o.wagered, 0)
   const maxOpponentWagered = Math.max(
-    ...ALL_WAGER_OPPONENTS.map((opponent) => opponent.wagered),
+    ...lineOpponents.map(o => o.wagered),
     1
   )
   const potentialMultiplier = tradePrice > 0 ? (100 / tradePrice).toFixed(1) : '0.0'
-  const usdPreview = Number(customAmount) || 0
+  const potentialProfitDollars = tradePrice > 0 ? (userStake * (100 / tradePrice) - userStake).toFixed(2) : '0.00'
 
   const handleCustomBuy = () => {
     const usd = userStake
     if (usd <= 0 || usd > walletBalance) return
-    if (selectedOpponent.wagered <= 0) return
+    if (!selectedOpponent) return
+    // Prevent submitting against fully filled wagers
+    if (selectedOpponent.filledAmount >= selectedOpponent.wagered) return
     onExecuteTrade({
       marketId: wager.id,
       marketName: wager.name,
-      side: tradeSide ?? 'yes',
+      side: tradeSide,
       usdAmount: usd,
       price: tradePrice
     })
     onBack()
   }
 
-  if (isTrading && tradeSide) {
-    return (
-      <motion.div
-        className="panel orderbook-panel wager-liquidity-panel wager-liquidity-panel--trading"
-        initial={{ opacity: 0, scale: 0.98, y: 12 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.98, y: 12 }}
-      >
-        <div className="wager-ref-shell">
-          <div className="wager-ref-head">
-            <div className="wager-ref-head-copy">
-              <button type="button" className="wager-ref-back" onClick={onBack} aria-label="Back">
-                <ArrowLeft size={18} />
-              </button>
-              <div>
-                <div className="wager-ref-title">TRADE</div>
-                <div className="wager-ref-line-label">SELECTED LINE</div>
-                <div className="wager-ref-line-value">
-                  {yesOdds}¢ YES <span>•</span> {noOdds}¢ NO
-                </div>
+  const defaultUserSide = userSide
+
+  return (
+    <motion.div
+      className="panel orderbook-panel wager-liquidity-panel wager-liquidity-panel--trading"
+      initial={{ opacity: 0, scale: 0.98, y: 12 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.98, y: 12 }}
+    >
+      <div className="wager-ref-shell">
+        <div className="wager-ref-head">
+          <div className="wager-ref-head-copy">
+            <div>
+              <div className="wager-ref-title">TRADE</div>
+              <div className="wager-ref-line-label">SELECTED LINE</div>
+              <div className="wager-ref-line-value">
+                {yesOdds}¢ YES <span>•</span> {noOdds}¢ NO
               </div>
-            </div>
-            <div className="wager-ref-side-squares" role="group" aria-label="Wager side">
-              <button
-                type="button"
-                className={`wager-ref-side-square wager-ref-side-square--yes${userSide === 'YES' ? ' active' : ''}`}
-                onClick={() => onSelectSide?.('yes')}
-              >
-                Y
-              </button>
-              <button
-                type="button"
-                className={`wager-ref-side-square wager-ref-side-square--no${userSide === 'NO' ? ' active' : ''}`}
-                onClick={() => onSelectSide?.('no')}
-              >
-                N
-              </button>
             </div>
           </div>
 
@@ -281,108 +218,155 @@ const WagerLiquidityPanel = ({
               Pick Specific
             </button>
           </div>
+        </div>
 
-          <div className="wager-ref-totals">
-            <div>
-              <span>NO wagered</span>
-              <strong className="wager-ref-red">{formatCurrencyAmount(noWageredTotal)}</strong>
-            </div>
-            <i aria-hidden="true" />
-            <div>
-              <span>YES wagered</span>
-              <strong className="wager-ref-green">{formatCurrencyAmount(yesWageredTotal)}</strong>
-            </div>
+        <div className="wager-ref-totals">
+          <div>
+            <span>NO wagered</span>
+            <strong className="wager-ref-red">{formatCurrencyAmount(noWageredTotal)}</strong>
           </div>
+          <i aria-hidden="true" />
+          <div>
+            <span>YES wagered</span>
+            <strong className="wager-ref-green">{formatCurrencyAmount(yesWageredTotal)}</strong>
+          </div>
+        </div>
 
-          <div className="wager-ref-book">
-            <div className="wager-ref-book-head">
-              <span className="wager-ref-red">NO SIDE</span>
-              <span className="wager-ref-green">YES SIDE</span>
-            </div>
-            <div className="wager-ref-book-rows">
-              {WAGER_BOOK_ROWS.map((row, index) => {
-                const noOpponent = row.no
-                const yesOpponent = row.yes
-                const noWidth = noOpponent ? Math.max(10, (noOpponent.wagered / maxOpponentWagered) * 100) : 0
-                const yesWidth = yesOpponent ? Math.max(10, (yesOpponent.wagered / maxOpponentWagered) * 100) : 0
-                const isNoSelected = fillMode === 'specific' && noOpponent && selectedOpponentId === noOpponent.id
-                const isYesSelected = fillMode === 'specific' && yesOpponent && selectedOpponentId === yesOpponent.id
+        <div className="wager-ref-book">
+          <div className="wager-ref-book-head">
+            <span className="wager-ref-red">NO SIDE</span>
+            <span className="wager-ref-green">YES SIDE</span>
+          </div>
+          <div className="wager-ref-book-rows">
+            {WAGER_BOOK_ROWS.map((row, index) => {
+              const noOpponent = row.no
+              const yesOpponent = row.yes
+              const noWidth = noOpponent ? Math.max(10, (noOpponent.wagered / maxOpponentWagered) * 100) : 0
+              const yesWidth = yesOpponent ? Math.max(10, (yesOpponent.wagered / maxOpponentWagered) * 100) : 0
+              // Calculate filled percentages (avoid division by zero)
+              const noFilledPercent = noOpponent && noOpponent.wagered > 0 
+                ? Math.max(0, Math.min(100, (noOpponent.filledAmount / noOpponent.wagered) * 100)) 
+                : 0
+              const yesFilledPercent = yesOpponent && yesOpponent.wagered > 0 
+                ? Math.max(0, Math.min(100, (yesOpponent.filledAmount / yesOpponent.wagered) * 100)) 
+                : 0
+              const isNoSelected = fillMode === 'specific' && noOpponent && selectedOpponentId === noOpponent.id
+              const isYesSelected = fillMode === 'specific' && yesOpponent && selectedOpponentId === yesOpponent.id
+              const isNoFilled = noOpponent && noOpponent.filledAmount >= noOpponent.wagered
+              const isYesFilled = yesOpponent && yesOpponent.filledAmount >= yesOpponent.wagered
 
-                return (
-                  <div
-                    key={`wager-book-row-${index}`}
-                    className={`wager-ref-book-row${isNoSelected || isYesSelected ? ` is-selected is-selected--${userSide.toLowerCase()}` : ''}`}
-                  >
-                    {noOpponent ? (
-                      <button
-                        type="button"
-                        className={`wager-ref-person-btn${isNoSelected ? ' active' : ''}`}
-                        onClick={() => setSelectedOpponentId(noOpponent.id)}
-                      >
-                        <OpponentIdentity opponent={noOpponent} />
-                      </button>
-                    ) : (
-                      <span className="wager-ref-empty-side wager-ref-empty-side--no">Waiting to be filled</span>
-                    )}
-                    {noOpponent ? (
-                      <button
-                        type="button"
-                        className="wager-ref-bar-cell wager-ref-bar-cell--no"
-                        onClick={() => setSelectedOpponentId(noOpponent.id)}
-                        aria-label={`Select ${noOpponent.username}`}
-                      >
-                        <span style={{ width: `${noWidth}%` }} />
-                      </button>
-                    ) : (
-                      <span className="wager-ref-bar-cell wager-ref-bar-cell--empty" />
-                    )}
-                    <span className="wager-ref-center-line" aria-hidden="true" />
+              return (
+                <div
+                  key={`wager-book-row-${index}`}
+                  className={`wager-ref-book-row${isNoSelected || isYesSelected ? ` is-selected is-selected--${defaultUserSide.toLowerCase()}` : ''}`}
+                >
+                  {noOpponent ? (
                     <button
                       type="button"
-                      className="wager-ref-bar-cell wager-ref-bar-cell--yes"
-                      onClick={() => yesOpponent && setSelectedOpponentId(yesOpponent.id)}
-                      aria-label={yesOpponent ? `Select ${yesOpponent.username}` : undefined}
+                      className={`wager-ref-person-btn${isNoSelected ? ' active' : ''}${isNoFilled ? ' is-filled' : ''}`}
+                      onClick={() => !isNoFilled && setSelectedOpponentId(noOpponent.id)}
+                      disabled={isNoFilled}
                     >
-                      {yesOpponent && <span style={{ width: `${yesWidth}%` }} />}
+                      <OpponentIdentity opponent={noOpponent} />
                     </button>
-                    {yesOpponent ? (
-                      <button
-                        type="button"
-                        className={`wager-ref-person-btn${isYesSelected ? ' active' : ''}`}
-                        onClick={() => setSelectedOpponentId(yesOpponent.id)}
+                  ) : (
+                    <button
+                      type="button"
+                      className="wager-ref-empty-side wager-ref-empty-side--no"
+                      onClick={() => yesOpponent && setSelectedOpponentId(yesOpponent.id)}
+                      disabled={!yesOpponent}
+                    >
+                      Waiting to be filled
+                    </button>
+                  )}
+                  {noOpponent ? (
+                    <button
+                      type="button"
+                      className={`wager-ref-bar-cell wager-ref-bar-cell--no${isNoFilled ? ' is-filled' : ''}`}
+                      onClick={() => !isNoFilled && setSelectedOpponentId(noOpponent.id)}
+                      disabled={isNoFilled}
+                      aria-label={`Select ${noOpponent.username}`}
+                    >
+                      <div
+                        className="wager-ref-bar-container"
+                        style={{ width: `${noWidth}%` }}
                       >
-                        <OpponentIdentity opponent={yesOpponent} align="right" />
-                      </button>
-                    ) : (
-                      <span className="wager-ref-empty-side wager-ref-empty-side--yes">Waiting to be filled</span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+                        <div
+                          className="wager-ref-bar-fill"
+                          style={{ width: `${noFilledPercent}%` }}
+                        />
+                      </div>
+                    </button>
+                  ) : (
+                    <span className="wager-ref-bar-cell wager-ref-bar-cell--empty" />
+                  )}
+                  <span className="wager-ref-center-line" aria-hidden="true" />
+                  <button
+                    type="button"
+                    className={`wager-ref-bar-cell wager-ref-bar-cell--yes${isYesFilled ? ' is-filled' : ''}`}
+                    onClick={() => !isYesFilled && yesOpponent && setSelectedOpponentId(yesOpponent.id)}
+                    disabled={isYesFilled}
+                    aria-label={yesOpponent ? `Select ${yesOpponent.username}` : undefined}
+                  >
+                    {yesOpponent ? (
+                      <div
+                        className="wager-ref-bar-container"
+                        style={{ width: `${yesWidth}%` }}
+                      >
+                        <div
+                          className="wager-ref-bar-fill"
+                          style={{ width: `${yesFilledPercent}%` }}
+                        />
+                      </div>
+                    ) : null}
+                  </button>
+                  {yesOpponent ? (
+                    <button
+                      type="button"
+                      className={`wager-ref-person-btn${isYesSelected ? ' active' : ''}${isYesFilled ? ' is-filled' : ''}`}
+                      onClick={() => !isYesFilled && setSelectedOpponentId(yesOpponent.id)}
+                      disabled={isYesFilled}
+                    >
+                      <OpponentIdentity opponent={yesOpponent} align="right" />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="wager-ref-empty-side wager-ref-empty-side--yes"
+                      onClick={() => noOpponent && setSelectedOpponentId(noOpponent.id)}
+                      disabled={!noOpponent}
+                    >
+                      Waiting to be filled
+                    </button>
+                  )}
+                </div>
+              )
+            })}
           </div>
+        </div>
 
-          <div className="wager-ref-fill-radios" role="group" aria-label="Fill restrictions">
-            <button
-              type="button"
-              className={fillRestriction === 'partial' ? 'active' : ''}
-              onClick={() => setFillRestriction('partial')}
-            >
-              <span />
-              Partial fills allowed
-            </button>
-            <button
-              type="button"
-              className={fillRestriction === 'full' ? 'active' : ''}
-              onClick={() => setFillRestriction('full')}
-            >
-              <span />
-              Full fill only
-            </button>
-          </div>
+        <div className="wager-ref-fill-radios" role="group" aria-label="Fill restrictions">
+          <button
+            type="button"
+            className={fillRestriction === 'partial' ? 'active' : ''}
+            onClick={() => setFillRestriction('partial')}
+          >
+            <span />
+            Partial fills allowed
+          </button>
+          <button
+            type="button"
+            className={fillRestriction === 'full' ? 'active' : ''}
+            onClick={() => setFillRestriction('full')}
+          >
+            <span />
+            Full fill only
+          </button>
+        </div>
 
+        {selectedOpponent && (
           <div className="wager-ref-selected-fill">
-            <div className="wager-ref-selected-label">SELECTED FILL</div>
+            <div className="wager-ref-selected-label">Wagering against</div>
             <div className="wager-ref-selected-body">
               <OpponentIdentity opponent={selectedOpponent} />
               <div className="wager-ref-selected-meta">
@@ -397,109 +381,59 @@ const WagerLiquidityPanel = ({
               </button>
             </div>
           </div>
+        )}
 
-          <div className="wager-ref-bottom-grid">
-            <label className="wager-ref-amount-card" htmlFor="wager-buy-amount">
-              <span>AMOUNT</span>
-              <span className="wager-ref-amount-input-row">
+        <div className="wager-ref-bottom-grid">
+          <div className="wager-ref-amount-card">
+            <div className="wager-ref-amount-picker">
+              <span className="wager-ref-amount-label">Amount</span>
+              <div className="wager-ref-amount-input-wrapper">
+                <span className="wager-ref-amount-currency">$</span>
                 <input
                   id="wager-buy-amount"
+                  className="wager-ref-amount-input"
                   value={customAmount}
                   onChange={(e) => setCustomAmount(e.target.value)}
                   inputMode="decimal"
                 />
-                <span className="wager-ref-token-select">
-                  <span className="wager-ref-token-icon">$</span>
-                  USDC
-                  <ChevronDown size={14} />
-                </span>
-              </span>
-              <em>≈ {usdPreview.toFixed(2)} USD</em>
-            </label>
-
-            <div className="wager-ref-gain-card">
-              <span>POTENTIAL GAIN</span>
-              <strong>{potentialMultiplier}x</strong>
-              <em>POTENTIAL RETURN</em>
+              </div>
+            </div>
+            <div className="wager-ref-quick-amounts">
+              {QUICK_AMOUNTS.map((amount) => (
+                <button
+                  key={amount}
+                  type="button"
+                  className={`wager-ref-quick-btn${Number(customAmount) === amount ? ' active' : ''}`}
+                  onClick={() => setCustomAmount(String(amount))}
+                >
+                  ${amount}
+                </button>
+              ))}
             </div>
           </div>
 
-          <button
-            type="button"
-            className="wager-ref-submit"
-            onClick={handleCustomBuy}
-          >
-            Place order with {selectedOpponent.username}
-          </button>
-
-          <div className="wager-ref-footer">
-            <ShieldCheck size={15} />
-            <span>
-              By placing this order you agree to the <a href="#market-rules">market rules</a>.
-            </span>
+          <div className="wager-ref-gain-card">
+            <span className="wager-ref-gain-label">Potential profit</span>
+            <strong>${potentialProfitDollars}</strong>
+            <em>{potentialMultiplier}x RETURN</em>
           </div>
         </div>
-      </motion.div>
-    )
-  }
 
-  return (
-    <motion.div
-      className="panel orderbook-panel wager-liquidity-panel"
-      initial={{ opacity: 0, scale: 0.98, y: -12 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-    >
-      <div className="panel-header orderbook-header orderbook-header--trades-only">
-        <span className="orderbook-title">TRADE</span>
-      </div>
-      <div className="wager-liquidity-quick">
-        <div className="wager-liquidity-quick-top">
-          <div>
-            <div className="wager-liquidity-quick-label">Fill at selected line</div>
-            <div className="wager-liquidity-quick-odds">
-              {selectedOdds}¢ YES · {100 - selectedOdds}¢ NO
-            </div>
-          </div>
-          <TradeActions
-            yesPrice={selectedOdds}
-            noPrice={100 - selectedOdds}
-            amountUsd={buyAmount}
-            marketId={wager.id}
-            marketName={wager.name}
-            onExecuteTrade={onExecuteTrade}
-          />
-        </div>
-        <div className="wager-trade-quick-row">
-          {QUICK_AMOUNTS.map((a) => (
-            <button
-              key={a}
-              type="button"
-              className={`wager-trade-quick${buyAmount === a ? ' active' : ''}`}
-              onClick={() => setBuyAmount(a)}
-            >
-              ${a}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="wager-liquidity-summary">
-        <div className="wager-liquidity-summary-row">
-          <span>Opponents</span>
+        <button
+          type="button"
+          className="wager-ref-submit"
+          onClick={handleCustomBuy}
+          disabled={!selectedOpponent}
+        >
+          {selectedOpponent ? `Wager against ${selectedOpponent.username}` : 'No opponents available'}
+        </button>
+
+        <div className="wager-ref-footer">
+          <ShieldCheck size={15} />
           <span>
-            {selectedLineFills.length} at selected line
+            By placing this order you agree to the <a href="#market-rules">market rules</a>.
           </span>
         </div>
-        <div className="wager-liquidity-summary-row">
-          <span>Wallet</span>
-          <span>{formatCompactUsd(walletBalance)}</span>
-        </div>
-        <div className="wager-liquidity-summary-row">
-          <span>Open lines</span>
-          <span>{wager.openBets.length}</span>
-        </div>
-        <p className="wager-liquidity-summary-hint">
-          Select an odds line on the left, then fill PVP wagers from this panel.
-        </p>
       </div>
     </motion.div>
   )

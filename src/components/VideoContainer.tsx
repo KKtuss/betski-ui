@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Send } from 'lucide-react'
+import { Send, Volume2, VolumeX } from 'lucide-react'
 import MediaCard, { type MediaSlide } from './MediaCard'
 import type { Market } from '../data/marketCatalog'
 import './VideoContainer.css'
@@ -59,6 +59,7 @@ const VideoContainer = ({
   const [currentIndex, setCurrentIndex] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [showPositions, setShowPositions] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(false)
   const snapTimerRef = useRef<number | null>(null)
   const isSnappingRef = useRef(false)
   const desiredCenterXRef = useRef<number | null>(null)
@@ -377,6 +378,14 @@ const VideoContainer = ({
         <motion.div className="share-controls" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}>
           <button type="button" className="share-icon-button" aria-label="Share" onClick={() => onShareClick?.()}>
             <Send size={26} strokeWidth={2.25} />
+          </button>
+          <button
+            type="button"
+            className={`sound-toggle-button ${soundEnabled ? 'active' : ''}`}
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            aria-label={soundEnabled ? 'Mute' : 'Unmute'}
+          >
+            {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
           </button>
         </motion.div>
       </motion.div>

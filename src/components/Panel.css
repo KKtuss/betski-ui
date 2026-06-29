@@ -498,8 +498,11 @@
 
 .rules-panel .panel-content {
   min-width: 0;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: flex-start;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .rules-list {
@@ -508,17 +511,50 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.rules-list.rules-tab-content {
+  flex: 0 0 auto;
+}
+
+.wager-rules-fills,
+.wager-rules-pool {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 100%;
+}
+
+.wager-pool-table-head,
+.wager-pool-table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.6fr;
+  gap: 8px;
+  padding: 8px 0;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.wager-pool-table-head {
+  position: sticky;
+  top: 0;
+  background: #0B0B0C;
+  z-index: 1;
+}
+
+.wager-pool-table-row:last-child {
+  border-bottom: none;
 }
 
 .rule-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
-  padding: 6px 0;
+  padding: 4px 0;
   color: #d0d0d0;
-  font-size: 13px;
+  font-size: 11px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
