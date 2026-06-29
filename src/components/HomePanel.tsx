@@ -1,9 +1,11 @@
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeftRight, ChevronLeft, Send, TrendingUp } from 'lucide-react'
+import { ArrowLeftRight, Bell, ChevronLeft, Send, TrendingUp } from 'lucide-react'
 import { buildMarketCatalog } from '../data/marketCatalog'
 import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
 import { useAppStore } from '../hooks/useAppStore'
+import { useNotifications } from '../hooks/useNotifications'
+import { getUnreadCount } from '../data/notificationStore'
 import { CURRENT_USER_HANDLE, type MarketId } from '../data/appStore'
 import './Panel.css'
 import './HomePanel.css'
@@ -14,6 +16,7 @@ type HomePanelProps = {
   variant?: HomePanelVariant
   onOpenMarket?: (marketId: MarketId) => void
   onViewProfile?: (handle: string) => void
+  onOpenNotifications?: () => void
   onCollapse?: () => void
   side?: 'left' | 'right'
   onToggleSide?: () => void
@@ -74,6 +77,7 @@ const HomePanel = ({
   variant = 'fullscreen',
   onOpenMarket,
   onViewProfile,
+  onOpenNotifications,
   onCollapse,
   side = 'left',
   onToggleSide,
@@ -81,6 +85,8 @@ const HomePanel = ({
   const isRail = variant === 'rail'
   const catalog = useDiscoveryCatalog()
   const appState = useAppStore()
+  const notifState = useNotifications()
+  const unreadCount = useMemo(() => getUnreadCount(), [notifState.notifications])
 
   // Real markets — exclude legacy video captions, sort by total volume.
   const markets = useMemo(
@@ -236,25 +242,24 @@ const HomePanel = ({
           <div className="home-header-title-group">
             <span className="home-header-wordmark">HOME</span>
             <span className="home-header-sub">
-              {isRail ? (
-                <>
-                  @{CURRENT_USER_HANDLE}
-                  <span className="home-notif-badge" aria-label="1 notification">
-                    1
-                  </span>
-                </>
-              ) : (
-                <>
-                  Welcome back, {CURRENT_USER_HANDLE}
-                  <span className="home-notif-badge" aria-label="1 notification">
-                    1
-                  </span>
-                </>
-              )}
+              {isRail ? `@${CURRENT_USER_HANDLE}` : `Welcome back, ${CURRENT_USER_HANDLE}`}
             </span>
           </div>
         </div>
         <div className="home-header-actions">
+          <button
+            type="button"
+            className="home-notif-btn"
+            onClick={() => onOpenNotifications?.()}
+            aria-label={unreadCount > 0 ? `${unreadCount} notifications` : 'Notifications'}
+          >
+            <Bell size={16} strokeWidth={2.25} />
+            {unreadCount > 0 && (
+              <span className="home-notif-badge" aria-hidden>
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </button>
           <button
             type="button"
             className="home-profile-btn"

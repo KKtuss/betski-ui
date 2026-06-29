@@ -23,6 +23,7 @@ import ProfileLootboxesStrip from './profile/ProfileLootboxesStrip'
 import ProfileLootboxVideo from './profile/ProfileLootboxVideo'
 import ProfilePositionsList, { type ProfilePosition } from './profile/ProfilePositionsList'
 import ProfileTradeTape from './profile/ProfileTradeTape'
+import NotificationSettingsSection from './NotificationSettingsSection'
 import './Panel.css'
 import './ProfilePanel.css'
 
@@ -431,6 +432,8 @@ const ProfilePanel = ({
     <ProfilePositionsList positions={positions} onOpenMarket={onOpenMarket} />
   )
 
+  const notificationSettings = isSelf ? <NotificationSettingsSection /> : null
+
   return (
     <motion.div
       className="panel profile-panel"
@@ -508,6 +511,7 @@ const ProfilePanel = ({
               >
                 {profileCard}
                 {lootboxesStrip}
+                {notificationSettings}
               </div>
               <div
                 ref={mobileTradingSectionRef}
@@ -525,6 +529,7 @@ const ProfilePanel = ({
           <div className="profile-grid">
             <div className="profile-left-stack">
               {profileCard}
+              {notificationSettings}
             </div>
 
             <div className="profile-center-stack">

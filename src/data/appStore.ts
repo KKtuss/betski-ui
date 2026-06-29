@@ -1,4 +1,5 @@
 import { mulberry32 } from '../utils/random'
+import { emitWagerFillNotification } from '../utils/notificationEmitter'
 
 export type MarketId = string
 
@@ -303,6 +304,15 @@ export const executeTrade = (params: ExecuteTradeParams): { ok: boolean; error?:
       ]
     }
     saveAppState(next)
+    if (source === 'wager') {
+      emitWagerFillNotification({
+        wagerId: marketId,
+        wagerName: marketName,
+        side: outcome,
+        usdAmount,
+        price: price * 100
+      })
+    }
     return { ok: true }
   }
 

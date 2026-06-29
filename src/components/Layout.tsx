@@ -14,6 +14,7 @@ import DiscoveryPanel from './DiscoveryPanel'
 import { CreateWagerView } from './discovery/CreateWagerView'
 import ProfilePanel from './ProfilePanel'
 import HomePanel from './HomePanel'
+import NotificationCenterPanel from './NotificationCenterPanel'
 import type { OpenBet, Wager } from '../types/discovery'
 import type { PendingShare, PendingShareText, PendingShareTrade } from '../types/layoutShare'
 import { useMarketTick } from '../hooks/useMarketTick'
@@ -21,6 +22,7 @@ import { useAppStore } from '../hooks/useAppStore'
 import { useHashNavigation } from '../hooks/useHashNavigation'
 import { useHomeMobileLayout } from '../hooks/useHomeMobileLayout'
 import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
+import { useNotificationWatcher } from '../hooks/useNotificationWatcher'
 import {
   executeTrade,
   setSelectedMarketId,
@@ -35,6 +37,8 @@ import {
 import { buildMarketViewData } from '../utils/buildMarketViewData'
 import { buildShareMarket } from '../utils/buildShareMarket'
 import { consensusYesFromOpenBets, getWagerFills } from '../utils/wagerFills'
+import { parseNotificationTargetRoute } from '../utils/notificationEmitter'
+import type { AppNotification } from '../types/notifications'
 import { RECENT_TRADES_MAX } from '../constants/layout'
 import './Layout.css'
 
@@ -42,11 +46,13 @@ const Layout = () => {
   const appState = useAppStore()
   const discoveryCatalog = useDiscoveryCatalog()
   const { route, navigate } = useHashNavigation()
+  useNotificationWatcher()
 
-  const [activeTab, setActiveTab] = useState<'main' | 'socials' | 'discovery' | 'profile'>(() => {
+  const [activeTab, setActiveTab] = useState<'main' | 'socials' | 'discovery' | 'profile' | 'notifications'>(() => {
     if (route.type === 'discovery') return 'discovery'
     if (route.type === 'socials') return 'socials'
     if (route.type === 'profile') return 'profile'
+    if (route.type === 'notifications') return 'notifications'
     return 'main'
   })
 
@@ -108,6 +114,43 @@ const Layout = () => {
     [navigate]
   )
 
+  const openNotifications = useCallback(() => {
+    setActiveTab('notifications')
+    setHomeFeedOpen(false)
+    navigate({ type: 'notifications' })
+  }, [navigate])
+
+  const handleOpenNotification = useCallback(
+    (notification: AppNotification) => {
+      const dest = parseNotificationTargetRoute(notification.target)
+      setHomeFeedOpen(false)
+      setMobileSheetOpen(false)
+      if (dest.chatId) setSocialsInitialChatId(dest.chatId)
+      if (dest.marketId) {
+        openMarket(dest.marketId)
+        return
+      }
+      if (dest.tab === 'profile') {
+        openProfile(dest.handle ?? null)
+        return
+      }
+      if (dest.tab === 'socials') {
+        setActiveTab('socials')
+        navigate({ type: 'socials', chatId: dest.chatId })
+        return
+      }
+      if (dest.tab === 'discovery') {
+        setActiveTab('discovery')
+        navigate({ type: 'discovery' })
+        return
+      }
+      if (dest.tab === 'notifications') {
+        openNotifications()
+      }
+    },
+    [navigate, openMarket, openNotifications, openProfile]
+  )
+
   useEffect(() => {
     void ensureDiscoveryThumbnails()
   }, [])
@@ -117,12 +160,20 @@ const Layout = () => {
       setSelectedMarketId(route.marketId)
       setActiveTab('main')
     } else if (route.type === 'discovery') setActiveTab('discovery')
-    else if (route.type === 'socials') setActiveTab('socials')
-    else if (route.type === 'profile') {
+    else if (route.type === 'socials') {
+      setActiveTab('socials')
+      if (route.chatId) setSocialsInitialChatId(route.chatId)
+    } else if (route.type === 'profile') {
       setActiveTab('profile')
       setViewingProfileHandle(route.handle ?? null)
-    } else if (route.type === 'main') setActiveTab('main')
-  }, [route.type, route.type === 'main' ? route.marketId : undefined, route.type === 'profile' ? route.handle : undefined])
+    } else if (route.type === 'notifications') setActiveTab('notifications')
+    else if (route.type === 'main') setActiveTab('main')
+  }, [
+    route.type,
+    route.type === 'main' ? route.marketId : undefined,
+    route.type === 'profile' ? route.handle : undefined,
+    route.type === 'socials' ? route.chatId : undefined
+  ])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -345,6 +396,7 @@ const Layout = () => {
   const homePanelProps = {
     onOpenMarket: openMarket,
     onViewProfile: (handle: string) => openProfile(handle),
+    onOpenNotifications: openNotifications,
     onCollapse: () => setHomeFeedOpen(false),
     side: homeFeedSide,
     onToggleSide: () => setHomeFeedSide((prev) => (prev === 'left' ? 'right' : 'left')),
@@ -567,6 +619,23 @@ const Layout = () => {
             )}
           </motion.div>
         </>
+      ) : activeTab === 'notifications' ? (
+        <motion.div
+          className="layout-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25 }}
+          style={{ gridColumn: '1 / -1' }}
+        >
+          <NotificationCenterPanel
+            onBack={() => {
+              setActiveTab('main')
+              setHomeFeedOpen(true)
+              navigate({ type: 'main', marketId: selectedMarketId })
+            }}
+            onOpenNotification={handleOpenNotification}
+          />
+        </motion.div>
       ) : activeTab === 'socials' ? (
         <motion.div
           className="layout-center"
