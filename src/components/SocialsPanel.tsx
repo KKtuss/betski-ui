@@ -190,8 +190,12 @@ const SocialsPanel = ({
   )
 
   useEffect(() => {
-    if (!initialActiveChatId) return
-    setActiveChatId(initialActiveChatId)
+    if (initialActiveChatId) {
+      setActiveChatId(initialActiveChatId)
+      setMobileChatOpen(true)
+    } else {
+      setMobileChatOpen(false)
+    }
   }, [initialActiveChatId])
 
   useEffect(() => {
