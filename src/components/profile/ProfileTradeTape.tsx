@@ -13,6 +13,8 @@ import './ProfileTradeTape.css'
 export type ProfileHistoryRow = {
   pairId: string
   market: string
+  marketId?: string
+  thumbnailUrl?: string
   outcome: 'YES' | 'NO'
   buyPrice: number
   sellPrice: number
@@ -86,7 +88,7 @@ const ProfileTradeTape = ({
               <div className="profile-trade-thumb-wrap">
                 <img
                   className="profile-trade-thumb"
-                  src={discoveryStyleThumbnailUrl(t.pairId)}
+                  src={t.thumbnailUrl ?? discoveryStyleThumbnailUrl(t.pairId)}
                   alt=""
                   loading="lazy"
                   onError={onProfileMarketThumbError}
@@ -118,7 +120,7 @@ const ProfileTradeTape = ({
               <div className="profile-trade-thumb-wrap">
                 <img
                   className="profile-trade-thumb"
-                  src={discoveryStyleThumbnailUrl(row.pairId)}
+                  src={row.thumbnailUrl ?? discoveryStyleThumbnailUrl(row.pairId)}
                   alt=""
                   loading="lazy"
                   onError={onProfileMarketThumbError}
@@ -151,7 +153,7 @@ const ProfileTradeTape = ({
                       pnlUsd: row.pnlUsd,
                       pnlPct,
                       chart,
-                      thumbnailSrc: discoveryStyleThumbnailUrl(row.pairId),
+                      thumbnailSrc: row.thumbnailUrl ?? discoveryStyleThumbnailUrl(row.pairId),
                       thumbnailFallbackSrc: PROFILE_MARKET_THUMB_FALLBACK
                     })
                   }}

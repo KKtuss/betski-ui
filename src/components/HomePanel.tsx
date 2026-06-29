@@ -1,544 +1,279 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  ArrowLeftRight,
-  ArrowUpRight,
-  BarChart3,
-  BookOpen,
-  ChevronLeft,
-  Crosshair,
-  Flame,
-  Radio,
-  Send,
-  Sparkles,
-  TrendingUp,
-  Trophy,
-  UserRound,
-  Zap
-} from 'lucide-react'
-import MarketShareCard from './MarketShareCard'
-import { clamp } from '../utils/math'
-import { mulberry32 } from '../utils/random'
+import { useMemo } from 'react'
+import { motion } from 'framer-motion'
+import { ArrowLeftRight, ChevronLeft, Send, TrendingUp } from 'lucide-react'
+import { buildMarketCatalog } from '../data/marketCatalog'
+import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
+import { useAppStore } from '../hooks/useAppStore'
+import { CURRENT_USER_HANDLE, type MarketId } from '../data/appStore'
 import './Panel.css'
 import './HomePanel.css'
 
 export type HomePanelVariant = 'fullscreen' | 'rail'
 
-type FeedItem =
-  | {
-      kind: 'friend_trade'
-      id: string
-      friend: string
-      market: string
-      side: 'YES' | 'NO'
-      notionalUsd: number
-      ago: string
-    }
-  | {
-      kind: 'wallet_spotlight'
-      id: string
-      label: 'Insider' | 'KOL' | 'Whale'
-      handle: string
-      pnlUsd: number
-      winRate: number
-      tag: string
-    }
-  | {
-      kind: 'meme_article'
-      id: string
-      title: string
-      subtitle: string
-      mood: 'chaos' | 'degen' | 'meta'
-    }
-  | {
-      kind: 'sniper'
-      id: string
-      source: string
-      headline: string
-      videoId: number
-      fresh: boolean
-    }
-  | {
-      kind: 'market_pulse'
-      id: string
-      videoId: number
-      title: string
-      yesOdds: number
-      chart: { value: number; timestamp: number }[]
-      timeLeftLabel: string
-    }
-  | {
-      kind: 'viral_burst'
-      id: string
-      heat: number
-      title: string
-      body: string
-      videoId: number
-    }
-  | {
-      kind: 'group_ping'
-      id: string
-      group: string
-      text: string
-    }
-
-type PodiumTriple = {
-  second: { name: string; score: string; detail: string }
-  first: { name: string; score: string; detail: string }
-  third: { name: string; score: string; detail: string }
-}
-
-const shuffle = <T,>(arr: T[], rng: () => number) => {
-  const a = [...arr]
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
-  }
-  return a
-}
-
-const formatUsd = (value: number) => {
-  const sign = value < 0 ? '-' : '+'
-  const abs = Math.abs(value)
-  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(2)}M`
-  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(1)}K`
-  return `${sign}$${abs.toFixed(0)}`
-}
-
-const quickShare = (snippet: string) => {
-  const text = `Betski — ${snippet}`
-  if (navigator.clipboard?.writeText) {
-    void navigator.clipboard.writeText(text).catch(() => {})
-  }
-}
-
-const ShareIconButton = ({ label, title = 'Share' }: { label: string; title?: string }) => (
-  <button type="button" className="home-share-btn" title={title} aria-label={title} onClick={() => quickShare(label)}>
-    <Send size={14} strokeWidth={2.25} />
-  </button>
-)
-
-/** Podium layout: 2nd — 1st — 3rd (same neutral styling; #1 emphasized slightly) */
-const PodiumTop3 = ({ triple }: { triple: PodiumTriple }) => (
-  <div className="home-podium" role="list">
-    <div className="home-podium-slot home-podium-slot--2" role="listitem">
-      <div className="home-podium-rank" aria-hidden>
-        2
-      </div>
-      <div className="home-podium-body">
-        <div className="home-podium-name">{triple.second.name}</div>
-        <div className="home-podium-score">{triple.second.score}</div>
-        <div className="home-podium-detail">{triple.second.detail}</div>
-      </div>
-      <div className="home-podium-pedestal home-podium-pedestal--2" aria-hidden />
-    </div>
-
-    <div className="home-podium-slot home-podium-slot--1" role="listitem">
-      <div className="home-podium-rank home-podium-rank--lead" aria-hidden>
-        1
-      </div>
-      <div className="home-podium-body home-podium-body--lead">
-        <div className="home-podium-name">{triple.first.name}</div>
-        <div className="home-podium-score">{triple.first.score}</div>
-        <div className="home-podium-detail">{triple.first.detail}</div>
-      </div>
-      <div className="home-podium-pedestal home-podium-pedestal--1" aria-hidden />
-    </div>
-
-    <div className="home-podium-slot home-podium-slot--3" role="listitem">
-      <div className="home-podium-rank" aria-hidden>
-        3
-      </div>
-      <div className="home-podium-body">
-        <div className="home-podium-name">{triple.third.name}</div>
-        <div className="home-podium-score">{triple.third.score}</div>
-        <div className="home-podium-detail">{triple.third.detail}</div>
-      </div>
-      <div className="home-podium-pedestal home-podium-pedestal--3" aria-hidden />
-    </div>
-  </div>
-)
-
-const LEADER_MARKETS: PodiumTriple = {
-  first: { name: 'Skibidi Toilet still #1?', score: 'King of the hill', detail: '$2.4M vol · 24h' },
-  second: { name: 'NPC stream comeback in 48h?', score: 'Challenger', detail: '$1.9M vol' },
-  third: { name: 'GRWM: Clean Girl 2.0', score: 'Heating up', detail: '$1.1M vol' }
-}
-
-const LEADER_WALLETS: PodiumTriple = {
-  first: { name: '@MacroMuse', score: '+$186K · 7d', detail: 'KOL · 71% WR' },
-  second: { name: 'desk.sol', score: '+$142K · 7d', detail: 'Whale' },
-  third: { name: '0x7a…4c1', score: '+$98K · 7d', detail: 'Insider' }
-}
-
-const LEADER_ARTICLES: PodiumTriple = {
-  first: { name: 'Meme radar: the ticker that won’t die', score: '1.2M views', detail: 'Last 48h' },
-  second: { name: 'POV: you fade the rip again', score: '840K views', detail: 'Culture' },
-  third: { name: 'Girl dinner meta is back (?)', score: '612K views', detail: 'Meta' }
-}
-
-function buildFeedPool(rng: () => number): FeedItem[] {
-  const friends = ['MarkDiTob', 'BenBetski', 'moggorrr', 'epstein', 'DeskWhale', 'ClipQueen']
-  const mkChart = (seed: number) => {
-    const now = Date.now()
-    return Array.from({ length: 24 }, (_, i) => ({
-      value: clamp(22 + Math.sin((i + seed) * 0.33) * 20 + (i % 5) * 1.2, 1, 99),
-      timestamp: now - (23 - i) * 60 * 60 * 1000
-    }))
-  }
-
-  const friendTrades: FeedItem[] = Array.from({ length: 10 }, (_, i) => ({
-    kind: 'friend_trade',
-    id: `ft-${i}`,
-    friend: friends[i % friends.length],
-    market: [
-      'NPC stream comeback in 48h?',
-      'Skibidi Toilet still #1?',
-      'GRWM: Clean Girl 2.0 still trending?',
-      'Taylor Swift Eras Tour clips flood?',
-      'Girl Dinner still viral?'
-    ][i % 5],
-    side: rng() > 0.45 ? 'YES' : 'NO',
-    notionalUsd: Math.round(400 + rng() * 5200),
-    ago: `${5 + Math.floor(rng() * 55)}m ago`
-  }))
-
-  const wallets: FeedItem[] = Array.from({ length: 8 }, (_, i) => {
-    const labels: Array<'Insider' | 'KOL' | 'Whale'> = ['Insider', 'KOL', 'Whale']
-    return {
-      kind: 'wallet_spotlight',
-      id: `w-${i}`,
-      label: labels[i % 3],
-      handle: ['0x7a…4c1', '@MacroMuse', 'desk.sol', '0xWhale…9f', '@ChainBanter', 'vault.eth', '@KOLDesk', '0x99…aa'][i % 8],
-      pnlUsd: Math.round(12000 + rng() * 180000),
-      winRate: Math.round(52 + rng() * 38),
-      tag: ['On fire', 'New', 'Tracked', 'Top 10', 'Sniper', 'Hot', 'Alpha', 'OG'][i % 8]
-    } as FeedItem
-  })
-
-  const memes: FeedItem[] = [
-    { kind: 'meme_article', id: 'm0', title: 'Meme radar: the ticker that won’t die', subtitle: 'Volume + chatter spiking in the last hour', mood: 'chaos' as const },
-    { kind: 'meme_article', id: 'm1', title: 'POV: you fade the rip again', subtitle: 'Narrative velocity vs. actual fills', mood: 'degen' as const },
-    { kind: 'meme_article', id: 'm2', title: 'Girl dinner meta is back (?)', subtitle: 'Sentiment split 58/42 on the tape', mood: 'meta' as const },
-    { kind: 'meme_article', id: 'm3', title: 'Random frog coin mentions +420%', subtitle: 'Classic weekend casino behaviour', mood: 'chaos' as const },
-    { kind: 'meme_article', id: 'm4', title: '“Trust the process” — which process?', subtitle: 'Crowd laughs, order book doesn’t', mood: 'degen' as const }
-  ]
-
-  const snipers: FeedItem[] = [
-    { kind: 'sniper', id: 's0', source: 'X / @MacroMuse', headline: 'Breaking: unexpected collab clip — market incoming', videoId: 2, fresh: true },
-    { kind: 'sniper', id: 's1', source: 'IG / reels', headline: 'Viral 12s loop — sentiment flipping fast', videoId: 1, fresh: true },
-    { kind: 'sniper', id: 's2', source: 'X / @ChainBanter', headline: 'KOL quote-tweet storm on the same ticker', videoId: 4, fresh: false },
-    { kind: 'sniper', id: 's3', source: 'TikTok / follow', headline: 'Sound went viral — derivative clips everywhere', videoId: 3, fresh: true },
-    { kind: 'sniper', id: 's4', source: 'YT / Shorts', headline: 'Thumbnail bait → odds repricing in 6m', videoId: 5, fresh: false }
-  ]
-
-  const markets: FeedItem[] = [
-    {
-      kind: 'market_pulse',
-      id: 'mp1',
-      videoId: 1,
-      title: 'Skibidi Toilet still #1 this week?',
-      yesOdds: 68,
-      chart: mkChart(2),
-      timeLeftLabel: '36h 18m'
-    },
-    {
-      kind: 'market_pulse',
-      id: 'mp2',
-      videoId: 3,
-      title: 'NPC stream comeback in 48h?',
-      yesOdds: 44,
-      chart: mkChart(5),
-      timeLeftLabel: '12h 04m'
-    }
-  ]
-
-  const virals: FeedItem[] = [
-    {
-      kind: 'viral_burst',
-      id: 'v0',
-      heat: 96,
-      title: 'Viral right now',
-      body: '“Will this clip hit 10M views before resolution?” — odds moving fast.',
-      videoId: 2
-    },
-    {
-      kind: 'viral_burst',
-      id: 'v1',
-      heat: 88,
-      title: 'Tape is loud',
-      body: 'Same ticker, three platforms — sentiment converging.',
-      videoId: 1
-    }
-  ]
-
-  const pings: FeedItem[] = [
-    { kind: 'group_ping', id: 'g0', group: 'Betskiing', text: 'Pinned: entry levels + risk caps for today' },
-    { kind: 'group_ping', id: 'g1', group: 'Liquidity Lounge', text: 'New playbook: fade the first rip, buy the dip' },
-    { kind: 'group_ping', id: 'g2', group: 'Alpha Desk', text: 'Someone just swept YES on Video 3' }
-  ]
-
-  return [...friendTrades, ...wallets, ...memes, ...snipers, ...markets, ...virals, ...pings]
-}
-
 type HomePanelProps = {
   variant?: HomePanelVariant
-  onOpenMarket?: (videoId: number) => void
+  onOpenMarket?: (marketId: MarketId) => void
   onViewProfile?: (handle: string) => void
   onCollapse?: () => void
   side?: 'left' | 'right'
   onToggleSide?: () => void
-  /** Monotonic heartbeat from Layout. New items pop in periodically when this advances. */
   tickIdx?: number
 }
 
-/** Add a new item to the top of the live mix every N ticks (slow market feel). */
-const HOME_FEED_TICKS_PER_INSERT = 4
-/** Cap the live items pool so memory doesn't grow unbounded. */
-const HOME_FEED_LIVE_MAX = 10
+const fmtPnl = (v: number) => {
+  const abs = Math.abs(v)
+  const sign = v < 0 ? '-' : '+'
+  if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`
+  if (abs >= 1_000) return `${sign}$${(abs / 1_000).toFixed(abs >= 100_000 ? 0 : 2)}K`
+  return `${sign}$${Math.round(abs)}`
+}
 
-const HomePanel = ({ variant = 'fullscreen', onOpenMarket, onViewProfile, onCollapse, side = 'left', onToggleSide, tickIdx = 0 }: HomePanelProps) => {
-  const [extraFeedBlocks, setExtraFeedBlocks] = useState(0)
-  const [liveItems, setLiveItems] = useState<FeedItem[]>([])
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
-  const scrollRootRef = useRef<HTMLDivElement | null>(null)
+const fmtVol = (v: number) => {
+  if (v >= 1_000_000) return `$${(v / 1_000_000).toFixed(1)}M`
+  if (v >= 1_000) return `$${(v / 1_000).toFixed(1)}K`
+  return `$${Math.round(v)}`
+}
 
+const MiniSparkline = ({
+  data,
+  positive = true,
+  width = 80,
+  height = 28,
+}: {
+  data: number[]
+  positive?: boolean
+  width?: number
+  height?: number
+}) => {
+  if (data.length < 2) return <svg width={width} height={height} aria-hidden />
+  const min = Math.min(...data)
+  const max = Math.max(...data)
+  const range = Math.max(max - min, 0.001)
+  const pad = 2
+  const pts = data.map((v, i) => {
+    const x = pad + (i / (data.length - 1)) * (width - pad * 2)
+    const y = pad + (1 - (v - min) / range) * (height - pad * 2)
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  })
+  const color = positive ? '#2DD56E' : '#FF5E62'
+  return (
+    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden>
+      <path
+        d={`M ${pts.join(' L ')}`}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+const HomePanel = ({
+  variant = 'fullscreen',
+  onOpenMarket,
+  onViewProfile,
+  onCollapse,
+  side = 'left',
+  onToggleSide,
+}: HomePanelProps) => {
   const isRail = variant === 'rail'
+  const catalog = useDiscoveryCatalog()
+  const appState = useAppStore()
 
-  const mixedFeed = useMemo(() => {
-    const rng = mulberry32(77209)
-    const pool = buildFeedPool(rng)
-    return shuffle(pool, rng)
-  }, [])
+  // Real markets — exclude legacy video captions, sort by total volume.
+  const markets = useMemo(
+    () =>
+      buildMarketCatalog()
+        .filter((m) => m.type !== 'legacy')
+        .sort((a, b) => b.volume - a.volume),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [catalog],
+  )
 
-  // Prepend a fresh item to the "Live mix" section every few ticks.
-  useEffect(() => {
-    if (tickIdx === 0 || tickIdx % HOME_FEED_TICKS_PER_INSERT !== 0) return
-    const rng = mulberry32(900_000 + tickIdx * 9973)
-    const pool = buildFeedPool(rng)
-    const fresh = pool[Math.floor(rng() * pool.length)]
-    const next: FeedItem = { ...fresh, id: `${fresh.id}-live-${tickIdx}` }
-    setLiveItems(prev => [next, ...prev].slice(0, HOME_FEED_LIVE_MAX))
-  }, [tickIdx])
+  // TOP PERFORMING WALLETS — top 4 users by cumulative PnL, excluding self.
+  const wallets = useMemo(
+    () =>
+      Object.values(appState.users)
+        .filter((u) => u.handle !== CURRENT_USER_HANDLE)
+        .map((u) => {
+          const sorted = [...u.trades].sort((a, b) => a.timestampMs - b.timestampMs)
+          let running = 0
+          const equity: number[] = []
+          for (const t of sorted) {
+            if (t.side === 'sell') running += t.pnlUsd
+            equity.push(running)
+          }
+          const pnl = running
+          return { ...u, pnl, equity: equity.length >= 2 ? equity : [0, pnl || 1] }
+        })
+        .sort((a, b) => b.pnl - a.pnl)
+        .slice(0, 4),
+    [appState.users],
+  )
 
-  const extraItems = useMemo(() => {
-    if (extraFeedBlocks === 0) return [] as FeedItem[]
-    const rng = mulberry32(77209 + extraFeedBlocks * 9973)
-    const pool = buildFeedPool(rng)
-    return shuffle(pool, rng).slice(0, 6).map((item, j) => ({
-      ...item,
-      id: `${item.id}-x${extraFeedBlocks}-${j}`
-    }))
-  }, [extraFeedBlocks])
+  // TRENDING MARKETS — top 4 by volume.
+  const trendingMarkets = useMemo(() => markets.slice(0, 4), [markets])
 
-  const loadCooldownRef = useRef(false)
+  // TRENDING ARTICLES — generated from top markets so they feel connected.
+  const articles = useMemo(() => {
+    const cats = ['GLOBAL', 'CULTURE', 'VIRAL', 'PLATFORM'] as const
+    const times = ['2h ago', '4h ago', '6h ago', '8h ago']
+    return markets.slice(0, 4).map((m, i) => {
+      const first3 = m.name.split(' ').slice(0, 3).join(' ')
+      const titles = [
+        `${first3}: virality bets heat up`,
+        `Why ${m.name.split(' ')[0]} clips are taking over`,
+        `The ${m.name.split(' ')[0].toLowerCase()} phenomenon explained`,
+        `Virality market trends this week`,
+      ]
+      return {
+        id: `article-${m.id}`,
+        category: cats[i],
+        title: titles[i],
+        timeAgo: times[i],
+        thumbnailUrl: m.previews[0]?.thumbnailUrl,
+        marketId: m.id,
+      }
+    })
+  }, [markets])
 
-  useEffect(() => {
-    const root = scrollRootRef.current
-    const target = sentinelRef.current
-    if (!root || !target) return
-    const obs = new IntersectionObserver(
-      entries => {
-        if (!entries.some(e => e.isIntersecting)) return
-        if (loadCooldownRef.current) return
-        loadCooldownRef.current = true
-        setExtraFeedBlocks(n => (n >= 10 ? n : n + 1))
-        window.setTimeout(() => {
-          loadCooldownRef.current = false
-        }, 450)
-      },
-      { root, rootMargin: '240px', threshold: 0 }
-    )
-    obs.observe(target)
-    return () => obs.disconnect()
-  }, [])
-
-  const renderCard = (item: FeedItem, index: number) => {
-    // Live-inserted items get id ending in "-live-<n>"; they should land
-    // immediately, while initial mount cards keep their cascaded delay.
-    const isLive = typeof item.id === 'string' && item.id.includes('-live-')
-    const delay = isLive ? 0 : Math.min(index * 0.035, 1)
-    const pop = {
-      layout: 'position' as const,
-      initial: { opacity: 0, y: -10 },
-      animate: { opacity: 1, y: 0 },
-      exit: { opacity: 0, y: 6 },
-      transition: { duration: 0.32, delay, ease: [0.22, 1, 0.36, 1] as const }
+  // FRENDIS ACTIVITY — 5 most recent trades across all friends.
+  const friendActivity = useMemo(() => {
+    const now = Date.now()
+    const fmtAgo = (ms: number) => {
+      const d = now - ms
+      const mins = Math.round(d / 60_000)
+      if (mins < 60) return `${mins}m ago`
+      const hrs = Math.round(d / 3_600_000)
+      if (hrs < 24) return `${hrs}h ago`
+      return `${Math.round(hrs / 24)}d ago`
     }
-
-    switch (item.kind) {
-      case 'friend_trade':
-        return (
-          <motion.article key={item.id} className="home-post-card home-post-card--friend" {...pop}>
-            <div className="home-post-top">
-              <span className="home-post-kind">
-                <UserRound size={12} aria-hidden /> Friend trade
-              </span>
-              <ShareIconButton label={`${item.friend} ${item.side} ${item.market}`} />
-            </div>
-            <p className="home-activity-text">
-              <button
-                type="button"
-                className="home-friend-link"
-                onClick={() => onViewProfile?.(item.friend)}
-              >
-                <strong>{item.friend}</strong>
-              </button>
-              {' '}· {item.ago}
-            </p>
-            <p className="home-post-title" style={{ marginTop: 6 }}>
-              {item.market}
-            </p>
-            <div className="home-friend-trade-meta">
-              <span className={`home-feed-side home-feed-side--${item.side === 'YES' ? 'yes' : 'no'}`}>{item.side}</span>
-              <span className="home-leader-score">{formatUsd(item.notionalUsd)}</span>
-            </div>
-          </motion.article>
-        )
-      case 'wallet_spotlight':
-        return (
-          <motion.article key={item.id} className="home-post-card home-post-card--kol" {...pop}>
-            <div className="home-post-top">
-              <span className="home-post-kind">
-                <Sparkles size={12} aria-hidden /> {item.label}
-              </span>
-              <ShareIconButton label={`${item.label} ${item.handle} ${formatUsd(item.pnlUsd)}`} />
-            </div>
-            <div className="home-leader-row" style={{ gridTemplateColumns: '1fr auto auto', background: 'transparent', border: 'none', padding: 0 }}>
-              <span className="home-leader-name">{item.handle}</span>
-              <span className="home-leader-score">{formatUsd(item.pnlUsd)}</span>
-              <span className="home-leader-tag">{item.tag}</span>
-            </div>
-            <p className="home-post-sub" style={{ marginBottom: 0 }}>
-              WR {item.winRate}%
-            </p>
-          </motion.article>
-        )
-      case 'meme_article':
-        return (
-          <motion.article key={item.id} className="home-post-card home-post-card--meme" {...pop}>
-            <div className="home-post-top">
-              <span className="home-post-kind">Meme / culture</span>
-              <ShareIconButton label={item.title} />
-            </div>
-            <h3 className="home-post-title">{item.title}</h3>
-            <p className="home-post-sub">{item.subtitle}</p>
-            <button type="button" className="home-post-cta" onClick={() => onOpenMarket?.(1)}>
-              Read the tape
-              <ArrowUpRight size={14} />
-            </button>
-          </motion.article>
-        )
-      case 'sniper':
-        return (
-          <motion.article key={item.id} className="home-sniper-row" {...pop}>
-            <div className="home-sniper-main">
-              <div className="home-sniper-source">
-                {item.fresh && <span className="home-fresh-dot" aria-hidden />}
-                {item.source}
-              </div>
-              <p className="home-sniper-headline">{item.headline}</p>
-            </div>
-            <div className="home-sniper-actions">
-              <ShareIconButton label={item.headline} />
-              <button type="button" className="home-bet-btn" onClick={() => onOpenMarket?.(item.videoId)}>
-                Open
-                <ArrowUpRight size={14} />
-              </button>
-            </div>
-          </motion.article>
-        )
-      case 'market_pulse':
-        return (
-          <motion.article key={item.id} className="home-market-tile" {...pop}>
-            <div className="home-market-tile-head">
-              <span className="home-post-kind" style={{ marginRight: 'auto' }}>
-                <TrendingUp size={12} aria-hidden /> Market
-              </span>
-              <button type="button" className="home-tile-cta" onClick={() => onOpenMarket?.(item.videoId)} aria-label="Open market">
-                <ArrowUpRight size={16} />
-              </button>
-            </div>
-            <div className="home-market-mini">
-              <MarketShareCard
-                title={item.title}
-                yesOdds={item.yesOdds}
-                chart={item.chart}
-                timeLeftLabel={item.timeLeftLabel}
-                thumbnailFallbackSrc="/Stems/betskuu.png"
-                onViewMarket={() => onOpenMarket?.(item.videoId)}
-              />
-            </div>
-          </motion.article>
-        )
-      case 'viral_burst':
-        return (
-          <motion.article key={item.id} className="home-viral-card" {...pop}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-              <span className="home-post-kind">
-                <Flame size={12} aria-hidden /> Viral
-              </span>
-              <ShareIconButton label={item.title} />
-            </div>
-            <div className="home-viral-heat">{item.heat} heat</div>
-            <div className="home-viral-title">{item.title}</div>
-            <p className="home-viral-body">{item.body}</p>
-            <div className="home-viral-actions">
-              <button type="button" className="home-bet-btn" onClick={() => onOpenMarket?.(item.videoId)}>
-                Ride it
-                <ArrowUpRight size={14} />
-              </button>
-            </div>
-          </motion.article>
-        )
-      case 'group_ping':
-        return (
-          <motion.article key={item.id} className="home-post-card home-post-card--group" {...pop}>
-            <div className="home-post-top">
-              <span className="home-post-kind">
-                <Zap size={12} aria-hidden /> {item.group}
-              </span>
-              <ShareIconButton label={item.text} />
-            </div>
-            <p className="home-activity-text" style={{ margin: 0 }}>
-              {item.text}
-            </p>
-          </motion.article>
-        )
-      default:
-        return null
+    type Item = {
+      key: string
+      timestampMs: number
+      handle: string
+      avatar: string
+      action: string
+      market: string
+      outcome: string
+      outcomeClass: 'pos' | 'neg' | 'yes' | 'no'
+      amount: string
+      timeAgo: string
+      marketId?: MarketId
     }
-  }
+    const items: Item[] = []
+    for (const user of Object.values(appState.users)) {
+      if (user.handle === CURRENT_USER_HANDLE) continue
+      for (const t of user.trades.slice(0, 4)) {
+        const isSell = t.side === 'sell'
+        const isProfit = t.pnlUsd > 0
+        const action = isSell
+          ? isProfit
+            ? 'Took profit on'
+            : 'Cut losses on'
+          : t.outcome === 'YES'
+            ? 'Placed a YES bet on'
+            : 'Placed a NO bet on'
+        const outcome = isSell
+          ? `${isProfit ? '+' : ''}${fmtVol(Math.abs(t.pnlUsd))}`
+          : `${t.outcome} ${(t.price * 100).toFixed(1)}¢`
+        const outcomeClass: Item['outcomeClass'] = isSell
+          ? isProfit
+            ? 'pos'
+            : 'neg'
+          : t.outcome === 'YES'
+            ? 'yes'
+            : 'no'
+        const amount =
+          isSell && isProfit
+            ? `$${Math.round(t.sizeUsd - t.pnlUsd)} → $${Math.round(t.sizeUsd)}`
+            : `$${Math.round(t.sizeUsd)}`
+        const mkt = markets.find((m) => m.name === t.market)
+        const marketShort = t.market.length > 24 ? t.market.slice(0, 24) + '…' : t.market
+        items.push({
+          key: t.id,
+          timestampMs: t.timestampMs,
+          handle: user.handle,
+          avatar: user.avatar,
+          action,
+          market: marketShort,
+          outcome,
+          outcomeClass,
+          amount,
+          timeAgo: fmtAgo(t.timestampMs),
+          marketId: mkt?.id,
+        })
+      }
+    }
+    return items.sort((a, b) => b.timestampMs - a.timestampMs).slice(0, 5)
+  }, [appState.users, markets])
+
+  const selfUser = appState.users[CURRENT_USER_HANDLE]
 
   return (
     <motion.div
       className={`panel home-panel home-panel--${variant}`}
+      style={{ height: '100%', minHeight: 0 }}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.22 }}
     >
+      {/* ── Header ── */}
       <div className="panel-header home-header">
         <div className="home-header-left">
           {isRail && (
-            <button type="button" className="home-collapse-btn" onClick={onCollapse} title="Hide feed" aria-label="Hide feed">
+            <button
+              type="button"
+              className="home-collapse-btn"
+              onClick={onCollapse}
+              aria-label="Hide feed"
+            >
               <ChevronLeft size={18} strokeWidth={2.25} />
             </button>
           )}
-          <span className="home-header-title">Home feed</span>
+          <div className="home-header-title-group">
+            <span className="home-header-wordmark">HOME</span>
+            <span className="home-header-sub">
+              {isRail ? (
+                <>
+                  @{CURRENT_USER_HANDLE}
+                  <span className="home-notif-badge" aria-label="1 notification">
+                    1
+                  </span>
+                </>
+              ) : (
+                <>
+                  Welcome back, {CURRENT_USER_HANDLE}
+                  <span className="home-notif-badge" aria-label="1 notification">
+                    1
+                  </span>
+                </>
+              )}
+            </span>
+          </div>
         </div>
         <div className="home-header-actions">
-          <span className="home-live-pill">
-            <Radio size={12} className="home-live-dot" aria-hidden />
-            Live
-          </span>
-          <ShareIconButton label="Home feed snapshot" />
+          <button
+            type="button"
+            className="home-profile-btn"
+            onClick={() => onViewProfile?.(CURRENT_USER_HANDLE)}
+            aria-label="View profile"
+          >
+            <img
+              src={selfUser?.avatar ?? '/Stems/betskuu.png'}
+              alt=""
+              className="home-profile-icon"
+            />
+          </button>
           {isRail && onToggleSide && (
             <button
               type="button"
               className="home-side-toggle"
               onClick={onToggleSide}
-              title={side === 'left' ? 'Move feed to the right' : 'Move feed to the left'}
-              aria-label={side === 'left' ? 'Move feed to the right' : 'Move feed to the left'}
+              title={side === 'left' ? 'Move feed to right' : 'Move feed to left'}
+              aria-label="Toggle feed side"
             >
               <ArrowLeftRight size={16} strokeWidth={2.25} />
             </button>
@@ -546,106 +281,191 @@ const HomePanel = ({ variant = 'fullscreen', onOpenMarket, onViewProfile, onColl
         </div>
       </div>
 
+      {/* ── Composer bar ── */}
+      <div className="home-composer">
+        <img
+          src={selfUser?.avatar ?? '/Stems/betskuu.png'}
+          alt=""
+          className="home-composer-avatar"
+        />
+        <span className="home-composer-placeholder">What's happening in markets?</span>
+        <button type="button" className="home-composer-send" aria-label="Post">
+          <Send size={15} strokeWidth={2} />
+        </button>
+      </div>
+
+      {/* ── Scrollable body ── */}
       <div className="panel-content home-content">
-        <div className="home-scroll" ref={scrollRootRef}>
-          <section className="home-section" aria-label="Desk snapshot">
-            <div className="home-hero">
-              <div>
-                <div className="home-hero-kicker">Your desk · 7d</div>
-                <div className="home-hero-pnl-big">
-                  <span className="pos">+18.4%</span>
-                  <span className="home-hero-pnl-note">Blended tape</span>
-                </div>
-                <div className="home-hero-meta">
-                  <span className="pill">Sharpe 1.82</span>
-                  <span className="pill">Win 64%</span>
-                </div>
-              </div>
-              <div aria-hidden>
-                <svg className="home-hero-chart" viewBox="0 0 200 72" preserveAspectRatio="none">
-                  <defs>
-                    <linearGradient id="homeHeroFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="rgba(255,153,102,0.35)" />
-                      <stop offset="100%" stopColor="rgba(255,94,98,0)" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M0,52 L16,48 L32,55 L48,38 L64,44 L80,28 L96,34 L112,22 L128,30 L144,18 L160,26 L176,14 L192,20 L200,16 L200,72 L0,72 Z"
-                    fill="url(#homeHeroFill)"
+        <div className="home-scroll">
+
+          {/* ── TOP PERFORMING WALLETS ── */}
+          <section className="home-sect" aria-label="Top performing wallets">
+            <div className="home-sect-head">
+              <span className="home-sect-title">TOP PERFORMING WALLETS</span>
+              <button type="button" className="home-view-all">View all</button>
+            </div>
+            <div className="home-wallets-track">
+              {wallets.map((w, rank) => (
+                <button
+                  key={w.handle}
+                  type="button"
+                  className="home-wallet-card"
+                  onClick={() => onViewProfile?.(w.handle)}
+                  aria-label={`View ${w.handle}`}
+                >
+                  <span className="home-wallet-rank">{rank + 1}</span>
+                  <img src={w.avatar} alt="" className="home-wallet-avatar" />
+                  <span className="home-wallet-name">{w.handle}</span>
+                  <span className="home-wallet-wagers">{w.markets} wagers</span>
+                  <span className={`home-wallet-pnl ${w.pnl >= 0 ? 'pos' : 'neg'}`}>
+                    {fmtPnl(w.pnl)}
+                  </span>
+                  <span className="home-wallet-pnl-label">24h PNL</span>
+                  <MiniSparkline data={w.equity} positive={w.pnl >= 0} width={96} height={22} />
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* ── TRENDING MARKETS ── */}
+          <section className="home-sect" aria-label="Trending markets">
+            <div className="home-sect-head">
+              <span className="home-sect-title">TRENDING MARKETS</span>
+              <button
+                type="button"
+                className="home-view-all"
+                onClick={() => markets[0] && onOpenMarket?.(markets[0].id)}
+              >
+                View all
+              </button>
+            </div>
+            <div className="home-markets-list">
+              {trendingMarkets.map((m) => {
+                const chartData =
+                  m.chart.length > 1 ? m.chart.map((p) => p.value) : [m.yesOdds, m.yesOdds]
+                const positive = chartData[chartData.length - 1] >= chartData[0]
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    className="home-market-row"
+                    onClick={() => onOpenMarket?.(m.id)}
+                    aria-label={`Open ${m.name}`}
+                  >
+                    <img
+                      src={m.previews[0]?.thumbnailUrl ?? '/Stems/betskuu.png'}
+                      alt=""
+                      className="home-market-thumb"
+                      loading="lazy"
+                    />
+                    <div className="home-market-info">
+                      <div className="home-market-name">{m.name}</div>
+                      <div className="home-market-subprice">
+                        {m.yesOdds.toFixed(1)}¢ YES · {m.noOdds.toFixed(1)}¢ NO
+                      </div>
+                    </div>
+                    <span className="home-market-spark" aria-hidden>
+                      <MiniSparkline data={chartData} positive={positive} width={56} height={22} />
+                    </span>
+                    <div className="home-market-vol">
+                      <span className="home-market-vol-amt">{fmtVol(m.volume24h)}</span>
+                      <span className="home-market-vol-label">Vol.</span>
+                    </div>
+                    <div className="home-market-pills">
+                      <div className="home-price-pill">
+                        <span className="home-price-pill-val">{Math.round(m.yesOdds)}¢</span>
+                        <span className="home-price-pill-tag yes">YES</span>
+                      </div>
+                      <div className="home-price-pill">
+                        <span className="home-price-pill-val">{Math.round(m.noOdds)}¢</span>
+                        <span className="home-price-pill-tag no">NO</span>
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+
+          {/* ── TRENDING ARTICLES ── */}
+          <section className="home-sect" aria-label="Trending articles">
+            <div className="home-sect-head">
+              <span className="home-sect-title">TRENDING ARTICLES</span>
+              <button type="button" className="home-view-all">View all</button>
+            </div>
+            <div className="home-articles-track">
+              {articles.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  className="home-article-card"
+                  onClick={() => a.marketId && onOpenMarket?.(a.marketId)}
+                >
+                  <img
+                    src={a.thumbnailUrl ?? '/Stems/betskuu.png'}
+                    alt=""
+                    className="home-article-bg"
+                    loading="lazy"
                   />
-                  <path
-                    d="M0,52 L16,48 L32,55 L48,38 L64,44 L80,28 L96,34 L112,22 L128,30 L144,18 L160,26 L176,14 L192,20 L200,16"
-                    fill="none"
-                    stroke="rgba(255,153,102,0.9)"
-                    strokeWidth="2"
-                  />
-                </svg>
-              </div>
+                  <div className="home-article-overlay" aria-hidden />
+                  <span className="home-article-tag">{a.category}</span>
+                  <p className="home-article-title">{a.title}</p>
+                  <span className="home-article-time">{a.timeAgo}</span>
+                </button>
+              ))}
             </div>
           </section>
 
-          <section className="home-section" aria-labelledby="home-lb-markets">
-            <div className="home-section-head">
-              <div>
-                <span className="home-section-title" id="home-lb-markets">
-                  <Trophy className="home-section-icon" size={16} aria-hidden />
-                  King of the hill · markets
-                </span>
-                <p className="home-section-sub">Top volume in the last 24h — who holds the crown.</p>
-              </div>
-              <ShareIconButton label="King of the hill markets" />
+          {/* ── FRENDIS ACTIVITY ── */}
+          <section className="home-sect" aria-label="Friend activity">
+            <div className="home-sect-head">
+              <span className="home-sect-title">FRENDIS ACTIVITY</span>
+              <button type="button" className="home-view-all">View all</button>
             </div>
-            <PodiumTop3 triple={LEADER_MARKETS} />
-          </section>
-
-          <section className="home-section" aria-labelledby="home-lb-wallets">
-            <div className="home-section-head">
-              <div>
-                <span className="home-section-title" id="home-lb-wallets">
-                  <BarChart3 className="home-section-icon" size={16} aria-hidden />
-                  Wallets &amp; KOLs
-                </span>
-                <p className="home-section-sub">Best 7d PnL among tracked wallets and public KOLs.</p>
-              </div>
-              <ShareIconButton label="Wallet leaderboard" />
-            </div>
-            <PodiumTop3 triple={LEADER_WALLETS} />
-          </section>
-
-          <section className="home-section" aria-labelledby="home-lb-articles">
-            <div className="home-section-head">
-              <div>
-                <span className="home-section-title" id="home-lb-articles">
-                  <BookOpen className="home-section-icon" size={16} aria-hidden />
-                  Most read articles
-                </span>
-                <p className="home-section-sub">By views — memes, explainers, and tape posts.</p>
-              </div>
-              <ShareIconButton label="Article leaderboard" />
-            </div>
-            <PodiumTop3 triple={LEADER_ARTICLES} />
-          </section>
-
-          <section className="home-section" aria-label="Mixed feed">
-            <div className="home-section-head">
-              <div>
-                <span className="home-section-title">
-                  <Crosshair className="home-section-icon" size={16} aria-hidden />
-                  Live mix
-                </span>
-                <p className="home-section-sub">Friends, wallets, snipers, markets — shuffled as it happens.</p>
-              </div>
-            </div>
-            <div className="home-post-grid" role="feed">
-              <AnimatePresence initial={false}>
-                {liveItems.map((item, i) => renderCard(item, i))}
-              </AnimatePresence>
-              {mixedFeed.map((item, i) => renderCard(item, liveItems.length + i))}
-              {extraFeedBlocks > 0 && extraItems.map((item, j) => renderCard(item, liveItems.length + mixedFeed.length + j))}
+            <div className="home-activity-list">
+              {friendActivity.map((item) => (
+                <div key={item.key} className="home-activity-row">
+                  <button
+                    type="button"
+                    className="home-activity-avatar-btn"
+                    onClick={() => onViewProfile?.(item.handle)}
+                    aria-label={`View ${item.handle}`}
+                  >
+                    <img src={item.avatar} alt="" className="home-activity-avatar" />
+                  </button>
+                  <button
+                    type="button"
+                    className="home-activity-body"
+                    onClick={() => item.marketId && onOpenMarket?.(item.marketId)}
+                  >
+                    <span className="home-activity-handle">{item.handle}</span>
+                    <span className="home-activity-desc">
+                      {item.action} {item.market}
+                    </span>
+                    <span className="home-activity-meta">
+                      {item.amount} · {item.timeAgo}
+                    </span>
+                  </button>
+                  <span className={`home-activity-outcome home-activity-outcome--${item.outcomeClass}`}>
+                    {item.outcome}
+                  </span>
+                </div>
+              ))}
             </div>
           </section>
 
-          <div ref={sentinelRef} className="home-feed-sentinel" aria-hidden />
+          {/* ── Explore CTA ── */}
+          <div className="home-explore-wrap">
+            <button
+              type="button"
+              className="home-explore-cta"
+              onClick={() => markets[0] && onOpenMarket?.(markets[0].id)}
+            >
+              <TrendingUp size={15} strokeWidth={2.2} className="home-explore-icon" />
+              <span className="home-explore-label">Explore all markets</span>
+            </button>
+          </div>
+
         </div>
       </div>
     </motion.div>

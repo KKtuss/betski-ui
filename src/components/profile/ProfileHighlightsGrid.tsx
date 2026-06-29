@@ -1,10 +1,15 @@
 import { buildTradeSparkline } from '../../utils/profileChart'
 import { formatUsdSigned } from '../../utils/profileFormat'
+import {
+  onProfileMarketThumbError,
+  PROFILE_MARKET_THUMB_FALLBACK
+} from '../../utils/profileThumbnails'
 import { Sparkline } from '../shared/Sparkline'
 import './ProfileHighlightsGrid.css'
 
 export type ProfileHighlightRow = {
   displayTitle: string
+  thumbnailUrl?: string
   buyPrice: number
   sellPrice: number
   pnlUsd: number
@@ -12,12 +17,9 @@ export type ProfileHighlightRow = {
 
 type ProfileHighlightsGridProps = {
   rows: ProfileHighlightRow[]
-  thumbSeeds: number[]
 }
 
-const highlightThumbUrl = (seed: number) => `https://picsum.photos/seed/${seed}/360/640`
-
-const ProfileHighlightsGrid = ({ rows, thumbSeeds }: ProfileHighlightsGridProps) => (
+const ProfileHighlightsGrid = ({ rows }: ProfileHighlightsGridProps) => (
   <div className="profile-highlights-panel">
     <div className="profile-highlights-grid" role="list">
       {rows.map((row, idx) => {
@@ -37,8 +39,10 @@ const ProfileHighlightsGrid = ({ rows, thumbSeeds }: ProfileHighlightsGridProps)
           >
             <img
               className="profile-highlight-bg"
-              src={highlightThumbUrl(thumbSeeds[idx] ?? idx + 1)}
+              src={row.thumbnailUrl ?? PROFILE_MARKET_THUMB_FALLBACK}
               alt=""
+              loading="lazy"
+              onError={onProfileMarketThumbError}
             />
             <div className="profile-highlight-overlay" aria-hidden />
             <h3 className="profile-highlight-market">
