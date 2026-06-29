@@ -5,7 +5,22 @@ import type { OrderbookPanelProps } from '../types/orderbook'
 import { createDefaultRecentTrades } from '../data/mockRecentTrades'
 import './Panel.css'
 
-const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTrades: externalTrades, walletBalance = 0, holdingShares = 0, currentPrice = 68.5, onTradeExecuted, shareTargets, onShareToChat, compact = false }: OrderbookPanelProps) => {
+const OrderbookPanel = ({
+  activeMode = 'orderbook',
+  onBack = () => {},
+  recentTrades: externalTrades,
+  walletBalance = 0,
+  holdingShares = 0,
+  currentPrice = 68.5,
+  marketTitle,
+  volume24h,
+  priceChange24h,
+  avgEntry,
+  onTradeExecuted,
+  shareTargets,
+  onShareToChat,
+  compact = false
+}: OrderbookPanelProps) => {
 
   const defaultRecentTrades = createDefaultRecentTrades()
 
@@ -29,6 +44,10 @@ const OrderbookPanel = ({ activeMode = 'orderbook', onBack = () => {}, recentTra
             walletBalance={walletBalance}
             holdingShares={holdingShares}
             currentPrice={currentPrice}
+            marketTitle={marketTitle}
+            volume24h={volume24h}
+            priceChange24h={priceChange24h}
+            avgEntry={avgEntry}
             onTradeExecuted={onTradeExecuted}
             compact={compact}
           />
