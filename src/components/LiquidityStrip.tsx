@@ -145,9 +145,11 @@ const LiquidityStrip = ({
     commitOdds(draftOdds)
   }
 
+  const isMinimalMobileSlider = isMobileLayout && size === 'compact'
+
   return (
     <div
-      className={`liquidity-strip-container${size === 'large' ? ' liquidity-strip-container--large' : ''}${isMobileLayout ? ' liquidity-strip-container--mobile' : ''}`}
+      className={`liquidity-strip-container${size === 'large' ? ' liquidity-strip-container--large' : ''}${isMobileLayout ? ' liquidity-strip-container--mobile' : ''}${isMinimalMobileSlider ? ' liquidity-strip-container--minimal-slider' : ''}`}
       ref={containerRef}
       onMouseLeave={isMobileLayout ? undefined : handleContainerMouseLeave}
     >
@@ -209,17 +211,19 @@ const LiquidityStrip = ({
 
       {isMobileLayout && (
         <div
-          className="liquidity-odds-slider-wrap"
+          className={`liquidity-odds-slider-wrap${isMinimalMobileSlider ? ' liquidity-odds-slider-wrap--minimal' : ''}`}
           data-sheet-no-swipe
           onPointerDown={stopSheetSwipe}
           onTouchStart={stopSheetSwipe}
         >
+          {!isMinimalMobileSlider && (
           <div className="liquidity-odds-slider-head">
             <span className="liquidity-odds-slider-label">Odds line</span>
             <span className="liquidity-odds-slider-value">
               {draftOdds}¢ YES · {100 - draftOdds}¢ NO
             </span>
           </div>
+          )}
           <input
             type="range"
             className="liquidity-odds-slider"
@@ -232,13 +236,14 @@ const LiquidityStrip = ({
             onTouchStart={stopSheetSwipe}
             onPointerUp={handleSliderCommit}
             aria-label="Adjust odds line"
+            aria-valuetext={`${draftOdds} cents yes`}
           />
-          {exactMatch && (
+          {!isMinimalMobileSlider && exactMatch && (
             <span className="liquidity-odds-slider-hint">
               {formatCompactUsd(exactMatch.volume)} placed at this line
             </span>
           )}
-          {!exactMatch && nearbyBets.length > 0 && !showFillChoice && (
+          {!isMinimalMobileSlider && !exactMatch && nearbyBets.length > 0 && !showFillChoice && (
             <span className="liquidity-odds-slider-hint">Release to choose a nearby open bet</span>
           )}
         </div>

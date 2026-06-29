@@ -29,6 +29,10 @@ export interface OrderbookPanelProps {
   walletBalance?: number
   holdingShares?: number
   currentPrice?: number
+  marketTitle?: string
+  volume24h?: number
+  priceChange24h?: number
+  avgEntry?: number
   onTradeExecuted?: TradeExecutedHandler
   shareTargets?: ShareTarget[]
   onShareToChat?: (chatId: string) => void
@@ -41,6 +45,10 @@ export interface TradingFormProps {
   walletBalance: number
   holdingShares: number
   currentPrice: number
+  marketTitle?: string
+  volume24h?: number
+  priceChange24h?: number
+  avgEntry?: number
   onTradeExecuted?: TradeExecutedHandler
   compact?: boolean
 }

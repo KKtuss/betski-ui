@@ -304,6 +304,12 @@ const Layout = () => {
           ? tradePos.shares
           : 0
         : 0
+  const tradeAvgEntry =
+    activeMode === 'long' && tradePos?.side === 'long'
+      ? tradePos.avgEntry
+      : activeMode === 'short' && tradePos?.side === 'short'
+        ? tradePos.avgEntry
+        : undefined
 
   const shareMarketPayload = buildShareMarket({
     selectedMarket,
@@ -443,6 +449,10 @@ const Layout = () => {
         recentTrades={liveTrades}
         walletBalance={appState.wallet.balanceUsd}
         holdingShares={holdingShares}
+        marketTitle={effectiveMarket.name}
+        volume24h={effectiveMarket.volume24h}
+        priceChange24h={displayPriceChange}
+        avgEntry={tradeAvgEntry}
         onTradeExecuted={(trade) => {
           const mId = tradeMarketId ?? selectedMarketId
           const m = getMarketById(mId)

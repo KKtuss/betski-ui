@@ -345,6 +345,51 @@
   text-align: center;
 }
 
+/* Discovery phone: keep heatmap strip, thin slider only (no labels/hints). */
+.liquidity-strip-container--minimal-slider .liquidity-strip {
+  height: 32px;
+}
+
+.liquidity-strip-container--minimal-slider .liquidity-strip-scale {
+  margin-top: 1px;
+  font-size: 7px;
+  letter-spacing: 0.02em;
+}
+
+.liquidity-strip-container--minimal-slider .liquidity-odds-slider-wrap--minimal {
+  width: 100%;
+  margin-top: 2px;
+  padding: 0;
+  gap: 0;
+  border: none;
+  background: transparent;
+}
+
+.liquidity-odds-slider-wrap--minimal .liquidity-odds-slider {
+  height: 12px;
+}
+
+.liquidity-odds-slider-wrap--minimal .liquidity-odds-slider::-webkit-slider-runnable-track {
+  height: 2px;
+}
+
+.liquidity-odds-slider-wrap--minimal .liquidity-odds-slider::-webkit-slider-thumb {
+  width: 11px;
+  height: 11px;
+  margin-top: -4.5px;
+  border-width: 1.5px;
+}
+
+.liquidity-odds-slider-wrap--minimal .liquidity-odds-slider::-moz-range-track {
+  height: 2px;
+}
+
+.liquidity-odds-slider-wrap--minimal .liquidity-odds-slider::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border-width: 1.5px;
+}
+
 .liquidity-fill-choice--mobile {
   position: static;
   transform: none;

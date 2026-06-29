@@ -1,30 +1,435 @@
-/* Compact sizing when the form lives in the phone bottom sheet (no scroll). */
+.trading-form {
+  width: 100%;
+  height: 100%;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
+  background: #0a0a0b;
+}
+
+.trading-form--long {
+  --trade-accent: #2dd56e;
+  --trade-accent-soft: rgba(45, 213, 110, 0.14);
+  --trade-accent-border: rgba(45, 213, 110, 0.32);
+}
+
+.trading-form--short {
+  --trade-accent: #ff4d4d;
+  --trade-accent-soft: rgba(255, 77, 77, 0.14);
+  --trade-accent-border: rgba(255, 77, 77, 0.32);
+}
+
+.trading-form__header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-height: 24px;
+}
+
+.trading-form__back {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trading-form__title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.trading-form__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 2px;
+}
+
+.trading-form__toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.trading-form__toggle-btn {
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.trading-form__toggle-btn--active.trading-form__toggle-btn--buy {
+  background: var(--trade-accent);
+  color: #fff;
+}
+
+.trading-form__toggle-btn--active.trading-form__toggle-btn--sell {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.trading-form__asset {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.trading-form__side-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--trade-accent-soft);
+  border: 1px solid var(--trade-accent-border);
+  color: var(--trade-accent);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+
+.trading-form__asset-title {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.88);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.trading-form__asset-price {
+  font-size: 13px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--trade-accent);
+  white-space: nowrap;
+}
+
+.trading-form__stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.trading-form__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.trading-form__stat:nth-child(2) {
+  align-items: center;
+  text-align: center;
+}
+
+.trading-form__stat:last-child {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.trading-form__stat-label {
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.trading-form__stat-value {
+  font-size: 12px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.trading-form__stat-value--down {
+  color: #ff6b6b;
+}
+
+.trading-form__stat-value--up {
+  color: var(--trade-accent);
+}
+
+.trading-form__amount-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.trading-form__amount-label {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.trading-form__balance {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.38);
+  font-variant-numeric: tabular-nums;
+}
+
+.trading-form__balance strong {
+  color: rgba(255, 255, 255, 0.72);
+  font-weight: 800;
+}
+
+.trading-form__amount-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 8px;
+}
+
+.trading-form__amount-prefix {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.trading-form__amount-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.trading-form__amount-input::-webkit-inner-spin-button,
+.trading-form__amount-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.trading-form__currency {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.trading-form__quick-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.trading-form__quick-btn {
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.trading-form__quick-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.trading-form__card {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trading-form__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.trading-form__row strong {
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.88);
+  font-variant-numeric: tabular-nums;
+}
+
+.trading-form__row-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.trading-form__row--profit strong {
+  color: var(--trade-accent);
+}
+
+.trading-form__footer {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.trading-form__submit {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 10px;
+  background: var(--trade-accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--trade-accent) 38%, transparent);
+}
+
+.trading-form__submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.trading-form__lock {
+  width: 100%;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--trade-accent-border);
+  background: color-mix(in srgb, var(--trade-accent) 8%, transparent);
+}
+
+/* Compact — phone bottom sheet */
 .trading-form--compact {
-  padding: 8px !important;
-  gap: 6px !important;
+  padding: 8px;
+  gap: 8px;
 }
 
-.trading-form--compact .trading-header {
-  margin-bottom: 0 !important;
+.trading-form--compact .trading-form__scroll {
+  gap: 8px;
 }
 
-.trading-form--compact .trading-vs-grid {
-  margin-top: 2px !important;
-  column-gap: 12px !important;
+.trading-form--compact .trading-form__toggle-btn {
+  height: 28px;
+  font-size: 11px;
 }
 
-.trading-form--compact .trading-input-card {
-  margin-top: 4px !important;
-  padding: 8px !important;
-  gap: 8px !important;
+.trading-form--compact .trading-form__side-badge {
+  min-width: 30px;
+  height: 30px;
+  font-size: 9px;
 }
 
-.trading-form--compact .trading-depth-bars {
-  gap: 4px !important;
-  margin-top: 2px !important;
+.trading-form--compact .trading-form__asset-title {
+  font-size: 10px;
 }
 
-.trading-form--compact .trading-actions {
-  padding-top: 4px !important;
-  gap: 8px !important;
+.trading-form--compact .trading-form__asset-price {
+  font-size: 12px;
+}
+
+.trading-form--compact .trading-form__stats {
+  padding: 8px 0;
+  gap: 6px;
+}
+
+.trading-form--compact .trading-form__stat-label {
+  font-size: 7px;
+}
+
+.trading-form--compact .trading-form__stat-value {
+  font-size: 11px;
+}
+
+.trading-form--compact .trading-form__amount-row {
+  height: 38px;
+  margin-bottom: 6px;
+}
+
+.trading-form--compact .trading-form__amount-input {
+  font-size: 16px;
+}
+
+.trading-form--compact .trading-form__quick-btn {
+  height: 28px;
+  font-size: 10px;
+}
+
+.trading-form--compact .trading-form__card {
+  padding: 8px 10px;
+  gap: 5px;
+}
+
+.trading-form--compact .trading-form__row {
+  font-size: 10px;
+}
+
+.trading-form--compact .trading-form__submit,
+.trading-form--compact .trading-form__lock {
+  height: 42px;
+}
+
+.trading-form--compact .trading-form__submit {
+  font-size: 12px;
 }
