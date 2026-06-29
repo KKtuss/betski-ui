@@ -13,3 +13,10 @@ export const PROFILE_TIME_WINDOWS: { id: ProfileTimeWindow; label: string }[] = 
   { id: '30d', label: '30D' },
   { id: 'max', label: 'MAX' }
 ]
+
+export const PROFILE_GAMIFICATION = {
+  badge: 'OG TRADER',
+  level: 27,
+  xpCurrent: 12450,
+  xpMax: 20000
+} as const

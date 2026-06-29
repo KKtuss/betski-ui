@@ -150,3 +150,12 @@
 .profile-position-pnl.neg {
   color: var(--color-red);
 }
+
+@media (max-width: 900px) {
+  .profile-positions {
+    flex: 0 0 auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+}
