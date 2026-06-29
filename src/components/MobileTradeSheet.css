@@ -82,14 +82,13 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
-  /* Let vertical scrolling fall through to each page while we own horizontal swipes. */
-  touch-action: pan-y;
 }
 
 .mts-track {
   display: flex;
   height: 100%;
   width: max-content;
+  touch-action: pan-x;
 }
 
 .mts-page {
@@ -102,6 +101,7 @@
   padding: 4px 12px 12px;
   overflow-x: hidden;
   overflow-y: auto;
+  touch-action: pan-y;
 }
 
 .mts-page > .panel {
