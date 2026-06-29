@@ -1,8 +1,7 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { resolveLinkPreview } from './_lib/linkPreviewCore'
+import { resolveLinkPreview } from './_lib/linkPreviewCore.js'
 
 /** Vercel serverless handler — mirrors the Vite dev /api/link-preview middleware. */
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (req.method && req.method !== 'GET') {
     res.status(405).json({ error: 'Method not allowed' })
     return

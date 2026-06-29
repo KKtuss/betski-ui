@@ -1,8 +1,7 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { fetchThumbnailBuffer } from './_lib/linkPreviewCore'
+import { fetchThumbnailBuffer } from './_lib/linkPreviewCore.js'
 
 /** Vercel serverless handler — proxies hotlink-blocked CDN thumbnails (TikTok, IG, etc.). */
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req, res) {
   if (req.method && req.method !== 'GET') {
     res.status(405).end('Method not allowed')
     return
