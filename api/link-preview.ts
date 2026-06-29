@@ -1,12 +1,5 @@
-import { resolveLinkPreview } from '../server/linkPreviewCore'
-
-type VercelRequest = { method?: string; query?: Record<string, string | string[] | undefined> }
-type VercelResponse = {
-  status: (code: number) => VercelResponse
-  setHeader: (name: string, value: string) => void
-  json: (body: unknown) => void
-  end: (body?: string) => void
-}
+import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { resolveLinkPreview } from './_lib/linkPreviewCore'
 
 /** Vercel serverless handler — mirrors the Vite dev /api/link-preview middleware. */
 export default async function handler(req: VercelRequest, res: VercelResponse) {

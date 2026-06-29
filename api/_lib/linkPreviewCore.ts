@@ -1,4 +1,4 @@
-import { proxiedThumbnailUrl } from '../src/utils/thumbnailProxy'
+import { proxiedThumbnailUrl } from './thumbnailProxy'
 
 export type LinkPreviewResult = {
   thumbnailUrl: string

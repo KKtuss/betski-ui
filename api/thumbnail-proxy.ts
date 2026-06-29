@@ -1,12 +1,5 @@
-import { fetchThumbnailBuffer } from '../server/linkPreviewCore'
-
-type VercelRequest = { method?: string; query?: Record<string, string | string[] | undefined> }
-type VercelResponse = {
-  status: (code: number) => VercelResponse
-  setHeader: (name: string, value: string) => void
-  send: (body: Buffer) => void
-  end: (body?: string) => void
-}
+import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { fetchThumbnailBuffer } from './_lib/linkPreviewCore'
 
 /** Vercel serverless handler — proxies hotlink-blocked CDN thumbnails (TikTok, IG, etc.). */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
