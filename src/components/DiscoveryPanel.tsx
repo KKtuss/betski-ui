@@ -9,6 +9,7 @@ import {
   formatTimeLeftFromTimestamp,
   promoteWagerToBatch
 } from '../data/discoveryMock'
+import { emitWagerPromotionNotification } from '../utils/notificationEmitter'
 import type {
   Batch,
   MarketSortKey,
@@ -215,7 +216,13 @@ const DiscoveryPanel = ({
         }
 
         if (pool >= w.promotionThreshold) {
-          promoted.push(promoteWagerToBatch(updated, rng))
+          const batch = promoteWagerToBatch(updated, rng)
+          promoted.push(batch)
+          emitWagerPromotionNotification({
+            wagerId: w.id,
+            wagerName: w.name,
+            newBatchId: batch.id
+          })
           continue
         }
         next.push(updated)

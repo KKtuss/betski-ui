@@ -6,7 +6,8 @@ import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
 import { CURRENT_USER_HANDLE } from '../data/appStore'
 import { buildMarketCatalog, type Market } from '../data/marketCatalog'
 import type { MarketId } from '../data/appStore'
-import { generateSeededTrades, type MarketRef, type ProfileTrade } from '../data/profileMock'
+import type { ProfileTrade } from '../data/profileMock'
+import { tradeRecordsToProfileTrades } from '../utils/tradeHistory'
 import {
   PROFILE_GAMIFICATION,
   PROFILE_TIME_WINDOWS,
@@ -23,6 +24,7 @@ import ProfileLootboxesStrip from './profile/ProfileLootboxesStrip'
 import ProfileLootboxVideo from './profile/ProfileLootboxVideo'
 import ProfilePositionsList, { type ProfilePosition } from './profile/ProfilePositionsList'
 import ProfileTradeTape from './profile/ProfileTradeTape'
+import NotificationSettingsSection from './NotificationSettingsSection'
 import './Panel.css'
 import './ProfilePanel.css'
 
@@ -80,15 +82,6 @@ const ProfilePanel = ({
     })
   }
 
-  const marketRefs = useMemo<MarketRef[]>(
-    () =>
-      markets
-        .filter((m) => m.type !== 'legacy')
-        .map((m) => ({ id: m.id, name: m.name, thumbnailUrl: marketThumb(m) })),
-    [markets]
-  )
-  const seededTrades = useMemo<ProfileTrade[]>(() => generateSeededTrades(marketRefs), [marketRefs])
-
   const trades = useMemo<ProfileTrade[]>(() => {
     if (!isSelf) {
       return (profileUser?.trades ?? []).map((t) => {
@@ -110,34 +103,11 @@ const ProfilePanel = ({
       })
     }
 
-    const fmt = (ms: number) =>
-      new Date(ms).toLocaleTimeString('en-US', {
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      })
-
-    const liveTrades: ProfileTrade[] = appState.trades.map((t) => {
-      const m = marketById.get(t.marketId)
-      return {
-        id: t.id,
-        timestamp: fmt(t.timestamp),
-        timestampMs: t.timestamp,
-        market: m?.name ?? t.marketName,
-        marketId: t.marketId,
-        thumbnailUrl: marketThumb(m),
-        side: t.action,
-        price: t.price,
-        sizeUsd: t.usdAmount,
-        pnlUsd: t.action === 'sell' ? t.usdAmount * 0.05 : 0,
-        pairId: `live-${t.id}`,
-        outcome: t.outcome
-      }
+    return tradeRecordsToProfileTrades(appState.trades, (marketId) => {
+      const m = marketById.get(marketId)
+      return { name: m?.name, thumbnailUrl: marketThumb(m) }
     })
-
-    return [...liveTrades, ...seededTrades].sort((a, b) => b.timestampMs - a.timestampMs)
-  }, [isSelf, profileUser?.trades, appState.trades, seededTrades, marketById, marketByName])
+  }, [isSelf, profileUser?.trades, appState.trades, marketById, marketByName])
 
   const windowedTrades = useMemo(() => {
     const now    = Date.now()
@@ -431,6 +401,8 @@ const ProfilePanel = ({
     <ProfilePositionsList positions={positions} onOpenMarket={onOpenMarket} />
   )
 
+  const notificationSettings = isSelf ? <NotificationSettingsSection /> : null
+
   return (
     <motion.div
       className="panel profile-panel"
@@ -508,6 +480,7 @@ const ProfilePanel = ({
               >
                 {profileCard}
                 {lootboxesStrip}
+                {notificationSettings}
               </div>
               <div
                 ref={mobileTradingSectionRef}
@@ -525,6 +498,7 @@ const ProfilePanel = ({
           <div className="profile-grid">
             <div className="profile-left-stack">
               {profileCard}
+              {notificationSettings}
             </div>
 
             <div className="profile-center-stack">

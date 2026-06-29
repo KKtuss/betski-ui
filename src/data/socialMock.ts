@@ -1,3 +1,5 @@
+import { PROFILE_AVATARS } from './profileRegistry'
+
 export interface Message {
   id: string
   chatId: string
@@ -14,6 +16,7 @@ export interface Message {
     timeLeftLabel: string
     thumbnailVideoUrl?: string
     thumbnailFallbackSrc?: string
+    thumbnailUrls?: string[]
     volume24h?: number
     holders?: number
     winRate?: number
@@ -33,12 +36,7 @@ export interface Message {
   timestamp: number
 }
 
-export const SOCIAL_AUTHOR_AVATARS: Record<string, string> = {
-  MarkDiTob: '/Stems/moggorrr transparent.png',
-  BenBetski: '/Stems/BetskiPEFFPEE.png',
-  CryptoKiwi: '/Stems/epstein transparent.png',
-  You: '/Stems/betskuu.png'
-}
+export const SOCIAL_AUTHOR_AVATARS: Record<string, string> = PROFILE_AVATARS
 
 export const getMockMessages = (): Message[] => {
   const now = Date.now()
