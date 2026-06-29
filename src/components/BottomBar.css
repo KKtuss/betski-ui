@@ -141,3 +141,31 @@
 .bottom-bar-center:hover .betski-logo-gradient::before {
   opacity: 0.8;
 }
+
+@media (max-width: 900px) {
+  .bottom-bar {
+    left: max(8px, env(safe-area-inset-left));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    width: calc(100vw - max(8px, env(safe-area-inset-left)) - max(8px, env(safe-area-inset-right)));
+    height: 64px;
+    padding: 0 10px;
+    border-radius: 22px;
+    gap: 4px;
+  }
+
+  .bottom-tab {
+    min-width: 48px;
+    min-height: 48px;
+    padding: 8px;
+  }
+
+  .bottom-tab svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .betski-logo-gradient {
+    width: 56px;
+    height: 56px;
+  }
+}

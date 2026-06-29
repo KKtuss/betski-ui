@@ -1,95 +1,82 @@
 # Betski UI
 
-A modern betting website UI with TikTok-style video scrolling interface.
-
-## Features
-
-- **Horizontal Video Scrolling**: TikTok-style card-based video container with smooth horizontal scrolling
-- **Long/Short Actions**: Green and red buttons on each video for betting actions
-- **Infographic Panels**: 
-  - Chart panel (left top)
-  - Rules panel (left bottom)
-  - Stats panel (right top)
-  - Orderbook panel (right bottom) with buy/sell order visualization
-- **Bottom Play Button**: Central play button for main actions
-- **Dark Theme**: Modern dark theme with clean white panels
-
-## Getting Started
+A static Vite build for the Betski UI.
 
 ### Prerequisites
 
 - Node.js (v16 or higher)
-- npm or yarn
+- npm
 
-### Installation
+## Run Locally
 
 1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Start the development server:
+2. Start the local development server:
 ```bash
 npm run dev
 ```
 
-3. Open your browser and navigate to `http://localhost:5173`
+3. Open `http://localhost:5173`.
 
-### Building for Production
+## Test Production Build Locally
 
+1. Build the static files:
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist` directory.
+2. Preview with Vite:
+```bash
+npm run preview
+```
+
+3. Or serve the built `dist` folder:
+```bash
+npm run serve
+```
+
+## Deploy On Vercel
+
+1. Push the project to GitHub, GitLab, or Bitbucket.
+2. In Vercel, create a new project and import the repository.
+3. Use these settings:
+   - Framework Preset: `Vite`
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+   - Install Command: `npm install`
+4. Deploy.
+
+The included `vercel.json` uses `dist` as the static output directory and rewrites routes back to `index.html`.
+
+## Build Output Structure
+
+```bash
+dist/
+├── assets/
+├── css/
+├── js/
+└── index.html
+```
 
 ## Project Structure
 
 ```
+index.html
+package.json
+vercel.json
+public/
+└── assets/
 src/
 ├── components/
-│   ├── Layout.tsx          # Main layout component
-│   ├── VideoContainer.tsx  # Horizontal scrolling video container
-│   ├── VideoCard.tsx       # Individual video card with long/short buttons
-│   ├── ChartPanel.tsx      # Chart display panel
-│   ├── RulesPanel.tsx      # Rules information panel
-│   ├── StatsPanel.tsx      # Statistics panel
-│   ├── OrderbookPanel.tsx  # Orderbook with buy/sell orders
-│   └── BottomBar.tsx       # Bottom bar with play button
+├── data/
+├── hooks/
+├── types/
+├── utils/
 ├── App.tsx
+├── index.css
 └── main.tsx
+vite.config.ts
 ```
-
-## Customization
-
-### Adding Videos
-
-Edit the `videos` array in `src/components/Layout.tsx` to add or modify videos:
-
-```typescript
-const [videos] = useState([
-  { id: 1, title: 'Video 1', url: 'YOUR_VIDEO_URL' },
-  // Add more videos...
-])
-```
-
-### Customizing Long/Short Actions
-
-Edit the `handleLong` and `handleShort` functions in `src/components/VideoContainer.tsx` to implement your betting logic.
-
-### Styling
-
-All component styles are in their respective `.css` files. The main theme colors can be adjusted in:
-- `src/index.css` - Global styles and background
-- Component-specific CSS files for panel and button colors
-
-## Technologies Used
-
-- React 18
-- TypeScript
-- Vite
-- CSS3
-
-## License
-
-MIT

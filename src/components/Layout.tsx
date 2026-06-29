@@ -440,9 +440,15 @@ const Layout = () => {
     )
 
   const showHomeMobileFull = activeTab === 'main' && homeFeedOpen && homeMobileLayout
+  const isMobileMain = activeTab === 'main' && homeMobileLayout && !showHomeMobileFull
 
   return (
-    <motion.div className="layout" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+    <motion.div
+      className={`layout${homeMobileLayout ? ' layout--mobile' : ''}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
       {showHomeMobileFull ? (
         <motion.div
           className="layout-center layout-home-full"
@@ -453,6 +459,47 @@ const Layout = () => {
         >
           <HomePanel variant="fullscreen" {...homePanelProps} />
         </motion.div>
+      ) : isMobileMain ? (
+        <motion.main
+          className="mobile-app"
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          <section className="mobile-video-section" aria-label="Market video">
+            {videoBlock}
+          </section>
+
+          <section className="mobile-section mobile-section--market" aria-label="Market details">
+            <div className="mobile-section-header">
+              <span className="mobile-section-kicker">Market</span>
+              <span className="mobile-section-title">{selectedMarket.name}</span>
+            </div>
+            <div className="mobile-panel-stack">{chartsRulesBlock}</div>
+          </section>
+
+          <section className="mobile-section mobile-section--trade" aria-label="Trading">
+            <div className="mobile-section-header">
+              <span className="mobile-section-kicker">
+                {activeMode === 'long' || activeMode === 'short' ? 'Trade' : activeMode === 'share' ? 'Share' : 'Activity'}
+              </span>
+              <span className="mobile-section-title">
+                {activeMode === 'long'
+                  ? isWagerMarket
+                    ? 'Buy YES'
+                    : 'Long'
+                  : activeMode === 'short'
+                    ? isWagerMarket
+                      ? 'Buy NO'
+                      : 'Short'
+                    : activeMode === 'share'
+                      ? 'Send this market'
+                      : 'Recent trades'}
+              </span>
+            </div>
+            <div className="mobile-panel-stack">{orderbookBlock}</div>
+          </section>
+        </motion.main>
       ) : activeTab === 'main' ? (
         <>
           <motion.div
