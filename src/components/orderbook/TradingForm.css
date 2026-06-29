@@ -1,0 +1,30 @@
+/* Compact sizing when the form lives in the phone bottom sheet (no scroll). */
+.trading-form--compact {
+  padding: 8px !important;
+  gap: 6px !important;
+}
+
+.trading-form--compact .trading-header {
+  margin-bottom: 0 !important;
+}
+
+.trading-form--compact .trading-vs-grid {
+  margin-top: 2px !important;
+  column-gap: 12px !important;
+}
+
+.trading-form--compact .trading-input-card {
+  margin-top: 4px !important;
+  padding: 8px !important;
+  gap: 8px !important;
+}
+
+.trading-form--compact .trading-depth-bars {
+  gap: 4px !important;
+  margin-top: 2px !important;
+}
+
+.trading-form--compact .trading-actions {
+  padding-top: 4px !important;
+  gap: 8px !important;
+}

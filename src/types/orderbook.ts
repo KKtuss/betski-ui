@@ -32,6 +32,7 @@ export interface OrderbookPanelProps {
   onTradeExecuted?: TradeExecutedHandler
   shareTargets?: ShareTarget[]
   onShareToChat?: (chatId: string) => void
+  compact?: boolean
 }
 
 export interface TradingFormProps {
@@ -41,4 +42,5 @@ export interface TradingFormProps {
   holdingShares: number
   currentPrice: number
   onTradeExecuted?: TradeExecutedHandler
+  compact?: boolean
 }

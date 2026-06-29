@@ -30,8 +30,7 @@ import {
 import { addWager, advanceBatchMarketTick, applyWagerLiquidityBuy, ensureDiscoveryThumbnails } from '../data/discoveryStore'
 import {
   buildMarketCatalog,
-  getMarketById,
-  legacyVideoIdToMarketId
+  getMarketById
 } from '../data/marketCatalog'
 import { buildMarketViewData } from '../utils/buildMarketViewData'
 import { buildShareMarket } from '../utils/buildShareMarket'
@@ -136,8 +135,10 @@ const Layout = () => {
       id: 'group-1',
       kind: 'group' as const,
       title: 'Betskiing',
-      subtitle: 'Pinned: Entry levels for today',
+      subtitle: 'lets go lets go lets go',
       unreadCount: 2,
+      verified: true,
+      online: true,
       members: ['/Stems/BetskiPEFFPEE.png', '/Stems/moggorrr transparent.png', '/Stems/epstein transparent.png']
     },
     {
@@ -146,6 +147,7 @@ const Layout = () => {
       title: 'MarkDiTob',
       subtitle: 'got fills?',
       unreadCount: 0,
+      online: true,
       avatar: '/Stems/moggorrr transparent.png'
     },
     {
@@ -155,6 +157,38 @@ const Layout = () => {
       subtitle: 'Betski',
       unreadCount: 1,
       avatar: '/Stems/BetskiPEFFPEE.png'
+    },
+    {
+      id: 'dm-4',
+      kind: 'dm' as const,
+      title: 'CryptoKiwi',
+      subtitle: 'same',
+      unreadCount: 0,
+      avatar: '/Stems/epstein transparent.png'
+    },
+    {
+      id: 'group-2',
+      kind: 'group' as const,
+      title: 'Alpha Chat',
+      subtitle: 'New batch just dropped',
+      unreadCount: 0,
+      members: ['/Stems/BetskiPEFFPEE.png', '/Stems/betskuu.png']
+    },
+    {
+      id: 'sys-1',
+      kind: 'system' as const,
+      title: 'News Flow',
+      subtitle: 'D4vd batch trending +18%',
+      unreadCount: 0,
+      systemIcon: 'news' as const
+    },
+    {
+      id: 'sys-2',
+      kind: 'system' as const,
+      title: 'Watchlist Alerts',
+      subtitle: '2 markets near resolution',
+      unreadCount: 1,
+      systemIcon: 'alerts' as const
     }
   ])
 
@@ -386,6 +420,7 @@ const Layout = () => {
         fills={wagerFills}
         walletBalance={appState.wallet.balanceUsd}
         activeMode={activeMode}
+        compact={homeMobileLayout}
         onBack={() => {
           setActiveMode('orderbook')
           setTradeMarketId(null)
@@ -400,6 +435,7 @@ const Layout = () => {
       <OrderbookPanel
         activeMode={activeMode}
         currentPrice={livePrice / 100}
+        compact={homeMobileLayout}
         onBack={() => {
           setActiveMode('orderbook')
           setTradeMarketId(null)
@@ -429,7 +465,7 @@ const Layout = () => {
             )
           }
         }}
-        shareTargets={chats}
+        shareTargets={chats.filter((c) => c.kind === 'dm' || c.kind === 'group')}
         onShareToChat={(chatId) => {
           setSocialsInitialChatId(chatId)
           setPendingShare({
@@ -451,6 +487,7 @@ const Layout = () => {
       currentPrice={livePrice / 100}
       recentTrades={liveTrades}
       walletBalance={appState.wallet.balanceUsd}
+      compact={homeMobileLayout}
     />
   )
 
@@ -544,7 +581,7 @@ const Layout = () => {
             pendingShareTrade={pendingShareTrade ?? undefined}
             onPendingShareTradeHandled={() => setPendingShareTrade(null)}
             onAddFriend={(handle) => addFriendChat(handle)}
-            onOpenMarket={(videoId) => openMarket(legacyVideoIdToMarketId(videoId))}
+            onOpenMarket={openMarket}
             onViewProfile={(handle) => openProfile(handle)}
           />
         </motion.div>

@@ -1,4 +1,5 @@
 export type ShareMarketPayload = {
+  marketId?: string
   videoId: number
   title: string
   yesOdds: number
@@ -6,6 +7,10 @@ export type ShareMarketPayload = {
   timeLeftLabel: string
   thumbnailVideoUrl?: string
   thumbnailFallbackSrc?: string
+  volume24h?: number
+  holders?: number
+  winRate?: number
+  priceChange?: number
 }
 
 export type ShareTradePayload = {

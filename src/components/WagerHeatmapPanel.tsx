@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import type { OpenBet, Wager, WagerFill } from '../types/discovery'
+import { useHomeMobileLayout } from '../hooks/useHomeMobileLayout'
 import LiquidityStrip from './LiquidityStrip'
 import { formatCompactUsd } from '../utils/formatCompact'
 import { consensusYesFromOpenBets, getSelectedLineFills } from '../utils/wagerFills'
@@ -26,6 +27,7 @@ const WagerHeatmapPanel = ({
   onSelectOdds,
   onFillSide
 }: WagerHeatmapPanelProps) => {
+  const isMobileLayout = useHomeMobileLayout()
   const interactiveRef = useRef<HTMLDivElement>(null)
   const [stripHoverOdds, setStripHoverOdds] = useState<number | null>(null)
   const [displayHoverOdds, setDisplayHoverOdds] = useState<number | null>(null)
@@ -44,7 +46,7 @@ const WagerHeatmapPanel = ({
   }, [stripHoverOdds])
 
   const activeLineOdds = displayHoverOdds ?? selectedOdds
-  const isHovering = displayHoverOdds !== null
+  const isHovering = !isMobileLayout && displayHoverOdds !== null
 
   const handleSelectOdds = (odds: number, target?: OpenBet) => {
     setDisplayHoverOdds(odds)
@@ -119,7 +121,7 @@ const WagerHeatmapPanel = ({
         <div
           className="wager-heatmap-interactive"
           ref={interactiveRef}
-          onMouseLeave={() => setDisplayHoverOdds(null)}
+          onMouseLeave={isMobileLayout ? undefined : () => setDisplayHoverOdds(null)}
         >
           <div className="wager-heatmap-strip-wrap">
             <LiquidityStrip
