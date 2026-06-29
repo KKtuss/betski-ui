@@ -361,7 +361,7 @@ const HomePanel = ({
                     <div className="home-market-info">
                       <div className="home-market-name">{m.name}</div>
                       <div className="home-market-subprice">
-                        {m.yesOdds.toFixed(1)}¢ YES · {m.noOdds.toFixed(1)}¢ NO
+                        {m.yesOdds.toFixed(1)}¢ YES {m.noOdds.toFixed(1)}¢ NO
                       </div>
                     </div>
                     <span className="home-market-spark" aria-hidden>
@@ -371,14 +371,14 @@ const HomePanel = ({
                       <span className="home-market-vol-amt">{fmtVol(m.volume24h)}</span>
                       <span className="home-market-vol-label">Vol.</span>
                     </div>
-                    <div className="home-market-pills">
-                      <div className="home-price-pill">
+                    <div className="home-market-pills" aria-hidden>
+                      <div className="home-price-pill home-price-pill--yes">
                         <span className="home-price-pill-val">{Math.round(m.yesOdds)}¢</span>
-                        <span className="home-price-pill-tag yes">YES</span>
+                        <span className="home-price-pill-tag">YES</span>
                       </div>
-                      <div className="home-price-pill">
+                      <div className="home-price-pill home-price-pill--no">
                         <span className="home-price-pill-val">{Math.round(m.noOdds)}¢</span>
-                        <span className="home-price-pill-tag no">NO</span>
+                        <span className="home-price-pill-tag">NO</span>
                       </div>
                     </div>
                   </button>
