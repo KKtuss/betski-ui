@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, Send } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Pencil, Send } from 'lucide-react'
 import { useAppStore } from '../hooks/useAppStore'
 import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
 import { CURRENT_USER_HANDLE } from '../data/appStore'
@@ -8,12 +8,14 @@ import { buildMarketCatalog, type Market } from '../data/marketCatalog'
 import type { MarketId } from '../data/appStore'
 import { generateSeededTrades, type MarketRef, type ProfileTrade } from '../data/profileMock'
 import {
+  PROFILE_GAMIFICATION,
   PROFILE_TIME_WINDOWS,
   type ProfileTimeWindow
 } from '../data/profileConstants'
 import {
   LOOTBOX_OPEN_VIDEO_SRC
 } from '../data/profileLootboxes'
+import { useHomeMobileLayout } from '../hooks/useHomeMobileLayout'
 import { formatUsd, formatUsdSigned } from '../utils/profileFormat'
 import ProfileEquityChart from './profile/ProfileEquityChart'
 import ProfileHighlightsGrid from './profile/ProfileHighlightsGrid'
@@ -23,6 +25,8 @@ import ProfilePositionsList, { type ProfilePosition } from './profile/ProfilePos
 import ProfileTradeTape from './profile/ProfileTradeTape'
 import './Panel.css'
 import './ProfilePanel.css'
+
+type ProfileMobileSection = 'profile' | 'trading'
 
 const ProfilePanel = ({
   onSharePnL,
@@ -49,7 +53,6 @@ const ProfilePanel = ({
 }) => {
   const appState = useAppStore()
   const catalog = useDiscoveryCatalog()
-  // Single source of truth for market identity/labels/thumbnails across the app.
   const markets = useMemo(() => buildMarketCatalog(), [catalog])
   const marketById = useMemo(() => new Map<string, Market>(markets.map((m) => [m.id, m])), [markets])
   const marketByName = useMemo(() => new Map<string, Market>(markets.map((m) => [m.name, m])), [markets])
@@ -64,9 +67,19 @@ const ProfilePanel = ({
   const [profileTimeWindow, setProfileTimeWindow] = useState<ProfileTimeWindow>('30d')
   const [tapeView, setTapeView] = useState<'activity' | 'history'>('activity')
   const [lootboxVideoOpen, setLootboxVideoOpen] = useState(false)
+  const isMobileLayout = useHomeMobileLayout()
+  const [mobileSection, setMobileSection] = useState<ProfileMobileSection>('profile')
+  const mobileProfileSectionRef = useRef<HTMLDivElement>(null)
+  const mobileTradingSectionRef = useRef<HTMLDivElement>(null)
 
-  // Seed demo history over *real* markets so the activity tape, highlights and
-  // positions all reference the same markets shown everywhere else in the app.
+  const setMobileSectionAndScrollTop = (section: ProfileMobileSection) => {
+    setMobileSection(section)
+    requestAnimationFrame(() => {
+      const el = section === 'profile' ? mobileProfileSectionRef.current : mobileTradingSectionRef.current
+      el?.scrollTo({ top: 0 })
+    })
+  }
+
   const marketRefs = useMemo<MarketRef[]>(
     () =>
       markets
@@ -133,7 +146,7 @@ const ProfilePanel = ({
       profileTimeWindow === '1d'  ? now -  1 * DAY_MS
       : profileTimeWindow === '7d'  ? now -  7 * DAY_MS
       : profileTimeWindow === '30d' ? now - 30 * DAY_MS
-      : 0 // max = all
+      : 0
     return trades.filter(t => t.timestampMs >= cutoff)
   }, [trades, profileTimeWindow])
 
@@ -174,7 +187,6 @@ const ProfilePanel = ({
     return rows
   }, [windowedTrades])
 
-  /** All-time top 3 closed trades for Highlights (not time-windowed) */
   const topTradeHighlights = useMemo(() => {
     const map = new Map<string, { buy?: ProfileTrade; sell?: ProfileTrade }>()
     for (const t of trades) {
@@ -219,11 +231,10 @@ const ProfilePanel = ({
 
   const tradingStats = useMemo(() => {
     const sellTrades = windowedTrades.filter(t => t.side === 'sell')
-    const pairCount  = sellTrades.length // one sell = one completed round-trip
+    const pairCount  = sellTrades.length
     const totalPnl   = sellTrades.reduce((acc, t) => acc + t.pnlUsd, 0)
     const buyVolume  = windowedTrades.reduce((acc, t) => acc + (t.side === 'buy'  ? t.sizeUsd : 0), 0)
     const sellVolume = windowedTrades.reduce((acc, t) => acc + (t.side === 'sell' ? t.sizeUsd : 0), 0)
-    // sellVolume - buyVolume === totalPnl (exact, by construction of the round-trip pairs)
     const wins     = sellTrades.filter(t => t.pnlUsd > 0).length
     const winRate  = pairCount === 0 ? 0 : (wins / pairCount) * 100
     const avgPnl   = pairCount === 0 ? 0 : totalPnl / pairCount
@@ -281,6 +292,145 @@ const ProfilePanel = ({
     })
   }, [isSelf, profileUser?.positions, appState.positions, marketById])
 
+  const openLootbox = () => setLootboxVideoOpen(true)
+
+  const profileCard = (
+    <div className="profile-card">
+      {isSelf && (
+        <button type="button" className="profile-edit-btn" title="Edit profile" aria-label="Edit profile">
+          <Pencil size={13} />
+        </button>
+      )}
+
+      <div className="profile-avatar">
+        <img className="profile-avatar-img" src={rawPfpSrc} alt="Profile" />
+      </div>
+
+      <div className="profile-identity-name-row">
+        <span className="profile-card-name">{displayName}</span>
+        <BadgeCheck className="profile-verified-icon" size={14} aria-hidden />
+      </div>
+
+      <div className="profile-identity-meta">
+        <span className="profile-trader-badge">{PROFILE_GAMIFICATION.badge}</span>
+        <span className="profile-level">Level {PROFILE_GAMIFICATION.level}</span>
+      </div>
+
+      <div className="profile-xp-block">
+        <div className="profile-xp-track" role="progressbar" aria-valuenow={PROFILE_GAMIFICATION.xpCurrent} aria-valuemin={0} aria-valuemax={PROFILE_GAMIFICATION.xpMax} aria-label="XP progress">
+          <div
+            className="profile-xp-fill"
+            style={{ width: `${(PROFILE_GAMIFICATION.xpCurrent / PROFILE_GAMIFICATION.xpMax) * 100}%` }}
+          />
+        </div>
+        <div className="profile-xp-label">
+          {PROFILE_GAMIFICATION.xpCurrent.toLocaleString()} / {PROFILE_GAMIFICATION.xpMax.toLocaleString()} XP
+        </div>
+      </div>
+
+      <div className="profile-social-stats">
+        <div className="profile-social-stat-row">
+          <span className="profile-social-label">Followers</span>
+          <span className="profile-social-value">{socialStats.followers.toLocaleString()}</span>
+        </div>
+        <div className="profile-social-stat-row">
+          <span className="profile-social-label">Following</span>
+          <span className="profile-social-value">{socialStats.following.toLocaleString()}</span>
+        </div>
+        <div className="profile-social-stat-row">
+          <span className="profile-social-label">Markets</span>
+          <span className="profile-social-value">{socialStats.markets.toLocaleString()}</span>
+        </div>
+      </div>
+    </div>
+  )
+
+  const tradingBlock = (
+    <div className="profile-trading">
+      <div className="profile-trading-top">
+        <div className="profile-section-title">Trading Data</div>
+        {isSelf && onSharePnL && (
+          <button
+            type="button"
+            className="profile-share-pnl-btn"
+            onClick={() => onSharePnL(sharePnlText)}
+            title="Share PnL to socials"
+          >
+            <Send size={14} />
+          </button>
+        )}
+      </div>
+
+      <div className="profile-trading-summary">
+        <div className="profile-summary-left">
+          <div className="profile-summary-label">Net PnL</div>
+          <div className={`profile-summary-value ${tradingStats.totalPnl >= 0 ? 'pos' : 'neg'}`}>
+            {formatUsdSigned(tradingStats.totalPnl)}
+          </div>
+        </div>
+        <div className="profile-summary-right">
+          <div className="profile-summary-kv">
+            <div className="profile-summary-k">Balance</div>
+            <div className="profile-summary-v">{formatUsd(allTimeEquity)}</div>
+          </div>
+          <div className="profile-summary-kv">
+            <div className="profile-summary-k">Buy Vol</div>
+            <div className="profile-summary-v">{formatUsd(tradingStats.buyVolume)}</div>
+          </div>
+          <div className="profile-summary-kv">
+            <div className="profile-summary-k">Sell Vol</div>
+            <div className="profile-summary-v">{formatUsd(tradingStats.sellVolume)}</div>
+          </div>
+          <div className="profile-summary-kv">
+            <div className="profile-summary-k">Win Rate</div>
+            <div className="profile-summary-v">{tradingStats.winRate.toFixed(0)}%</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="profile-trading-details">
+        <div className="profile-detail-row">
+          <div className="profile-detail-k"># Trades</div>
+          <div className="profile-detail-v">{tradingStats.pairCount}</div>
+        </div>
+        <div className="profile-detail-row">
+          <div className="profile-detail-k">Avg / Trade</div>
+          <div className={`profile-detail-v ${tradingStats.avgPnl >= 0 ? 'pos' : 'neg'}`}>{formatUsdSigned(tradingStats.avgPnl)}</div>
+        </div>
+        <div className="profile-detail-row">
+          <div className="profile-detail-k">Best Trade</div>
+          <div className="profile-detail-v pos">{formatUsdSigned(tradingStats.bestTrade)}</div>
+        </div>
+        <div className="profile-detail-row">
+          <div className="profile-detail-k">Worst Trade</div>
+          <div className={`profile-detail-v ${tradingStats.worstTrade >= 0 ? 'pos' : 'neg'}`}>{formatUsdSigned(tradingStats.worstTrade)}</div>
+        </div>
+      </div>
+    </div>
+  )
+
+  const lootboxesStrip = <ProfileLootboxesStrip onOpenLootbox={openLootbox} />
+
+  const highlightsGrid = <ProfileHighlightsGrid rows={topTradeHighlights} />
+
+  const equityChart = (
+    <ProfileEquityChart trades={trades} profileTimeWindow={profileTimeWindow} />
+  )
+
+  const tradeTape = (
+    <ProfileTradeTape
+      tapeView={tapeView}
+      onTapeViewChange={setTapeView}
+      windowedTrades={windowedTrades}
+      historyRows={historyRows}
+      onShareTrade={onShareTrade}
+    />
+  )
+
+  const positionsList = (
+    <ProfilePositionsList positions={positions} onOpenMarket={onOpenMarket} />
+  )
+
   return (
     <motion.div
       className="panel profile-panel"
@@ -328,116 +478,68 @@ const ProfilePanel = ({
       </div>
 
       <div className="panel-content profile-content">
-        <div className="profile-grid">
-          <div className="profile-left-stack">
-            <div className="profile-card">
-              <div className="profile-card-top">
-                <div className="profile-avatar">
-                  <img className="profile-avatar-img" src={rawPfpSrc} alt="Profile" />
-                </div>
-              </div>
-              <div className="profile-card-name">{displayName}</div>
+        {isMobileLayout ? (
+          <>
+            <div className="profile-mobile-nav" role="tablist" aria-label="Profile sections">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mobileSection === 'profile'}
+                className={`profile-mobile-nav-btn ${mobileSection === 'profile' ? 'active' : ''}`}
+                onClick={() => setMobileSectionAndScrollTop('profile')}
+              >
+                Profile
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={mobileSection === 'trading'}
+                className={`profile-mobile-nav-btn ${mobileSection === 'trading' ? 'active' : ''}`}
+                onClick={() => setMobileSectionAndScrollTop('trading')}
+              >
+                Trading
+              </button>
             </div>
 
-            <div className="profile-mini-stats">
-              <div className="profile-mini-stat">
-                <div className="profile-mini-value">{socialStats.followers.toLocaleString()}</div>
-                <div className="profile-mini-label">Followers</div>
+            <div className="profile-mobile-body">
+              <div
+                ref={mobileProfileSectionRef}
+                className={`profile-mobile-section ${mobileSection === 'profile' ? 'is-active' : ''}`}
+              >
+                {profileCard}
+                {lootboxesStrip}
               </div>
-              <div className="profile-mini-stat">
-                <div className="profile-mini-value">{socialStats.following.toLocaleString()}</div>
-                <div className="profile-mini-label">Following</div>
-              </div>
-              <div className="profile-mini-stat">
-                <div className="profile-mini-value">{socialStats.markets.toLocaleString()}</div>
-                <div className="profile-mini-label">Markets</div>
+              <div
+                ref={mobileTradingSectionRef}
+                className={`profile-mobile-section profile-mobile-section--trading ${mobileSection === 'trading' ? 'is-active' : ''}`}
+              >
+                {tradingBlock}
+                {equityChart}
+                {highlightsGrid}
+                {tradeTape}
+                {positionsList}
               </div>
             </div>
+          </>
+        ) : (
+          <div className="profile-grid">
+            <div className="profile-left-stack">
+              {profileCard}
+            </div>
+
+            <div className="profile-center-stack">
+              {tradingBlock}
+              <div className="profile-center-bottom-row">
+                {highlightsGrid}
+                {lootboxesStrip}
+              </div>
+            </div>
+
+            {equityChart}
+            {tradeTape}
+            {positionsList}
           </div>
-
-          <div className="profile-center-stack">
-            <div className="profile-trading">
-              <div className="profile-trading-top">
-                <div className="profile-section-title">Trading Data</div>
-                {isSelf && onSharePnL && (
-                  <button
-                    type="button"
-                    className="profile-share-pnl-btn"
-                    onClick={() => onSharePnL(sharePnlText)}
-                    title="Share PnL to socials"
-                  >
-                    <Send size={14} />
-                  </button>
-                )}
-              </div>
-
-              <div className="profile-trading-summary">
-                <div className="profile-summary-left">
-                  <div className="profile-summary-label">Net PnL</div>
-                  <div className={`profile-summary-value ${tradingStats.totalPnl >= 0 ? 'pos' : 'neg'}`}>
-                    {formatUsdSigned(tradingStats.totalPnl)}
-                  </div>
-                </div>
-                <div className="profile-summary-right">
-                  <div className="profile-summary-kv">
-                    <div className="profile-summary-k">Balance</div>
-                    <div className="profile-summary-v">{formatUsd(allTimeEquity)}</div>
-                  </div>
-                  <div className="profile-summary-kv">
-                    <div className="profile-summary-k">Buy Vol</div>
-                    <div className="profile-summary-v">{formatUsd(tradingStats.buyVolume)}</div>
-                  </div>
-                  <div className="profile-summary-kv">
-                    <div className="profile-summary-k">Sell Vol</div>
-                    <div className="profile-summary-v">{formatUsd(tradingStats.sellVolume)}</div>
-                  </div>
-                  <div className="profile-summary-kv">
-                    <div className="profile-summary-k">Win Rate</div>
-                    <div className="profile-summary-v">{tradingStats.winRate.toFixed(0)}%</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="profile-trading-details">
-                <div className="profile-detail-row">
-                  <div className="profile-detail-k"># Trades</div>
-                  <div className="profile-detail-v">{tradingStats.pairCount}</div>
-                </div>
-                <div className="profile-detail-row">
-                  <div className="profile-detail-k">Avg / Trade</div>
-                  <div className={`profile-detail-v ${tradingStats.avgPnl >= 0 ? 'pos' : 'neg'}`}>{formatUsdSigned(tradingStats.avgPnl)}</div>
-                </div>
-                <div className="profile-detail-row">
-                  <div className="profile-detail-k">Best Trade</div>
-                  <div className="profile-detail-v pos">{formatUsdSigned(tradingStats.bestTrade)}</div>
-                </div>
-                <div className="profile-detail-row">
-                  <div className="profile-detail-k">Worst Trade</div>
-                  <div className={`profile-detail-v ${tradingStats.worstTrade >= 0 ? 'pos' : 'neg'}`}>{formatUsdSigned(tradingStats.worstTrade)}</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="profile-center-bottom-row">
-              <ProfileHighlightsGrid rows={topTradeHighlights} />
-
-              <ProfileLootboxesStrip onOpenLootbox={() => setLootboxVideoOpen(true)} />
-            </div>
-          </div>
-
-          <ProfileEquityChart trades={trades} profileTimeWindow={profileTimeWindow} />
-
-          <ProfileTradeTape
-            tapeView={tapeView}
-            onTapeViewChange={setTapeView}
-            windowedTrades={windowedTrades}
-            historyRows={historyRows}
-            onShareTrade={onShareTrade}
-          />
-
-          <ProfilePositionsList positions={positions} onOpenMarket={onOpenMarket} />
-
-        </div>
+        )}
       </div>
 
       <AnimatePresence>

@@ -16,8 +16,8 @@
 .profile-highlights-grid {
   display: flex;
   gap: 12px;
-  flex: 1 1 0;
-  min-height: 0;
+  flex: 0 0 auto;
+  min-height: clamp(140px, 16vh, 200px);
   overflow: visible;
   align-items: flex-end;
   justify-content: space-between;

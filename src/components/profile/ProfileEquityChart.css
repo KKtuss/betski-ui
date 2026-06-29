@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  min-height: 0;
 }
 
 .profile-chart-surface {
@@ -114,4 +115,28 @@
 .profile-chart-svg {
   width: 100%;
   height: 100%;
+}
+
+@media (min-width: 901px) {
+  .profile-chart-surface {
+    flex: 1 1 auto;
+    min-height: 100px;
+  }
+}
+
+@media (max-width: 900px) {
+  .profile-charts {
+    min-height: 0;
+  }
+
+  .profile-chart-legend {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .profile-chart-surface {
+    flex: 0 0 auto;
+    min-height: clamp(132px, 36vw, 170px);
+    height: clamp(132px, 36vw, 170px);
+  }
 }

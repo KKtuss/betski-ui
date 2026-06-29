@@ -291,3 +291,69 @@
 .profile-trade-pnl.neg {
   color: var(--color-red);
 }
+
+@media (max-width: 900px) {
+  .profile-last-trades {
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .profile-trades-list {
+    flex: 0 0 auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .profile-trade-row--activity {
+    grid-template-columns: 48px minmax(0, 1fr) 42px 42px 34px;
+    gap: 6px;
+    padding: 8px;
+    font-size: 10px;
+  }
+
+  .profile-trade-row--activity .profile-trade-thumb-spacer,
+  .profile-trade-row--activity .profile-trade-thumb-wrap {
+    display: none;
+  }
+
+  .profile-trade-row--activity .profile-trade-market,
+  .profile-trade-row--activity .profile-trade-market--feed {
+    font-size: 10px;
+    line-height: 1.25;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .profile-trade-row--activity .profile-trade-market-side {
+    font-size: 9px;
+  }
+
+  .profile-trade-row--activity .profile-trade-type-col {
+    font-size: 9px;
+  }
+
+  .profile-trade-row--history {
+    grid-template-columns: minmax(0, 1fr) 36px 44px 44px 52px 24px;
+    gap: 6px;
+    padding: 8px;
+    font-size: 10px;
+  }
+
+  .profile-trade-row--history .profile-trade-thumb-spacer,
+  .profile-trade-row--history .profile-trade-thumb-wrap {
+    display: none;
+  }
+
+  .profile-trade-row--history .profile-trade-market {
+    font-size: 10px;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}

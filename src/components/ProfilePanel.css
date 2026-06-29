@@ -30,6 +30,9 @@
     var(--profile-inset-top),
     0 4px 6px rgba(0, 0, 0, 0.12),
     0 18px 44px rgba(0, 0, 0, 0.32);
+  --profile-row-gap: 14px;
+  --profile-center-row-min: clamp(168px, 20vh, 240px);
+  --profile-activity-min: 160px;
 }
 
 .profile-header {
@@ -75,95 +78,101 @@
   align-items: stretch;
   justify-content: flex-start;
   padding: 16px;
-  overflow: auto;
+  overflow: hidden;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-mobile-nav {
+  display: none;
+}
+
+.profile-mobile-body {
+  display: none;
 }
 
 .profile-grid {
+  flex: 1;
+  min-height: 0;
+  height: 100%;
   width: 100%;
-  min-height: 100%;
   display: grid;
   grid-template-columns: clamp(160px, 11vw, 210px) 1fr clamp(340px, 25vw, 460px);
-  /* Fluid rows that ALWAYS fill the available container height (no empty
-     gap at the bottom on tall viewports), while still shrinking on short
-     laptops (1080p/768p) instead of forcing vertical overflow.
-     - fr proportions (0.62 / 0.38) keep the original visual ratio.
-     - Mins (260 / 160) prevent rows from collapsing on short screens. */
   grid-template-rows:
-    minmax(260px, 0.62fr)
-    minmax(160px, 0.38fr);
-  gap: 14px;
+    minmax(min-content, auto)
+    minmax(var(--profile-center-row-min), auto)
+    minmax(var(--profile-activity-min), 1fr);
+  gap: var(--profile-row-gap);
 }
 
-/* Option C: explicit placement (no auto-flow surprises) */
 .profile-left-stack {
-  grid-column: 1;
-  grid-row: 1;
-}
-
-.profile-trading {
-  grid-column: auto;
-  grid-row: auto;
-}
-
-.profile-charts {
-  grid-column: 3;
-  grid-row: 1;
-}
-
-.profile-last-trades {
-  grid-column: 1 / span 2;
-  grid-row: 2;
-}
-
-.profile-side-panel {
-  grid-column: 3;
-  grid-row: 2;
-}
-
-.profile-lootboxes-panel {
-  grid-column: auto;
-  grid-row: auto;
+  display: contents;
 }
 
 .profile-center-stack {
+  display: contents;
+}
+
+.profile-card {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  align-self: stretch;
+}
+
+.profile-trading {
   grid-column: 2;
   grid-row: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-height: 0;
-  min-width: 0;
-  align-self: stretch;
-  height: 100%;
-  width: 100%;
+  align-self: start;
 }
 
 .profile-center-bottom-row {
-  flex: 1 1 auto;
-  min-height: 0;
+  grid-column: 2;
+  grid-row: 2;
+  flex: 0 0 auto;
+  min-height: var(--profile-center-row-min);
   width: 100%;
   display: grid;
-  /* Highlights (col 1) narrower; lootboxes (col 2) wider — height unchanged */
   grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
-  gap: 14px;
+  gap: var(--profile-row-gap);
   align-items: stretch;
   overflow: visible;
 }
 
 .profile-center-bottom-row > * {
-  min-height: 0;
   min-width: 0;
 }
 
-.profile-left-stack {
+.profile-charts {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  min-height: 0;
+}
+
+.profile-last-trades {
+  grid-column: 1 / span 2;
+  grid-row: 3;
+  min-height: 0;
+}
+
+.profile-side-panel {
+  grid-column: 3;
+  grid-row: 3;
+  min-height: 0;
+}
+
+.profile-card {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  min-height: 0;
-  align-self: stretch;
-  width: 100%;
   align-items: center;
+  justify-content: flex-start;
+  padding: 14px 12px 12px;
+  gap: 10px;
+  width: 100%;
+  max-width: none;
+  flex: 0 0 auto;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.04) 0%, var(--profile-surface) 48%);
 }
 
 .profile-card,
@@ -177,131 +186,186 @@
   border: 1px solid var(--profile-border);
   border-radius: 14px;
   box-shadow: var(--profile-shadow-elevated);
-  overflow: hidden;
-  min-height: 0;
 }
 
 .profile-card {
-  display: flex;
-  flex-direction: column;
-  padding: 10px 10px 10px 10px;
-  gap: 8px;
-  /* Match the intended portrait PFP tile proportions */
-  aspect-ratio: 3 / 4;
-  width: min(190px, 100%);
-  justify-self: start;
-  align-self: start;
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.04) 0%, var(--profile-surface) 48%);
+  overflow: hidden;
+}
+
+.profile-trading {
+  overflow: visible;
+  min-height: min-content;
+}
+
+.profile-charts,
+.profile-last-trades,
+.profile-side-panel {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.profile-lootboxes-panel,
+.profile-highlights-panel {
+  overflow: visible;
+  min-height: 0;
+}
+
+.profile-edit-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.72);
+  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.profile-edit-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
 }
 
 .profile-card-name {
+  font-family: var(--profile-font-ui);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  color: var(--profile-ink);
+  line-height: 1.2;
+}
+
+.profile-identity-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.profile-verified-icon {
+  flex-shrink: 0;
+  color: #ff9966;
+  fill: rgba(255, 153, 102, 0.18);
+}
+
+.profile-identity-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.profile-trader-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-family: var(--profile-font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ff9966;
+  background: rgba(255, 153, 102, 0.1);
+  border: 1px solid rgba(255, 153, 102, 0.22);
+}
+
+.profile-level {
+  font-family: var(--profile-font-ui);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--profile-label);
+}
+
+.profile-xp-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.profile-xp-track {
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.profile-xp-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff9966 0%, #ff5e62 100%);
+}
+
+.profile-xp-label {
   text-align: center;
   font-family: var(--profile-font-ui);
-  font-weight: 800;
-  font-size: 12px;
-  letter-spacing: 0.45px;
-  background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-  line-height: 1;
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--profile-label);
+  font-variant-numeric: tabular-nums;
 }
 
-.profile-mini-stats {
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.038) 0%, var(--profile-surface) 55%);
-  border: 1px solid var(--profile-border);
-  border-radius: 14px;
-  box-shadow: var(--profile-shadow-elevated);
-  overflow: hidden;
-  min-height: 0;
-  padding: 12px;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  align-content: start;
-  box-sizing: border-box;
-  width: min(190px, 100%);
-  margin-inline: auto;
-}
-
-.profile-mini-stat {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--profile-border-soft);
-  border-radius: 10px;
-  padding: 8px 10px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+.profile-social-stats {
+  width: 100%;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--profile-border-soft);
+}
+
+.profile-social-stat-row {
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
-  box-shadow: none;
-  position: relative;
-  transform: translateY(-3px);
 }
 
-.profile-mini-stat::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 2px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #ff9966 0%, #ff5e62 100%);
-  opacity: 0.75;
+.profile-social-label {
+  color: var(--profile-label);
+  font-family: var(--profile-font-ui);
+  font-weight: 500;
+  font-size: 11px;
 }
 
-.profile-mini-value {
+.profile-social-value {
   font-family: var(--profile-font-ui);
   font-variant-numeric: tabular-nums;
   color: var(--profile-ink);
   font-weight: 600;
   font-size: 12px;
-  line-height: 1.2;
   letter-spacing: -0.015em;
-  order: 2;
   white-space: nowrap;
-}
-
-.profile-mini-label {
-  color: var(--profile-label);
-  font-weight: 600;
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  order: 1;
-  white-space: nowrap;
-  padding-left: 8px;
-}
-
-.profile-card-top {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: stretch;
-  min-height: 0;
 }
 
 .profile-avatar {
   position: relative;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1;
+  max-width: 120px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--profile-border);
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
-  /* Same treatment as Net PnL (profile-trading-summary) + equity chart (profile-chart-surface) */
   background:
     radial-gradient(circle at 20% 10%, rgba(255, 106, 0, 0.12), transparent 60%),
     radial-gradient(circle at 80% 90%, rgba(255, 94, 98, 0.12), transparent 60%),
     radial-gradient(circle at 18% 30%, rgba(255, 106, 0, 0.1), transparent 55%),
     radial-gradient(circle at 80% 70%, rgba(255, 94, 98, 0.1), transparent 60%),
     rgba(0, 0, 0, 0.35);
-  flex: 1 1 auto;
+  flex-shrink: 0;
 }
 
 .profile-avatar-img {
@@ -475,12 +539,11 @@
 }
 
 .profile-last-trades {
-  grid-column: 1 / span 2;
-  grid-row: 2;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow: hidden;
 }
 
 .profile-side-panel {
@@ -488,6 +551,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  overflow: hidden;
 }
 
 .profile-section-title {
@@ -557,6 +621,17 @@
   letter-spacing: 0.08em;
 }
 
+@media (max-width: 1200px) {
+  .profile-summary-right {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .profile-trading-summary {
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: 1050px) {
   .profile-center-bottom-row {
     grid-template-columns: 1fr;
@@ -564,56 +639,155 @@
 }
 
 @media (max-width: 900px) {
-  /* Phone: stack every section into one scrolling column (no 3-col overflow). */
+  .profile-panel {
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .profile-header {
+    flex-shrink: 0;
+  }
+
   .profile-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    align-items: stretch;
+    justify-content: flex-start;
     padding: 12px;
+    overflow: hidden;
   }
 
   .profile-grid {
+    display: none !important;
+  }
+
+  .profile-mobile-nav {
     display: flex;
-    flex-direction: column;
-    /* Grow with content and let .profile-content scroll, instead of being
-       height-constrained (which made zero-min-height sections collapse). */
-    height: auto;
+    flex-shrink: 0;
+    gap: 4px;
+    padding: 3px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .profile-mobile-nav-btn {
+    flex: 1 1 0;
+    appearance: none;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: var(--profile-font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .profile-mobile-nav-btn:hover {
+    color: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .profile-mobile-nav-btn.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  .profile-mobile-body {
+    display: flex;
+    flex: 1 1 auto;
     min-height: 0;
-    gap: 12px;
+    width: 100%;
+    overflow: hidden;
+    flex-direction: column;
   }
 
-  /* Never let a section shrink below its content on phone. */
-  .profile-grid > * {
+  .profile-mobile-section {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .profile-mobile-section.is-active {
+    display: flex;
+    flex: 1 1 0;
+    min-height: 0;
+  }
+
+  /* Prevent flex-shrink from crushing panels — section scrolls instead. */
+  .profile-mobile-section > * {
     flex: 0 0 auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    grid-column: auto;
+    grid-row: auto;
+    align-self: stretch;
   }
 
-  .profile-left-stack {
-    flex-direction: row;
-    flex-wrap: wrap;
+  .profile-mobile-section .profile-trading-summary {
+    flex-direction: column;
     align-items: stretch;
-    gap: 12px;
   }
 
-  .profile-card,
-  .profile-mini-stats {
-    flex: 1 1 150px;
+  .profile-mobile-section .profile-summary-right {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 10px 12px;
+  }
+
+  .profile-mobile-section .profile-summary-kv {
+    align-items: flex-start;
+  }
+
+  .profile-mobile-section .profile-highlights-panel {
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .profile-mobile-section .profile-highlights-grid {
+    min-height: 160px;
+  }
+
+  .profile-mobile-section .profile-highlight-card {
     width: auto;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .profile-mobile-section .profile-card {
+    width: 100%;
     max-width: none;
-    margin-inline: 0;
   }
 
-  .profile-card {
-    aspect-ratio: auto;
-    min-height: 170px;
+  .profile-mobile-section .profile-avatar {
+    max-width: 140px;
   }
 
-  .profile-charts {
-    min-height: 280px;
+  .profile-mobile-section .profile-lootboxes-panel--half {
+    min-height: 120px;
   }
 
-  .profile-last-trades {
-    min-height: 260px;
-    max-height: 70vh;
+  .profile-mobile-section .profile-last-trades,
+  .profile-mobile-section .profile-side-panel {
+    min-height: 0;
+    overflow: visible;
   }
 
-  .profile-side-panel {
-    min-height: 200px;
+  .profile-mobile-section .profile-trading {
+    min-height: 0;
   }
 }
