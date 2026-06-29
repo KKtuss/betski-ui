@@ -1,4 +1,4 @@
-import { fetchThumbnailBuffer } from '../vite-plugins/linkPreviewApi'
+import { fetchThumbnailBuffer } from '../server/linkPreviewCore'
 
 type VercelRequest = { method?: string; query?: Record<string, string | string[] | undefined> }
 type VercelResponse = {

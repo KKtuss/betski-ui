@@ -1,4 +1,4 @@
-import { resolveLinkPreview } from '../vite-plugins/linkPreviewApi'
+import { resolveLinkPreview } from '../server/linkPreviewCore'
 
 type VercelRequest = { method?: string; query?: Record<string, string | string[] | undefined> }
 type VercelResponse = {
