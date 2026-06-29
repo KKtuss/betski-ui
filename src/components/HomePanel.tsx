@@ -139,7 +139,7 @@ const HomePanel = ({
     })
   }, [markets])
 
-  // FRENDIS ACTIVITY — 5 most recent trades across all friends.
+  // FRIENDSKIS ACTIVITY — 5 most recent trades across all friendskis.
   const friendActivity = useMemo(() => {
     const now = Date.now()
     const fmtAgo = (ms: number) => {
@@ -416,10 +416,10 @@ const HomePanel = ({
             </div>
           </section>
 
-          {/* ── FRENDIS ACTIVITY ── */}
-          <section className="home-sect" aria-label="Friend activity">
+          {/* ── FRIENDSKIS ACTIVITY ── */}
+          <section className="home-sect" aria-label="Friendskis activity">
             <div className="home-sect-head">
-              <span className="home-sect-title">FRENDIS ACTIVITY</span>
+              <span className="home-sect-title">FRIENDSKIS ACTIVITY</span>
               <button type="button" className="home-view-all">View all</button>
             </div>
             <div className="home-activity-list">
