@@ -1379,10 +1379,30 @@
   .discovery-table-head--wagers,
   .discovery-row--wager {
     grid-template-columns:
-      minmax(0, 1.4fr)
-      minmax(0, 1.5fr)
-      clamp(56px, 16vw, 80px);
-    gap: clamp(8px, 2.4vw, 16px);
+      minmax(0, 1.65fr)
+      minmax(0, 0.95fr)
+      clamp(50px, 13vw, 68px);
+    gap: clamp(6px, 2vw, 12px);
+  }
+
+  .discovery-td--wager-heatmap {
+    gap: 1px;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  .discovery-heatmap-hint-track {
+    height: 14px;
+    margin-top: 0;
+  }
+
+  .discovery-heatmap-hint {
+    font-size: 8px;
+    gap: 4px;
+  }
+
+  .discovery-heatmap-hint-strong {
+    font-size: 9px;
   }
 }
 
