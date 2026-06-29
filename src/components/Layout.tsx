@@ -493,17 +493,18 @@ const Layout = () => {
 
   const showHomeMobileFull = activeTab === 'main' && homeFeedOpen && homeMobileLayout
   const isMobileMain = activeTab === 'main' && homeMobileLayout && !showHomeMobileFull
+  const isMobileTab = homeMobileLayout && !isMobileMain
 
   return (
     <motion.div
-      className={`layout${homeMobileLayout ? ' layout--mobile' : ''}${isMobileMain ? ' layout--mobile-main' : ''}`}
+      className={`layout${homeMobileLayout ? ' layout--mobile' : ''}${isMobileMain ? ' layout--mobile-main' : ''}${isMobileTab ? ' layout--mobile-tab' : ''}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       {showHomeMobileFull ? (
         <motion.div
-          className="layout-center layout-home-full"
+          className="layout-center layout-home-full layout-mobile-panel"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
@@ -559,8 +560,8 @@ const Layout = () => {
         </>
       ) : activeTab === 'notifications' ? (
         <motion.div
-          className="layout-center"
-          initial={{ opacity: 0 }}
+          className="layout-center layout-mobile-panel"
+          initial={homeMobileLayout ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
           style={{ gridColumn: '1 / -1' }}
@@ -576,8 +577,8 @@ const Layout = () => {
         </motion.div>
       ) : activeTab === 'socials' ? (
         <motion.div
-          className="layout-center"
-          initial={{ opacity: 0 }}
+          className="layout-center layout-mobile-panel"
+          initial={homeMobileLayout ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
           style={{ gridColumn: '1 / -1' }}
@@ -604,8 +605,8 @@ const Layout = () => {
         </motion.div>
       ) : activeTab === 'profile' ? (
         <motion.div
-          className="layout-center"
-          initial={{ opacity: 0 }}
+          className="layout-center layout-mobile-panel"
+          initial={homeMobileLayout ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
           style={{ gridColumn: '1 / -1' }}
@@ -636,26 +637,27 @@ const Layout = () => {
         </motion.div>
       ) : null}
 
-      <div
-        className="layout-center"
-        style={{ gridColumn: '1 / -1', display: activeTab === 'discovery' ? undefined : 'none' }}
-        aria-hidden={activeTab !== 'discovery'}
-      >
-        <DiscoveryPanel
-          isVisible={activeTab === 'discovery'}
-          onBack={() => {
-            setActiveTab('main')
-            navigate({ type: 'main', marketId: selectedMarketId })
-          }}
-          onCreateWager={() => setCreateWagerOpen(true)}
-          injectWager={pendingWager}
-          onWagerInjected={() => setPendingWager(null)}
-          onOpenMarket={openMarket}
-          onExecuteTrade={handleDiscoveryTrade}
-          onViewProfile={(handle) => openProfile(handle)}
-          walletBalance={appState.wallet.balanceUsd}
-        />
-      </div>
+      {activeTab === 'discovery' && (
+        <div
+          className="layout-center layout-mobile-panel"
+          style={{ gridColumn: '1 / -1' }}
+        >
+          <DiscoveryPanel
+            isVisible={activeTab === 'discovery'}
+            onBack={() => {
+              setActiveTab('main')
+              navigate({ type: 'main', marketId: selectedMarketId })
+            }}
+            onCreateWager={() => setCreateWagerOpen(true)}
+            injectWager={pendingWager}
+            onWagerInjected={() => setPendingWager(null)}
+            onOpenMarket={openMarket}
+            onExecuteTrade={handleDiscoveryTrade}
+            onViewProfile={(handle) => openProfile(handle)}
+            walletBalance={appState.wallet.balanceUsd}
+          />
+        </div>
+      )}
 
       {isMobileMain && (
         <MobileTradeSheet

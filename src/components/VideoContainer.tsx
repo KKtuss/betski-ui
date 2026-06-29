@@ -157,7 +157,7 @@ const VideoContainer = ({
     const rowRect = stageRow.getBoundingClientRect()
     const cardRect = activeCard.getBoundingClientRect()
 
-    const edgeInset = 8
+    const edgeInset = 10
     const bottomInset = 10
     const engagementGutter = 52
     const controlGap = 4
