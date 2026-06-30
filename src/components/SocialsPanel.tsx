@@ -170,10 +170,9 @@ const SocialsPanel = ({
   const [mobileChatOpen, setMobileChatOpen] = useState(false)
 
   useEffect(() => {
-    if (activeChatId) {
-      markChatRead(activeChatId)
-      onChatRead?.(activeChatId)
-    }
+    if (!activeChatId) return
+    markChatRead(activeChatId)
+    onChatRead?.(activeChatId)
   }, [activeChatId, onChatRead])
 
   const chats: Chat[] = useMemo(
@@ -308,11 +307,8 @@ const SocialsPanel = ({
   }, [displayChats, query, chatFilter])
 
   const activeChat = displayChats.find((c) => c.id === activeChatId) ?? displayChats[0] ?? chats[0]
-  if (!activeChat) {
-    return null
-  }
-  const isGroupChat = activeChat.kind === 'group'
-  const activeMessages = messages
+  const isGroupChat = activeChat?.kind === 'group'
+  const activeMessages = activeChat ? messages : []
 
   const tradeContextMarket = useMemo(() => {
     const marketMsg = [...activeMessages].reverse().find((m) => m.type === 'market' && m.market)
