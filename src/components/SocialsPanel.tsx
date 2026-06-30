@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { motion } from 'framer-motion'
 import {
   ArrowLeft,
   BarChart3,
@@ -17,8 +16,6 @@ import {
 } from 'lucide-react'
 import MarketShareCard from './MarketShareCard'
 import TradeShareCard from './TradeShareCard'
-import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
-import { useHomeMobileLayout } from '../hooks/useHomeMobileLayout'
 import {
   addDmChat,
   appendMessage,
@@ -160,7 +157,6 @@ const SocialsPanel = ({
   onViewProfile
 }: SocialsPanelProps) => {
   const socialState = useSocialStore()
-  const isMobileLayout = useHomeMobileLayout()
   const [activeChatId, setActiveChatId] = useState(() => initialActiveChatId ?? 'group-1')
   const [draft, setDraft] = useState('')
   const [query, setQuery] = useState('')
@@ -172,7 +168,6 @@ const SocialsPanel = ({
   const [addFriendOpen, setAddFriendOpen] = useState(false)
   const [addFriendHandle, setAddFriendHandle] = useState('')
   const [mobileChatOpen, setMobileChatOpen] = useState(false)
-  useDiscoveryCatalog()
 
   useEffect(() => {
     if (activeChatId) {
@@ -312,9 +307,11 @@ const SocialsPanel = ({
     })
   }, [displayChats, query, chatFilter])
 
-  const activeChat = displayChats.find((c) => c.id === activeChatId) || displayChats[0]
-  const isGroupChat = activeChat.kind === 'group'
-  const activeMessages = messages.filter((m) => m.chatId === activeChat.id)
+  const activeChat = displayChats.find((c) => c.id === activeChatId) ?? displayChats[0] ?? chats[0]
+  const isGroupChat = activeChat?.kind === 'group'
+  const activeMessages = activeChat
+    ? messages.filter((m) => m.chatId === activeChat.id)
+    : []
 
   const tradeContextMarket = useMemo(() => {
     const marketMsg = [...activeMessages].reverse().find((m) => m.type === 'market' && m.market)
@@ -406,14 +403,22 @@ const SocialsPanel = ({
     return chat.title.slice(0, 1).toUpperCase()
   }
 
+  if (!activeChat) {
+    return (
+      <div className="socials-shell socials-shell--empty">
+        <div className="socials-left-head">
+          <button className="socials-back" onClick={onBack} type="button" aria-label="Back">
+            <ArrowLeft size={16} />
+          </button>
+          <span className="socials-sidebar-title">SOCIALS</span>
+        </div>
+        <p className="socials-empty-copy">No conversations yet.</p>
+      </div>
+    )
+  }
+
   return (
-    <motion.div
-      className="socials-shell"
-      initial={isMobileLayout ? false : { opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: isMobileLayout ? 0 : 0.25 }}
-      whileHover={{ scale: 1 }}
-    >
+    <div className="socials-shell">
       {addFriendOpen && (
         <div className="socials-modal-backdrop" role="presentation" onClick={() => setAddFriendOpen(false)}>
           <div
@@ -717,7 +722,7 @@ const SocialsPanel = ({
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
