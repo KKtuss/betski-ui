@@ -68,7 +68,7 @@ const VideoContainer = ({
   const currentIndexRef = useRef(0)
   const gestureAnchorRef = useRef({ scrollLeft: 0, index: 0 })
   const gestureActiveRef = useRef(false)
-  const gestureSettledRef = useRef(true)
+  const mobileSettlingRef = useRef(false)
   const momentumSettleTimerRef = useRef<number | null>(null)
 
   const isMobileMainScroller = () =>
@@ -79,6 +79,7 @@ const VideoContainer = ({
 
   const finishSnap = () => {
     isSnappingRef.current = false
+    mobileSettlingRef.current = false
     syncMobileCardLayout()
     const container = containerRef.current
     if (container && isMobileMainScroller()) {
@@ -87,7 +88,6 @@ const VideoContainer = ({
         index: currentIndexRef.current
       }
       gestureActiveRef.current = false
-      gestureSettledRef.current = true
     }
   }
 
@@ -206,6 +206,14 @@ const VideoContainer = ({
     return firstRect.left + container.scrollLeft + firstRect.width / 2 - 3
   }
 
+  const getMobileSwipeThreshold = (cards: HTMLElement[], container: HTMLDivElement) => {
+    const cardStep =
+      cards[1] && cards[0]
+        ? Math.max(48, cards[1].offsetLeft - cards[0].offsetLeft)
+        : Math.max(48, container.clientWidth * 0.18)
+    return Math.min(cardStep * 0.12, 36)
+  }
+
   const getMobileStepTargetIndex = () => {
     const container = containerRef.current
     const cards = getVideoCards()
@@ -213,11 +221,7 @@ const VideoContainer = ({
 
     const { scrollLeft: startScroll, index: startIndex } = gestureAnchorRef.current
     const delta = container.scrollLeft - startScroll
-    const cardStep =
-      cards[1] && cards[0]
-        ? Math.max(48, cards[1].offsetLeft - cards[0].offsetLeft)
-        : Math.max(48, container.clientWidth * 0.18)
-    const threshold = Math.min(cardStep * 0.18, 48)
+    const threshold = getMobileSwipeThreshold(cards, container)
 
     if (Math.abs(delta) < threshold) return startIndex
     if (delta > 0) return Math.min(startIndex + 1, cards.length - 1)
@@ -225,21 +229,20 @@ const VideoContainer = ({
   }
 
   const settleMobileGesture = () => {
-    if (!isMobileMainScroller()) return
-    if (!gestureActiveRef.current || gestureSettledRef.current || isSnappingRef.current) return
+    if (!isMobileMainScroller() || isSnappingRef.current || mobileSettlingRef.current) return
 
-    gestureSettledRef.current = true
+    mobileSettlingRef.current = true
     clearMomentumSettleTimer()
     scrollToIndex(getMobileStepTargetIndex(), 'auto')
   }
 
   const scheduleMomentumSettleFallback = () => {
-    if (!isMobileMainScroller() || gestureSettledRef.current) return
+    if (!isMobileMainScroller()) return
     clearMomentumSettleTimer()
     momentumSettleTimerRef.current = window.setTimeout(() => {
       momentumSettleTimerRef.current = null
       settleMobileGesture()
-    }, 320)
+    }, 280)
   }
 
   const settleScroller = () => {
@@ -282,28 +285,33 @@ const VideoContainer = ({
   }
 
   const scrollToIndex = (index: number, behavior: ScrollBehavior = 'smooth') => {
-    if (containerRef.current) {
-      const container = containerRef.current
-      const cards = getVideoCards()
-      const card = cards[index]
-      if (!card) return
-      const desiredCenterX = getDesiredCenterX()
-      const cardRect = card.getBoundingClientRect()
-      const cardCenterX = cardRect.left + cardRect.width / 2
-      const delta = cardCenterX - desiredCenterX
-      const maxScrollLeft = container.scrollWidth - container.clientWidth
-      const targetScrollLeft = Math.max(0, Math.min(container.scrollLeft + delta, maxScrollLeft))
-      beginSnap()
-      container.scrollTo({ left: targetScrollLeft, behavior })
-      setCurrentIndex(index)
-      onPreviewChange?.(index)
-      if (behavior === 'auto') {
-        window.requestAnimationFrame(() => {
-          window.requestAnimationFrame(finishSnap)
-        })
-      } else {
-        window.setTimeout(finishSnap, 320)
-      }
+    const container = containerRef.current
+    if (!container) {
+      mobileSettlingRef.current = false
+      return
+    }
+    const cards = getVideoCards()
+    const card = cards[index]
+    if (!card) {
+      mobileSettlingRef.current = false
+      return
+    }
+    const desiredCenterX = getDesiredCenterX()
+    const cardRect = card.getBoundingClientRect()
+    const cardCenterX = cardRect.left + cardRect.width / 2
+    const delta = cardCenterX - desiredCenterX
+    const maxScrollLeft = container.scrollWidth - container.clientWidth
+    const targetScrollLeft = Math.max(0, Math.min(container.scrollLeft + delta, maxScrollLeft))
+    beginSnap()
+    container.scrollTo({ left: targetScrollLeft, behavior })
+    setCurrentIndex(index)
+    onPreviewChange?.(index)
+    if (behavior === 'auto') {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(finishSnap)
+      })
+    } else {
+      window.setTimeout(finishSnap, 320)
     }
   }
 
@@ -321,13 +329,12 @@ const VideoContainer = ({
   }
 
   const beginMobileGesture = (target: HTMLDivElement) => {
-    if (isSnappingRef.current) return
+    if (isSnappingRef.current || mobileSettlingRef.current) return
     clearMomentumSettleTimer()
     gestureActiveRef.current = true
-    gestureSettledRef.current = false
     gestureAnchorRef.current = {
       scrollLeft: target.scrollLeft,
-      index: currentIndexRef.current
+      index: getNearestIndex()
     }
   }
 
@@ -335,6 +342,11 @@ const VideoContainer = ({
     if (!isMobileMainScroller()) return
     beginMobileGesture(e.currentTarget)
     e.currentTarget.setPointerCapture(e.pointerId)
+  }
+
+  const handleScrollerTouchStartCapture = () => {
+    if (!isMobileMainScroller() || !containerRef.current) return
+    beginMobileGesture(containerRef.current)
   }
 
   const handleScrollerPointerUp = () => {
@@ -362,7 +374,7 @@ const VideoContainer = ({
       containerRef.current.scrollLeft = 0
       gestureAnchorRef.current = { scrollLeft: 0, index: 0 }
       gestureActiveRef.current = false
-      gestureSettledRef.current = true
+      mobileSettlingRef.current = false
       clearMomentumSettleTimer()
     }
   }, [market.id])
@@ -394,8 +406,7 @@ const VideoContainer = ({
       raf = window.requestAnimationFrame(() => {
         if (
           isMobileMainScroller() &&
-          gestureActiveRef.current &&
-          !gestureSettledRef.current
+          (gestureActiveRef.current || isSnappingRef.current || mobileSettlingRef.current)
         ) {
           return
         }
@@ -498,6 +509,7 @@ const VideoContainer = ({
             ref={containerRef}
             className="video-scroller"
             onScroll={handleScroll}
+            onTouchStartCapture={handleScrollerTouchStartCapture}
             onPointerDown={handleScrollerPointerDown}
             onPointerUp={handleScrollerPointerUp}
             onPointerCancel={handleScrollerPointerCancel}
