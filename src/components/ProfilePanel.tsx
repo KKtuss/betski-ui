@@ -406,9 +406,9 @@ const ProfilePanel = ({
   return (
     <motion.div
       className="panel profile-panel"
-      initial={{ opacity: 0, y: 10 }}
+      initial={isMobileLayout ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
+      transition={{ duration: isMobileLayout ? 0 : 0.25 }}
       whileHover={{ scale: 1 }}
     >
       <div className="panel-header profile-header">

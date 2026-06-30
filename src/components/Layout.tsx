@@ -493,36 +493,105 @@ const Layout = () => {
 
   const showHomeMobileFull = activeTab === 'main' && homeFeedOpen && homeMobileLayout
   const isMobileMain = activeTab === 'main' && homeMobileLayout && !showHomeMobileFull
-  const isMobileTab = homeMobileLayout && !isMobileMain
+  const isMobileSecondaryTab =
+    homeMobileLayout && !isMobileMain && activeTab !== 'main'
+
+  const socialsPanel = (
+    <SocialsPanel
+      onBack={() => {
+        setActiveTab('main')
+        navigate({ type: 'main', marketId: selectedMarketId })
+      }}
+      chats={chats}
+      onChatRead={handleChatRead}
+      shareMarket={shareMarketPayload}
+      initialActiveChatId={socialsInitialChatId ?? undefined}
+      pendingShare={pendingShare ?? undefined}
+      onPendingShareHandled={() => setPendingShare(null)}
+      pendingShareText={pendingShareText ?? undefined}
+      onPendingShareTextHandled={() => setPendingShareText(null)}
+      pendingShareTrade={pendingShareTrade ?? undefined}
+      onPendingShareTradeHandled={() => setPendingShareTrade(null)}
+      onAddFriend={(handle) => addFriendChat(handle)}
+      onOpenMarket={openMarket}
+      onViewProfile={(handle) => openProfile(handle)}
+    />
+  )
+
+  const profilePanel = (
+    <ProfilePanel
+      viewingHandle={appState.ui.viewingProfileHandle}
+      onBackToSelfProfile={() => openProfile(null)}
+      onOpenMarket={openMarket}
+      onSharePnL={(text) => {
+        const targetChatId = 'group-1'
+        setSocialsInitialChatId(targetChatId)
+        setPendingShare(null)
+        setPendingShareTrade(null)
+        setPendingShareText({ key: `pnl-${Date.now()}`, chatId: targetChatId, text })
+        setActiveTab('socials')
+        navigate({ type: 'socials' })
+      }}
+      onShareTrade={(trade) => {
+        const targetChatId = 'group-1'
+        setSocialsInitialChatId(targetChatId)
+        setPendingShare(null)
+        setPendingShareText(null)
+        setPendingShareTrade({ key: `trade-${Date.now()}`, chatId: targetChatId, trade })
+        setActiveTab('socials')
+        navigate({ type: 'socials' })
+      }}
+    />
+  )
 
   return (
     <motion.div
-      className={`layout${homeMobileLayout ? ' layout--mobile' : ''}${isMobileMain ? ' layout--mobile-main' : ''}${isMobileTab ? ' layout--mobile-tab' : ''}`}
+      className={`layout${homeMobileLayout ? ' layout--mobile' : ''}${isMobileMain ? ' layout--mobile-main' : ''}${isMobileSecondaryTab ? ' layout--mobile-tab' : ''}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       {showHomeMobileFull ? (
-        <motion.div
-          className="layout-center layout-home-full layout-mobile-panel"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.25 }}
-          style={{ gridColumn: '1 / -1' }}
-        >
+        <div className="mobile-tab-shell mobile-tab-shell--home">
           <HomePanel variant="fullscreen" {...homePanelProps} />
-        </motion.div>
+        </div>
       ) : isMobileMain ? (
-        <motion.main
-          className="mobile-app"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <main className="mobile-app">
           <section className="mobile-video-section" aria-label="Market video">
             {videoBlock}
           </section>
-        </motion.main>
+        </main>
+      ) : isMobileSecondaryTab ? (
+        <div className="mobile-tab-shell">
+          {activeTab === 'discovery' && (
+            <DiscoveryPanel
+              isVisible
+              onBack={() => {
+                setActiveTab('main')
+                navigate({ type: 'main', marketId: selectedMarketId })
+              }}
+              onCreateWager={() => setCreateWagerOpen(true)}
+              injectWager={pendingWager}
+              onWagerInjected={() => setPendingWager(null)}
+              onOpenMarket={openMarket}
+              onExecuteTrade={handleDiscoveryTrade}
+              onViewProfile={(handle) => openProfile(handle)}
+              walletBalance={appState.wallet.balanceUsd}
+            />
+          )}
+          {activeTab === 'socials' && socialsPanel}
+          {activeTab === 'profile' && profilePanel}
+          {activeTab === 'notifications' && (
+            <NotificationCenterPanel
+              onBack={() => {
+                setActiveTab('main')
+                setHomeFeedOpen(true)
+                navigate({ type: 'main', marketId: selectedMarketId })
+              }}
+              onOpenNotification={handleOpenNotification}
+            />
+          )}
+        </div>
       ) : activeTab === 'main' ? (
         <>
           <motion.div
@@ -560,8 +629,8 @@ const Layout = () => {
         </>
       ) : activeTab === 'notifications' ? (
         <motion.div
-          className="layout-center layout-mobile-panel"
-          initial={homeMobileLayout ? false : { opacity: 0 }}
+          className="layout-center"
+          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
           style={{ gridColumn: '1 / -1' }}
@@ -577,73 +646,30 @@ const Layout = () => {
         </motion.div>
       ) : activeTab === 'socials' ? (
         <motion.div
-          className="layout-center layout-mobile-panel"
-          initial={homeMobileLayout ? false : { opacity: 0 }}
+          className="layout-center"
+          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
           style={{ gridColumn: '1 / -1' }}
         >
-          <SocialsPanel
-            onBack={() => {
-              setActiveTab('main')
-              navigate({ type: 'main', marketId: selectedMarketId })
-            }}
-            chats={chats}
-            onChatRead={handleChatRead}
-            shareMarket={shareMarketPayload}
-            initialActiveChatId={socialsInitialChatId ?? undefined}
-            pendingShare={pendingShare ?? undefined}
-            onPendingShareHandled={() => setPendingShare(null)}
-            pendingShareText={pendingShareText ?? undefined}
-            onPendingShareTextHandled={() => setPendingShareText(null)}
-            pendingShareTrade={pendingShareTrade ?? undefined}
-            onPendingShareTradeHandled={() => setPendingShareTrade(null)}
-            onAddFriend={(handle) => addFriendChat(handle)}
-            onOpenMarket={openMarket}
-            onViewProfile={(handle) => openProfile(handle)}
-          />
+          {socialsPanel}
         </motion.div>
       ) : activeTab === 'profile' ? (
         <motion.div
-          className="layout-center layout-mobile-panel"
-          initial={homeMobileLayout ? false : { opacity: 0 }}
+          className="layout-center"
+          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
           style={{ gridColumn: '1 / -1' }}
         >
-          <ProfilePanel
-            viewingHandle={appState.ui.viewingProfileHandle}
-            onBackToSelfProfile={() => openProfile(null)}
-            onOpenMarket={openMarket}
-            onSharePnL={(text) => {
-              const targetChatId = 'group-1'
-              setSocialsInitialChatId(targetChatId)
-              setPendingShare(null)
-              setPendingShareTrade(null)
-              setPendingShareText({ key: `pnl-${Date.now()}`, chatId: targetChatId, text })
-              setActiveTab('socials')
-              navigate({ type: 'socials' })
-            }}
-            onShareTrade={(trade) => {
-              const targetChatId = 'group-1'
-              setSocialsInitialChatId(targetChatId)
-              setPendingShare(null)
-              setPendingShareText(null)
-              setPendingShareTrade({ key: `trade-${Date.now()}`, chatId: targetChatId, trade })
-              setActiveTab('socials')
-              navigate({ type: 'socials' })
-            }}
-          />
+          {profilePanel}
         </motion.div>
       ) : null}
 
-      {activeTab === 'discovery' && (
-        <div
-          className="layout-center layout-mobile-panel"
-          style={{ gridColumn: '1 / -1' }}
-        >
+      {!homeMobileLayout && activeTab === 'discovery' && (
+        <div className="layout-center" style={{ gridColumn: '1 / -1' }}>
           <DiscoveryPanel
-            isVisible={activeTab === 'discovery'}
+            isVisible
             onBack={() => {
               setActiveTab('main')
               navigate({ type: 'main', marketId: selectedMarketId })
