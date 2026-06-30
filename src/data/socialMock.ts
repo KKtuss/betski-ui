@@ -23,6 +23,7 @@ export interface Message {
     priceChange?: number
   }
   trade?: {
+    marketId?: string
     title: string
     side: 'YES' | 'NO'
     entry: number
@@ -30,6 +31,7 @@ export interface Message {
     pnlUsd: number
     pnlPct: number
     chart: { value: number; timestamp: number }[]
+    thumbnailUrls?: string[]
     thumbnailSrc?: string
     thumbnailFallbackSrc?: string
   }

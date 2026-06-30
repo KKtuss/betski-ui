@@ -5,8 +5,8 @@
   --video-card-icon-size: clamp(24px, min(6cqw, 3.8cqh), 34px);
   /* Strict 9:16 card driven by available panel height; width derives from aspect-ratio.
      No hard pixel cap so the card grows/shrinks with the (locked-ratio) panel. */
-  height: calc(100% - (2 * var(--video-gutter, 0px)));
-  max-height: calc(100% - (2 * var(--video-gutter, 0px)));
+  height: calc((100% - (2 * var(--video-gutter, 0px))) * var(--video-card-scale, 1));
+  max-height: calc((100% - (2 * var(--video-gutter, 0px))) * var(--video-card-scale, 1));
   width: auto;
   max-width: calc(100cqw - clamp(64px, 14cqw, 120px));
   aspect-ratio: 9 / 16;

@@ -96,6 +96,28 @@ const seedMessages = (): Message[] => {
       text: 'lets go lets go lets go',
       timestamp: now - 1000 * 60 * 16
     },
+    {
+      id: 'g6b',
+      chatId: 'group-1',
+      author: 'other',
+      authorLabel: 'NovaTape',
+      type: 'trade',
+      trade: {
+        marketId: 'batch-1',
+        title: 'Triple T going 10x virality before EOM ?',
+        side: 'YES',
+        entry: 58,
+        exit: 74,
+        pnlUsd: 320,
+        pnlPct: 27.6,
+        chart: [
+          { value: 58, timestamp: now - 1000 * 60 * 20 },
+          { value: 62, timestamp: now - 1000 * 60 * 18 },
+          { value: 74, timestamp: now - 1000 * 60 * 15 }
+        ]
+      },
+      timestamp: now - 1000 * 60 * 15
+    },
     { id: 'm3', chatId: 'dm-1', author: 'other', authorLabel: 'MarkDiTob', type: 'text', text: 'got fills?', timestamp: now - 1000 * 60 * 55 },
     { id: 'm4', chatId: 'dm-1', author: 'me', type: 'text', text: 'Yep, partial. Will add on dip.', timestamp: now - 1000 * 60 * 52 },
     { id: 'm5', chatId: 'dm-2', author: 'other', authorLabel: 'DeskWhale', type: 'text', text: 'Watching batch-1 resolution closely', timestamp: now - 1000 * 60 * 44 },

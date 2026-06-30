@@ -253,8 +253,8 @@
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.1) transparent;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding-bottom: 12px;
   min-width: 0;
   max-width: 100%;
@@ -262,9 +262,10 @@
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
 }
-.home-scroll::-webkit-scrollbar { width: 4px; }
-.home-scroll::-webkit-scrollbar-track { background: transparent; }
-.home-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+.home-scroll::-webkit-scrollbar {
+  display: none;
+}
 
 /* ─── Section common ─────────────────────────────────────────────────────────── */
 .home-sect {
