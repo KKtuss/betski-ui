@@ -7,7 +7,8 @@ export type HashRoute =
   | { type: 'profile'; handle?: string }
 
 export const parseHash = (hash: string): HashRoute => {
-  const raw = hash.replace(/^#/, '')
+  // buildHash emits `#/socials`, `#/market/...`, etc. — strip `#` and optional `/`.
+  const raw = hash.replace(/^#\/?/, '')
   if (!raw || raw === 'main') return { type: 'main' }
   if (raw === 'discovery') return { type: 'discovery' }
   if (raw === 'socials') return { type: 'socials' }
@@ -43,10 +44,9 @@ export const useHashNavigation = () => {
 
   const navigate = (next: HashRoute) => {
     const hash = buildHash(next)
+    setRoute(next)
     if (window.location.hash !== hash) {
       window.location.hash = hash
-    } else {
-      setRoute(next)
     }
   }
 

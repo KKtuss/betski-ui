@@ -377,7 +377,10 @@ const SocialsPanel = ({
     })
   }, [displayChats, query, chatFilter])
 
-  const activeChat = displayChats.find((c) => c.id === activeChatId) || displayChats[0]
+  const activeChat = displayChats.find((c) => c.id === activeChatId) ?? displayChats[0]
+  if (!activeChat) {
+    return null
+  }
   const isGroupChat = activeChat.kind === 'group'
   const activeMessages = messages.filter((m) => m.chatId === activeChat.id)
 
