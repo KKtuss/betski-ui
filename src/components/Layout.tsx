@@ -188,9 +188,9 @@ const Layout = () => {
 
   const addFriendChat = (handle: string) => addDmChat(handle)
 
-  const handleChatRead = (chatId: string) => {
+  const handleChatRead = useCallback((chatId: string) => {
     markChatRead(chatId)
-  }
+  }, [])
 
   const hasUnreadMessagesFlag = hasUnreadMessages()
 
