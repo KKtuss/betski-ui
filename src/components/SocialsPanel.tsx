@@ -308,10 +308,11 @@ const SocialsPanel = ({
   }, [displayChats, query, chatFilter])
 
   const activeChat = displayChats.find((c) => c.id === activeChatId) ?? displayChats[0] ?? chats[0]
-  const isGroupChat = activeChat?.kind === 'group'
-  const activeMessages = activeChat
-    ? messages.filter((m) => m.chatId === activeChat.id)
-    : []
+  if (!activeChat) {
+    return null
+  }
+  const isGroupChat = activeChat.kind === 'group'
+  const activeMessages = messages
 
   const tradeContextMarket = useMemo(() => {
     const marketMsg = [...activeMessages].reverse().find((m) => m.type === 'market' && m.market)
