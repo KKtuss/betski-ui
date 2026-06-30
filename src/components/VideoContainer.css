@@ -533,6 +533,11 @@
     width: 100%;
     height: 100%;
     scroll-behavior: auto;
+    touch-action: pan-x pan-y;
+  }
+
+  .layout--mobile-main .video-card {
+    scroll-snap-align: none;
   }
 
   .layout--mobile-main .video-overlay-info {
