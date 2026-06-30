@@ -6,10 +6,13 @@
   isolation: isolate;
   overflow: hidden;
   /* Overlay scale is derived from this panel/card container, not viewport size. */
+  --video-card-scale: var(--video-panel-scale, 0.97);
   --video-gutter: clamp(6px, min(1.8cqw, 1.2cqh), 18px);
   --video-card-overlap: clamp(34px, min(12cqw, 8cqh), 160px);
   --video-card-max-width: calc(100cqw - clamp(64px, 14cqw, 120px));
-  --video-card-height-width: calc((100cqh - (2 * var(--video-gutter))) * 9 / 16);
+  --video-card-height-width: calc(
+    (100cqh - (2 * var(--video-gutter))) * 9 / 16 * var(--video-card-scale)
+  );
   --video-visible-card-width: min(var(--video-card-height-width), var(--video-card-max-width));
   --video-bubble-size: clamp(54px, min(12cqw, 8.2cqh), 74px);
   --video-action-size: clamp(44px, min(8.8cqw, 6.2cqh), 58px);

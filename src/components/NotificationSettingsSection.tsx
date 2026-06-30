@@ -7,8 +7,10 @@ import {
   createCustomProfile,
   getAllProfiles,
   setActiveProfileId,
+  setDemoAlertsEnabled,
   updateProfilePreferences
 } from '../data/notificationStore'
+import { fireDemoMessageNotification, fireDemoNotification } from '../utils/notificationDemo'
 import { useNotifications } from '../hooks/useNotifications'
 import {
   NOTIFICATION_CATEGORY_LABELS,
@@ -93,6 +95,35 @@ const NotificationSettingsSection = () => {
             </div>
           )
         })}
+      </div>
+
+      <div className="notif-demo-panel">
+        <div className="notif-demo-copy">
+          <span className="notif-demo-title">Preview alerts</span>
+          <span className="notif-demo-desc">
+            In-app toasts appear while you browse. Browser push also fires when Push is enabled for a
+            category.
+          </span>
+        </div>
+        <div className="notif-demo-actions">
+          <button type="button" className="notif-demo-btn" onClick={() => fireDemoMessageNotification()}>
+            Send test alert
+          </button>
+          <button type="button" className="notif-demo-btn ghost" onClick={() => fireDemoNotification()}>
+            Random event
+          </button>
+        </div>
+        <label className="notif-demo-toggle">
+          <input
+            type="checkbox"
+            checked={state.demoAlertsEnabled}
+            onChange={(e) => setDemoAlertsEnabled(e.target.checked)}
+          />
+          <span className="notif-toggle-track" />
+          <span className="notif-demo-toggle-label">
+            Live demo alerts while browsing (~every 35s)
+          </span>
+        </label>
       </div>
 
       <p className="notif-settings-footnote">

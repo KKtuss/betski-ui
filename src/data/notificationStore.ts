@@ -21,6 +21,7 @@ export type NotificationState = {
   notifications: AppNotification[]
   pushPermissionRequested: boolean
   resolvedMarketIds: string[]
+  demoAlertsEnabled: boolean
 }
 
 type Listener = () => void
@@ -71,7 +72,8 @@ export const seedNotificationState = (): NotificationState => ({
   customProfiles: [],
   notifications: seedNotifications(),
   pushPermissionRequested: false,
-  resolvedMarketIds: []
+  resolvedMarketIds: [],
+  demoAlertsEnabled: true
 })
 
 const hydrateFromStorage = (): NotificationState => {
@@ -90,7 +92,8 @@ const hydrateFromStorage = (): NotificationState => {
       ...parsed,
       notifications: parsed.notifications ?? seedNotifications(),
       customProfiles: parsed.customProfiles ?? [],
-      resolvedMarketIds: parsed.resolvedMarketIds ?? []
+      resolvedMarketIds: parsed.resolvedMarketIds ?? [],
+      demoAlertsEnabled: parsed.demoAlertsEnabled ?? true
     }
   } catch {
     return seedNotificationState()
@@ -257,6 +260,12 @@ export const hasMarketBeenResolved = (marketId: string): boolean =>
 
 export const setPushPermissionRequested = (): void => {
   updateNotificationState((s) => ({ ...s, pushPermissionRequested: true }))
+}
+
+export const isDemoAlertsEnabled = (): boolean => loadNotificationState().demoAlertsEnabled
+
+export const setDemoAlertsEnabled = (enabled: boolean): void => {
+  updateNotificationState((s) => ({ ...s, demoAlertsEnabled: enabled }))
 }
 
 const showBrowserPush = async (notification: AppNotification): Promise<void> => {

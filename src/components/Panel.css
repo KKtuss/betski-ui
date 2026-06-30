@@ -471,10 +471,10 @@
      `.layout` so both this panel and the grid column sizing can share it.
      Tweak the numbers there to update both at once. */
   aspect-ratio: var(--video-aspect-w, 2) / var(--video-aspect-h, 3);
-  width: 100%;
+  width: calc(100% * var(--video-panel-scale, 1));
   height: auto;
-  max-width: 100%;
-  max-height: 100%;
+  max-width: calc(100% * var(--video-panel-scale, 1));
+  max-height: calc(100% * var(--video-panel-scale, 1));
   min-width: 0;
   min-height: 0;
   display: flex;

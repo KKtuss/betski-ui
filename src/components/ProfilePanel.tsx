@@ -39,6 +39,7 @@ const ProfilePanel = ({
 }: {
   onSharePnL?: (text: string) => void
   onShareTrade?: (trade: {
+    marketId?: string
     title: string
     side: 'YES' | 'NO'
     entry: number
@@ -46,6 +47,7 @@ const ProfilePanel = ({
     pnlUsd: number
     pnlPct: number
     chart: { value: number; timestamp: number }[]
+    thumbnailUrls?: string[]
     thumbnailSrc?: string
     thumbnailFallbackSrc?: string
   }) => void

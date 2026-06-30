@@ -84,6 +84,25 @@
   flex-direction: column;
 }
 
+.profile-panel :is(
+  .profile-mobile-section,
+  .profile-trades-list,
+  .profile-positions,
+  .profile-lootboxes-row
+) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.profile-panel :is(
+  .profile-mobile-section,
+  .profile-trades-list,
+  .profile-positions,
+  .profile-lootboxes-row
+)::-webkit-scrollbar {
+  display: none;
+}
+
 .profile-mobile-nav {
   display: none;
 }

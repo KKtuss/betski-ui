@@ -28,6 +28,7 @@ type ProfileTradeTapeProps = {
   windowedTrades: ProfileTrade[]
   historyRows: ProfileHistoryRow[]
   onShareTrade?: (trade: {
+    marketId?: string
     title: string
     side: 'YES' | 'NO'
     entry: number
@@ -35,6 +36,7 @@ type ProfileTradeTapeProps = {
     pnlUsd: number
     pnlPct: number
     chart: { value: number; timestamp: number }[]
+    thumbnailUrls?: string[]
     thumbnailSrc?: string
     thumbnailFallbackSrc?: string
   }) => void
@@ -146,6 +148,7 @@ const ProfileTradeTape = ({
                     }))
                     const pnlPct = row.buyPrice === 0 ? 0 : ((row.sellPrice - row.buyPrice) / row.buyPrice) * 100
                     onShareTrade?.({
+                      marketId: row.marketId,
                       title: row.market,
                       side: row.outcome,
                       entry: row.buyPrice,

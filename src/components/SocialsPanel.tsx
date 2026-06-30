@@ -4,6 +4,7 @@ import {
   BarChart3,
   Bell,
   BadgeCheck,
+  ChevronDown,
   MoreHorizontal,
   Newspaper,
   Plus,
@@ -87,8 +88,6 @@ const MARKET_SNAPSHOT = [
   { label: 'Win Rate', value: '76%', delta: '+2.3%' }
 ]
 
-const formatOddsDelta = (delta: number) => `${delta >= 0 ? '+' : ''}${delta.toFixed(1)}¢`
-
 const resolveMessageMarket = (
   market: NonNullable<Message['market']>,
   shareFallback?: SocialsPanelProps['shareMarket']
@@ -100,15 +99,108 @@ const resolveMessageMarket = (
   return market.marketId ? market : { ...market, ...shareFallback }
 }
 
-const DEFAULT_TRADE_CONTEXT = {
-  marketId: 'batch-3',
-  title: 'D4vd regen in virality over 2 weeks?',
-  batch: 'Batch #1284',
-  closes: 'Closes Feb 14',
-  yesOdds: 70.46,
-  noOdds: 29.54,
-  yesDelta: '+2.1¢',
-  noDelta: '-2.1¢'
+type CatchUpMarket = {
+  id: string
+  sharedBy: string
+  title: string
+  marketId?: string
+  yesOdds?: number
+  timestamp: number
+}
+
+type CatchUpCall = {
+  id: string
+  handle: string
+  label: string
+  marketId?: string
+  pnlUsd?: number
+  side?: 'YES' | 'NO'
+  timestamp: number
+}
+
+type ChatCatchUp = {
+  markets: CatchUpMarket[]
+  calls: CatchUpCall[]
+  hasContent: boolean
+}
+
+const CALL_TEXT_PATTERN =
+  /\b(long|short|in on|sized|added|took)\b.*\b(yes|no)\b|\b(yes|no)\b.*\b(looks good|moon|call|conviction)\b/i
+
+const buildChatCatchUp = (
+  messages: Message[],
+  shareFallback?: SocialsPanelProps['shareMarket']
+): ChatCatchUp => {
+  const markets: CatchUpMarket[] = []
+  const calls: CatchUpCall[] = []
+  const seenMarketIds = new Set<string>()
+  const seenCallIds = new Set<string>()
+
+  for (const msg of [...messages].reverse()) {
+    if (msg.type !== 'market' || !msg.market) continue
+    const live = resolveMessageMarket(msg.market, shareFallback)
+    const key = live.marketId ?? msg.id
+    if (seenMarketIds.has(key)) continue
+    seenMarketIds.add(key)
+    markets.push({
+      id: msg.id,
+      sharedBy: msg.author === 'me' ? 'You' : (msg.authorLabel ?? 'Member'),
+      title: live.title,
+      marketId: live.marketId,
+      yesOdds: live.yesOdds,
+      timestamp: msg.timestamp
+    })
+    if (markets.length >= 3) break
+  }
+
+  for (const msg of [...messages].reverse()) {
+    if (msg.type !== 'trade' || !msg.trade) continue
+    if (msg.trade.pnlUsd <= 0) continue
+    if (seenCallIds.has(msg.id)) continue
+    seenCallIds.add(msg.id)
+    calls.push({
+      id: msg.id,
+      handle: msg.author === 'me' ? 'You' : (msg.authorLabel ?? 'Trader'),
+      label: msg.trade.title,
+      pnlUsd: msg.trade.pnlUsd,
+      side: msg.trade.side,
+      timestamp: msg.timestamp
+    })
+    if (calls.length >= 3) break
+  }
+
+  if (calls.length < 3) {
+    for (const msg of [...messages].reverse()) {
+      if (msg.type !== 'text' || !msg.text || msg.author === 'me') continue
+      if (!CALL_TEXT_PATTERN.test(msg.text)) continue
+      if (seenCallIds.has(msg.id)) continue
+      seenCallIds.add(msg.id)
+      calls.push({
+        id: msg.id,
+        handle: msg.authorLabel ?? 'Member',
+        label: msg.text,
+        timestamp: msg.timestamp
+      })
+      if (calls.length >= 3) break
+    }
+  }
+
+  return {
+    markets,
+    calls,
+    hasContent: markets.length > 0 || calls.length > 0
+  }
+}
+
+const formatCatchUpSummary = (catchUp: ChatCatchUp) => {
+  const parts: string[] = []
+  if (catchUp.markets.length > 0) {
+    parts.push(`${catchUp.markets.length} market${catchUp.markets.length === 1 ? '' : 's'}`)
+  }
+  if (catchUp.calls.length > 0) {
+    parts.push(`${catchUp.calls.length} call${catchUp.calls.length === 1 ? '' : 's'}`)
+  }
+  return parts.join(' · ')
 }
 
 const normalizeChatHandle = (title: string) => title.replace(/^@/, '')
@@ -161,7 +253,7 @@ const SocialsPanel = ({
   const [draft, setDraft] = useState('')
   const [query, setQuery] = useState('')
   const [chatFilter, setChatFilter] = useState<ChatFilter>('all')
-  const [tradeContextOpen, setTradeContextOpen] = useState(true)
+  const [tradeContextOpen, setTradeContextOpen] = useState(false)
   const handledPendingShareKeyRef = useRef<string | null>(null)
   const handledPendingShareTextKeyRef = useRef<string | null>(null)
   const handledPendingShareTradeKeyRef = useRef<string | null>(null)
@@ -174,6 +266,10 @@ const SocialsPanel = ({
     markChatRead(activeChatId)
     onChatRead?.(activeChatId)
   }, [activeChatId, onChatRead])
+
+  useEffect(() => {
+    setTradeContextOpen(false)
+  }, [activeChatId])
 
   const chats: Chat[] = useMemo(
     () => providedChats ?? socialState.chats,
@@ -310,38 +406,12 @@ const SocialsPanel = ({
   const isGroupChat = activeChat?.kind === 'group'
   const activeMessages = activeChat ? messages : []
 
-  const tradeContextMarket = useMemo(() => {
-    const marketMsg = [...activeMessages].reverse().find((m) => m.type === 'market' && m.market)
-    if (marketMsg?.market) {
-      const live = resolveMessageMarket(marketMsg.market, shareMarket)
-      const yes = live.yesOdds
-      const priceChange = live.priceChange ?? 0
-      return {
-        marketId: live.marketId ?? 'batch-3',
-        title: live.title,
-        batch: 'Batch #1284',
-        closes: `Closes ${live.timeLeftLabel}`,
-        yesOdds: yes,
-        noOdds: Math.round((100 - yes) * 100) / 100,
-        yesDelta: formatOddsDelta(priceChange),
-        noDelta: formatOddsDelta(-priceChange)
-      }
-    }
-    const fallbackLive = resolveMarketShareData(DEFAULT_TRADE_CONTEXT.marketId)
-    if (fallbackLive) {
-      return {
-        marketId: fallbackLive.marketId,
-        title: fallbackLive.title,
-        batch: 'Batch #1284',
-        closes: `Closes ${fallbackLive.timeLeftLabel}`,
-        yesOdds: fallbackLive.yesOdds,
-        noOdds: Math.round((100 - fallbackLive.yesOdds) * 100) / 100,
-        yesDelta: formatOddsDelta(fallbackLive.priceChange),
-        noDelta: formatOddsDelta(-fallbackLive.priceChange)
-      }
-    }
-    return { ...DEFAULT_TRADE_CONTEXT }
-  }, [activeMessages, shareMarket])
+  const chatCatchUp = useMemo(
+    () => buildChatCatchUp(activeMessages, shareMarket),
+    [activeMessages, shareMarket]
+  )
+  const showCatchUp = activeChat?.kind === 'group'
+  const catchUpSummary = formatCatchUpSummary(chatCatchUp)
 
   const sendMessage = (textOverride?: string) => {
     const text = (textOverride ?? draft).trim()
@@ -587,47 +657,84 @@ const SocialsPanel = ({
           </div>
 
           <div className="socials-conversation">
-            {tradeContextOpen && (
-              <div className="socials-trade-context">
-                <div className="socials-trade-context-head">
-                  <div className="socials-trade-context-label">
-                    <BarChart3 size={13} />
-                    TRADE CONTEXT
+            {showCatchUp && (
+              <div className={`socials-catchup${tradeContextOpen ? ' is-open' : ''}`}>
+                <button
+                  type="button"
+                  className="socials-catchup-toggle"
+                  onClick={() => setTradeContextOpen((open) => !open)}
+                  aria-expanded={tradeContextOpen}
+                  aria-label={tradeContextOpen ? 'Hide catch up' : 'Show catch up'}
+                >
+                  <span className="socials-catchup-toggle-main">
+                    <BarChart3 size={14} />
+                    <span className="socials-catchup-toggle-label">Catch up</span>
+                    {!tradeContextOpen && chatCatchUp.hasContent && (
+                      <span className="socials-catchup-toggle-summary">{catchUpSummary}</span>
+                    )}
+                  </span>
+                  <ChevronDown
+                    size={16}
+                    className={`socials-catchup-chevron${tradeContextOpen ? ' is-open' : ''}`}
+                    aria-hidden
+                  />
+                </button>
+
+                {tradeContextOpen && (
+                  <div className="socials-catchup-body">
+                    {chatCatchUp.hasContent ? (
+                      <>
+                        {chatCatchUp.markets.length > 0 && (
+                          <section className="socials-catchup-section">
+                            <h4 className="socials-catchup-section-title">Markets & articles</h4>
+                            <ul className="socials-catchup-list">
+                              {chatCatchUp.markets.map((item) => (
+                                <li key={item.id}>
+                                  <button
+                                    type="button"
+                                    className="socials-catchup-item"
+                                    onClick={() => item.marketId && onOpenMarket?.(item.marketId)}
+                                    disabled={!item.marketId}
+                                  >
+                                    <span className="socials-catchup-item-title">{item.title}</span>
+                                    <span className="socials-catchup-item-meta">
+                                      {item.sharedBy}
+                                      {item.yesOdds !== undefined ? ` · ${item.yesOdds.toFixed(1)}¢ YES` : ''}
+                                    </span>
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
+                        {chatCatchUp.calls.length > 0 && (
+                          <section className="socials-catchup-section">
+                            <h4 className="socials-catchup-section-title">Latest calls</h4>
+                            <ul className="socials-catchup-list">
+                              {chatCatchUp.calls.map((item) => (
+                                <li key={item.id}>
+                                  <div className="socials-catchup-item socials-catchup-item--static">
+                                    <span className="socials-catchup-item-title">{item.label}</span>
+                                    <span className="socials-catchup-item-meta">
+                                      {item.handle}
+                                      {item.pnlUsd !== undefined
+                                        ? ` · +$${Math.round(item.pnlUsd)} ${item.side ?? ''}`.trim()
+                                        : ''}
+                                    </span>
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                          </section>
+                        )}
+                      </>
+                    ) : (
+                      <p className="socials-catchup-empty">
+                        No markets or calls shared yet — expand when you need a quick recap.
+                      </p>
+                    )}
                   </div>
-                  <button
-                    type="button"
-                    className="socials-trade-context-close"
-                    onClick={() => setTradeContextOpen(false)}
-                    aria-label="Close trade context"
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-                <div className="socials-trade-context-title">{tradeContextMarket.title}</div>
-                <div className="socials-trade-context-meta">
-                  <span>{tradeContextMarket.batch}</span>
-                  <span>{tradeContextMarket.closes}</span>
-                </div>
-                <div className="socials-trade-context-actions">
-                  <button
-                    type="button"
-                    className="socials-trade-side socials-trade-side--yes"
-                    onClick={() => onOpenMarket?.(tradeContextMarket.marketId)}
-                  >
-                    <span>YES</span>
-                    <strong>{tradeContextMarket.yesOdds.toFixed(2)}¢</strong>
-                    <em>{tradeContextMarket.yesDelta}</em>
-                  </button>
-                  <button
-                    type="button"
-                    className="socials-trade-side socials-trade-side--no"
-                    onClick={() => onOpenMarket?.(tradeContextMarket.marketId)}
-                  >
-                    <span>NO</span>
-                    <strong>{tradeContextMarket.noOdds.toFixed(2)}¢</strong>
-                    <em>{tradeContextMarket.noDelta}</em>
-                  </button>
-                </div>
+                )}
               </div>
             )}
 
@@ -673,6 +780,7 @@ const SocialsPanel = ({
                     ) : msg.type === 'trade' ? (
                       <div className="socials-embed">
                         <TradeShareCard
+                          marketId={msg.trade?.marketId}
                           title={msg.trade?.title ?? 'Trade'}
                           side={msg.trade?.side ?? 'YES'}
                           entry={msg.trade?.entry ?? 0}
@@ -680,8 +788,9 @@ const SocialsPanel = ({
                           pnlUsd={msg.trade?.pnlUsd ?? 0}
                           pnlPct={msg.trade?.pnlPct ?? 0}
                           chart={msg.trade?.chart ?? []}
+                          thumbnailUrls={msg.trade?.thumbnailUrls}
                           thumbnailSrc={msg.trade?.thumbnailSrc}
-                          thumbnailFallbackSrc={msg.trade?.thumbnailFallbackSrc ?? '/Stems/betskuu.png'}
+                          thumbnailFallbackSrc={msg.trade?.thumbnailFallbackSrc}
                         />
                       </div>
                     ) : null}

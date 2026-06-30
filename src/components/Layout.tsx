@@ -15,6 +15,7 @@ import { CreateWagerView } from './discovery/CreateWagerView'
 import ProfilePanel from './ProfilePanel'
 import HomePanel from './HomePanel'
 import NotificationCenterPanel from './NotificationCenterPanel'
+import NotificationToastStack from './NotificationToastStack'
 import type { OpenBet, Wager } from '../types/discovery'
 import type { PendingShare, PendingShareText, PendingShareTrade } from '../types/layoutShare'
 import { useMarketTick } from '../hooks/useMarketTick'
@@ -23,6 +24,7 @@ import { useHashNavigation } from '../hooks/useHashNavigation'
 import { useHomeMobileLayout } from '../hooks/useHomeMobileLayout'
 import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
 import { useNotificationWatcher } from '../hooks/useNotificationWatcher'
+import { useNotificationDemo } from '../hooks/useNotificationDemo'
 import { useSocialStore } from '../hooks/useSocialStore'
 import {
   executeTrade,
@@ -50,6 +52,7 @@ const Layout = () => {
   const socialState = useSocialStore()
   const { route, navigate } = useHashNavigation()
   useNotificationWatcher()
+  useNotificationDemo()
 
   const [activeTab, setActiveTab] = useState<'main' | 'socials' | 'discovery' | 'profile' | 'notifications'>(() => {
     if (route.type === 'discovery') return 'discovery'
@@ -756,6 +759,8 @@ const Layout = () => {
           }
         }}
       />
+
+      <NotificationToastStack onOpenNotification={handleOpenNotification} />
 
       <AnimatePresence>
         {createWagerOpen && (

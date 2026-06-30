@@ -1,4 +1,4 @@
-import { getMarketById } from '../data/marketCatalog'
+import { buildMarketCatalog, getMarketById } from '../data/marketCatalog'
 import { loadDiscoveryCatalog } from '../data/discoveryStore'
 import type { DataPoint } from '../types/chart'
 
@@ -42,4 +42,31 @@ export const resolveMarketShareData = (marketId: string): ResolvedMarketShare | 
     holders: market.holders,
     winRate: batch?.top10WinRate ?? 76
   }
+}
+
+/** Resolve stacked preview thumbs for trade PNL cards — by id or exact market title. */
+export const resolveTradeShareVisuals = (params: {
+  marketId?: string
+  title?: string
+}): Pick<ResolvedMarketShare, 'thumbnailUrls' | 'thumbnailFallbackSrc'> | null => {
+  const resolveId = (marketId: string) => {
+    const live = resolveMarketShareData(marketId)
+    if (!live) return null
+    return {
+      thumbnailUrls: live.thumbnailUrls,
+      thumbnailFallbackSrc: live.thumbnailFallbackSrc
+    }
+  }
+
+  if (params.marketId) {
+    const resolved = resolveId(params.marketId)
+    if (resolved) return resolved
+  }
+
+  if (params.title) {
+    const match = buildMarketCatalog().find((market) => market.name === params.title)
+    if (match) return resolveId(match.id)
+  }
+
+  return null
 }
