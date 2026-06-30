@@ -875,6 +875,12 @@
 @media (max-width: 900px) {
   .socials-body {
     grid-template-columns: 1fr;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .socials-shell {
+    min-height: 0;
   }
 
   .socials-left,
@@ -882,14 +888,19 @@
     grid-column: 1;
     grid-row: 1;
     min-width: 0;
+    min-height: 0;
+    height: 100%;
   }
 
   .socials-left {
     border-right: none;
+    display: flex;
+    flex-direction: column;
   }
 
-  .socials-body .socials-right {
+  .socials-right {
     display: none;
+    flex-direction: column;
   }
 
   .socials-body.show-chat .socials-left {

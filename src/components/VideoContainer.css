@@ -575,11 +575,11 @@
   }
 
   .layout--mobile-main .video-scroll-wrapper {
-    padding-left: 2px;
+    padding-left: 6px;
   }
 
   .layout--mobile-main .video-card:first-child {
-    margin-left: 2px;
+    margin-left: 6px;
   }
 
   .layout--mobile-main .video-card:last-child {

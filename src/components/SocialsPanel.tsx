@@ -18,6 +18,7 @@ import {
 import MarketShareCard from './MarketShareCard'
 import TradeShareCard from './TradeShareCard'
 import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
+import { useHomeMobileLayout } from '../hooks/useHomeMobileLayout'
 import {
   addDmChat,
   appendMessage,
@@ -159,6 +160,7 @@ const SocialsPanel = ({
   onViewProfile
 }: SocialsPanelProps) => {
   const socialState = useSocialStore()
+  const isMobileLayout = useHomeMobileLayout()
   const [activeChatId, setActiveChatId] = useState(() => initialActiveChatId ?? 'group-1')
   const [draft, setDraft] = useState('')
   const [query, setQuery] = useState('')
@@ -184,14 +186,20 @@ const SocialsPanel = ({
     [providedChats, socialState.chats]
   )
 
+  const allMessages = socialState.messages
+
   const messages = useMemo(
-    () => socialState.messages.filter((m) => m.chatId === activeChatId).sort((a, b) => a.timestamp - b.timestamp),
-    [socialState.messages, activeChatId]
+    () => allMessages.filter((m) => m.chatId === activeChatId).sort((a, b) => a.timestamp - b.timestamp),
+    [allMessages, activeChatId]
   )
 
   useEffect(() => {
-    if (!initialActiveChatId) return
-    setActiveChatId(initialActiveChatId)
+    if (initialActiveChatId) {
+      setActiveChatId(initialActiveChatId)
+      setMobileChatOpen(true)
+    } else {
+      setMobileChatOpen(false)
+    }
   }, [initialActiveChatId])
 
   useEffect(() => {
@@ -253,7 +261,7 @@ const SocialsPanel = ({
 
   const displayChats = useMemo(() => {
     return chats.map((chat) => {
-      const chatMessages = messages.filter((m) => m.chatId === chat.id)
+      const chatMessages = allMessages.filter((m) => m.chatId === chat.id)
       const lastMsg = chatMessages[chatMessages.length - 1]
 
       let dynamicSubtitle = chat.subtitle
@@ -286,7 +294,7 @@ const SocialsPanel = ({
         lastMessageAt: lastMsg?.timestamp ?? Date.now() - 1000 * 60 * 60
       }
     })
-  }, [chats, messages])
+  }, [chats, allMessages])
 
   const dmUnreadCount = useMemo(
     () => displayChats.filter((c) => c.kind === 'dm' && c.unreadCount > 0).length,
@@ -401,9 +409,9 @@ const SocialsPanel = ({
   return (
     <motion.div
       className="socials-shell"
-      initial={{ opacity: 0 }}
+      initial={isMobileLayout ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
+      transition={{ duration: isMobileLayout ? 0 : 0.25 }}
       whileHover={{ scale: 1 }}
     >
       {addFriendOpen && (

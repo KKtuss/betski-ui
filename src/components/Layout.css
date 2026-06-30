@@ -175,10 +175,43 @@
     overflow-x: hidden;
   }
 
-  /* Secondary tabs (discovery / socials / profile) get a full-bleed panel that
-     fills the viewport above the bottom bar and scrolls internally. */
+  /* Secondary tabs — absolutely positioned viewport above fixed bottom bar. */
+  .layout.layout--mobile-tab {
+    position: relative;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .mobile-tab-shell {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: calc(76px + env(safe-area-inset-bottom));
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+    z-index: 1;
+  }
+
+  .mobile-tab-shell > * {
+    flex: 1 1 0;
+    min-height: 0;
+    width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .mobile-tab-shell--home > .home-panel {
+    flex: 1 1 0;
+    min-height: 0;
+    height: 100%;
+  }
+
   .layout--mobile:not(.layout--mobile-main) {
-    overflow-y: auto;
+    overflow: hidden;
     overscroll-behavior-y: contain;
   }
 
@@ -212,7 +245,7 @@
     flex-direction: column;
     width: 100%;
     height: 100dvh;
-    padding: 6px 2px calc(72px + env(safe-area-inset-bottom));
+    padding: 6px 2px calc(72px + env(safe-area-inset-bottom)) 6px;
   }
 
   .mobile-video-section {
