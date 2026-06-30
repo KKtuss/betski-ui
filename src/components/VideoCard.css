@@ -118,13 +118,18 @@
 
 @media (max-width: 900px) {
   .layout--mobile-main .video-card:not(.active) {
-    filter: brightness(0.55);
-    opacity: 0.92;
+    filter: brightness(0.18);
+    opacity: 0.55;
   }
 
   .layout--mobile-main .video-card.active + .video-card,
   .layout--mobile-main .video-card:has(+ .video-card.active) {
-    filter: brightness(0.78);
-    opacity: 0.96;
+    filter: brightness(0.28);
+    opacity: 0.65;
+  }
+
+  .layout--mobile-main .video-card.active {
+    filter: brightness(1);
+    opacity: 1;
   }
 }

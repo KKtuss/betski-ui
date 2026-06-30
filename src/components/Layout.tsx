@@ -14,6 +14,7 @@ import DiscoveryPanel from './DiscoveryPanel'
 import { CreateWagerView } from './discovery/CreateWagerView'
 import ProfilePanel from './ProfilePanel'
 import HomePanel from './HomePanel'
+import NotificationCenterPanel from './NotificationCenterPanel'
 import type { OpenBet, Wager } from '../types/discovery'
 import type { PendingShare, PendingShareText, PendingShareTrade } from '../types/layoutShare'
 import { useMarketTick } from '../hooks/useMarketTick'
@@ -21,6 +22,8 @@ import { useAppStore } from '../hooks/useAppStore'
 import { useHashNavigation } from '../hooks/useHashNavigation'
 import { useHomeMobileLayout } from '../hooks/useHomeMobileLayout'
 import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
+import { useNotificationWatcher } from '../hooks/useNotificationWatcher'
+import { useSocialStore } from '../hooks/useSocialStore'
 import {
   executeTrade,
   setSelectedMarketId,
@@ -35,18 +38,24 @@ import {
 import { buildMarketViewData } from '../utils/buildMarketViewData'
 import { buildShareMarket } from '../utils/buildShareMarket'
 import { consensusYesFromOpenBets, getWagerFills } from '../utils/wagerFills'
+import { parseNotificationTargetRoute } from '../utils/notificationEmitter'
+import type { AppNotification } from '../types/notifications'
+import { addDmChat, hasUnreadMessages, markChatRead } from '../data/socialStore'
 import { RECENT_TRADES_MAX } from '../constants/layout'
 import './Layout.css'
 
 const Layout = () => {
   const appState = useAppStore()
   const discoveryCatalog = useDiscoveryCatalog()
+  const socialState = useSocialStore()
   const { route, navigate } = useHashNavigation()
+  useNotificationWatcher()
 
-  const [activeTab, setActiveTab] = useState<'main' | 'socials' | 'discovery' | 'profile'>(() => {
+  const [activeTab, setActiveTab] = useState<'main' | 'socials' | 'discovery' | 'profile' | 'notifications'>(() => {
     if (route.type === 'discovery') return 'discovery'
     if (route.type === 'socials') return 'socials'
     if (route.type === 'profile') return 'profile'
+    if (route.type === 'notifications') return 'notifications'
     return 'main'
   })
 
@@ -108,6 +117,43 @@ const Layout = () => {
     [navigate]
   )
 
+  const openNotifications = useCallback(() => {
+    setActiveTab('notifications')
+    setHomeFeedOpen(false)
+    navigate({ type: 'notifications' })
+  }, [navigate])
+
+  const handleOpenNotification = useCallback(
+    (notification: AppNotification) => {
+      const dest = parseNotificationTargetRoute(notification.target)
+      setHomeFeedOpen(false)
+      setMobileSheetOpen(false)
+      if (dest.chatId) setSocialsInitialChatId(dest.chatId)
+      if (dest.marketId) {
+        openMarket(dest.marketId)
+        return
+      }
+      if (dest.tab === 'profile') {
+        openProfile(dest.handle ?? null)
+        return
+      }
+      if (dest.tab === 'socials') {
+        setActiveTab('socials')
+        navigate({ type: 'socials', chatId: dest.chatId })
+        return
+      }
+      if (dest.tab === 'discovery') {
+        setActiveTab('discovery')
+        navigate({ type: 'discovery' })
+        return
+      }
+      if (dest.tab === 'notifications') {
+        openNotifications()
+      }
+    },
+    [navigate, openMarket, openNotifications, openProfile]
+  )
+
   useEffect(() => {
     void ensureDiscoveryThumbnails()
   }, [])
@@ -117,12 +163,20 @@ const Layout = () => {
       setSelectedMarketId(route.marketId)
       setActiveTab('main')
     } else if (route.type === 'discovery') setActiveTab('discovery')
-    else if (route.type === 'socials') setActiveTab('socials')
-    else if (route.type === 'profile') {
+    else if (route.type === 'socials') {
+      setActiveTab('socials')
+      if (route.chatId) setSocialsInitialChatId(route.chatId)
+    } else if (route.type === 'profile') {
       setActiveTab('profile')
       setViewingProfileHandle(route.handle ?? null)
-    } else if (route.type === 'main') setActiveTab('main')
-  }, [route.type, route.type === 'main' ? route.marketId : undefined, route.type === 'profile' ? route.handle : undefined])
+    } else if (route.type === 'notifications') setActiveTab('notifications')
+    else if (route.type === 'main') setActiveTab('main')
+  }, [
+    route.type,
+    route.type === 'main' ? route.marketId : undefined,
+    route.type === 'profile' ? route.handle : undefined,
+    route.type === 'socials' ? route.chatId : undefined
+  ])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -130,84 +184,15 @@ const Layout = () => {
     navigate({ type: 'main', marketId: selectedMarketId })
   }, [])
 
-  const [chats, setChats] = useState([
-    {
-      id: 'group-1',
-      kind: 'group' as const,
-      title: 'Betskiing',
-      subtitle: 'lets go lets go lets go',
-      unreadCount: 2,
-      verified: true,
-      online: true,
-      members: ['/Stems/BetskiPEFFPEE.png', '/Stems/moggorrr transparent.png', '/Stems/epstein transparent.png']
-    },
-    {
-      id: 'dm-1',
-      kind: 'dm' as const,
-      title: 'MarkDiTob',
-      subtitle: 'got fills?',
-      unreadCount: 0,
-      online: true,
-      avatar: '/Stems/moggorrr transparent.png'
-    },
-    {
-      id: 'dm-3',
-      kind: 'dm' as const,
-      title: 'BenBetski',
-      subtitle: 'Betski',
-      unreadCount: 1,
-      avatar: '/Stems/BetskiPEFFPEE.png'
-    },
-    {
-      id: 'dm-4',
-      kind: 'dm' as const,
-      title: 'CryptoKiwi',
-      subtitle: 'same',
-      unreadCount: 0,
-      avatar: '/Stems/epstein transparent.png'
-    },
-    {
-      id: 'group-2',
-      kind: 'group' as const,
-      title: 'Alpha Chat',
-      subtitle: 'New batch just dropped',
-      unreadCount: 0,
-      members: ['/Stems/BetskiPEFFPEE.png', '/Stems/betskuu.png']
-    },
-    {
-      id: 'sys-1',
-      kind: 'system' as const,
-      title: 'News Flow',
-      subtitle: 'D4vd batch trending +18%',
-      unreadCount: 0,
-      systemIcon: 'news' as const
-    },
-    {
-      id: 'sys-2',
-      kind: 'system' as const,
-      title: 'Watchlist Alerts',
-      subtitle: '2 markets near resolution',
-      unreadCount: 1,
-      systemIcon: 'alerts' as const
-    }
-  ])
+  const chats = socialState.chats
 
-  const addFriendChat = (handle: string) => {
-    const trimmed = handle.trim()
-    const title = trimmed.startsWith('@') ? trimmed : `@${trimmed}`
-    const chatId = `dm-${Date.now()}`
-    setChats((prev) => [
-      { id: chatId, kind: 'dm' as const, title, subtitle: 'Say hi 👋', unreadCount: 0, avatar: '/Stems/betskuu.png' },
-      ...prev
-    ])
-    return chatId
-  }
+  const addFriendChat = (handle: string) => addDmChat(handle)
 
   const handleChatRead = (chatId: string) => {
-    setChats((prev) => prev.map((c) => (c.id === chatId ? { ...c, unreadCount: 0 } : c)))
+    markChatRead(chatId)
   }
 
-  const hasUnreadMessages = chats.some((c) => c.unreadCount > 0)
+  const hasUnreadMessagesFlag = hasUnreadMessages()
 
   const effectiveMarketId =
     activeMode === 'long' || activeMode === 'short'
@@ -345,6 +330,7 @@ const Layout = () => {
   const homePanelProps = {
     onOpenMarket: openMarket,
     onViewProfile: (handle: string) => openProfile(handle),
+    onOpenNotifications: openNotifications,
     onCollapse: () => setHomeFeedOpen(false),
     side: homeFeedSide,
     onToggleSide: () => setHomeFeedSide((prev) => (prev === 'left' ? 'right' : 'left')),
@@ -475,7 +461,11 @@ const Layout = () => {
             )
           }
         }}
-        shareTargets={chats.filter((c) => c.kind === 'dm' || c.kind === 'group')}
+        shareTargets={chats.filter((c) => c.kind === 'dm' || c.kind === 'group') as Array<{
+          id: string
+          kind: 'dm' | 'group'
+          title: string
+        }>}
         onShareToChat={(chatId) => {
           setSocialsInitialChatId(chatId)
           setPendingShare({
@@ -503,35 +493,105 @@ const Layout = () => {
 
   const showHomeMobileFull = activeTab === 'main' && homeFeedOpen && homeMobileLayout
   const isMobileMain = activeTab === 'main' && homeMobileLayout && !showHomeMobileFull
+  const isMobileSecondaryTab =
+    homeMobileLayout && !isMobileMain && activeTab !== 'main'
+
+  const socialsPanel = (
+    <SocialsPanel
+      onBack={() => {
+        setActiveTab('main')
+        navigate({ type: 'main', marketId: selectedMarketId })
+      }}
+      chats={chats}
+      onChatRead={handleChatRead}
+      shareMarket={shareMarketPayload}
+      initialActiveChatId={socialsInitialChatId ?? undefined}
+      pendingShare={pendingShare ?? undefined}
+      onPendingShareHandled={() => setPendingShare(null)}
+      pendingShareText={pendingShareText ?? undefined}
+      onPendingShareTextHandled={() => setPendingShareText(null)}
+      pendingShareTrade={pendingShareTrade ?? undefined}
+      onPendingShareTradeHandled={() => setPendingShareTrade(null)}
+      onAddFriend={(handle) => addFriendChat(handle)}
+      onOpenMarket={openMarket}
+      onViewProfile={(handle) => openProfile(handle)}
+    />
+  )
+
+  const profilePanel = (
+    <ProfilePanel
+      viewingHandle={appState.ui.viewingProfileHandle}
+      onBackToSelfProfile={() => openProfile(null)}
+      onOpenMarket={openMarket}
+      onSharePnL={(text) => {
+        const targetChatId = 'group-1'
+        setSocialsInitialChatId(targetChatId)
+        setPendingShare(null)
+        setPendingShareTrade(null)
+        setPendingShareText({ key: `pnl-${Date.now()}`, chatId: targetChatId, text })
+        setActiveTab('socials')
+        navigate({ type: 'socials' })
+      }}
+      onShareTrade={(trade) => {
+        const targetChatId = 'group-1'
+        setSocialsInitialChatId(targetChatId)
+        setPendingShare(null)
+        setPendingShareText(null)
+        setPendingShareTrade({ key: `trade-${Date.now()}`, chatId: targetChatId, trade })
+        setActiveTab('socials')
+        navigate({ type: 'socials' })
+      }}
+    />
+  )
 
   return (
     <motion.div
-      className={`layout${homeMobileLayout ? ' layout--mobile' : ''}${isMobileMain ? ' layout--mobile-main' : ''}`}
+      className={`layout${homeMobileLayout ? ' layout--mobile' : ''}${isMobileMain ? ' layout--mobile-main' : ''}${isMobileSecondaryTab ? ' layout--mobile-tab' : ''}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
       {showHomeMobileFull ? (
-        <motion.div
-          className="layout-center layout-home-full"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.25 }}
-          style={{ gridColumn: '1 / -1' }}
-        >
+        <div className="mobile-tab-shell mobile-tab-shell--home">
           <HomePanel variant="fullscreen" {...homePanelProps} />
-        </motion.div>
+        </div>
       ) : isMobileMain ? (
-        <motion.main
-          className="mobile-app"
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
+        <main className="mobile-app">
           <section className="mobile-video-section" aria-label="Market video">
             {videoBlock}
           </section>
-        </motion.main>
+        </main>
+      ) : isMobileSecondaryTab ? (
+        <div className="mobile-tab-shell">
+          {activeTab === 'discovery' && (
+            <DiscoveryPanel
+              isVisible
+              onBack={() => {
+                setActiveTab('main')
+                navigate({ type: 'main', marketId: selectedMarketId })
+              }}
+              onCreateWager={() => setCreateWagerOpen(true)}
+              injectWager={pendingWager}
+              onWagerInjected={() => setPendingWager(null)}
+              onOpenMarket={openMarket}
+              onExecuteTrade={handleDiscoveryTrade}
+              onViewProfile={(handle) => openProfile(handle)}
+              walletBalance={appState.wallet.balanceUsd}
+            />
+          )}
+          {activeTab === 'socials' && socialsPanel}
+          {activeTab === 'profile' && profilePanel}
+          {activeTab === 'notifications' && (
+            <NotificationCenterPanel
+              onBack={() => {
+                setActiveTab('main')
+                setHomeFeedOpen(true)
+                navigate({ type: 'main', marketId: selectedMarketId })
+              }}
+              onOpenNotification={handleOpenNotification}
+            />
+          )}
+        </div>
       ) : activeTab === 'main' ? (
         <>
           <motion.div
@@ -567,6 +627,23 @@ const Layout = () => {
             )}
           </motion.div>
         </>
+      ) : activeTab === 'notifications' ? (
+        <motion.div
+          className="layout-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.25 }}
+          style={{ gridColumn: '1 / -1' }}
+        >
+          <NotificationCenterPanel
+            onBack={() => {
+              setActiveTab('main')
+              setHomeFeedOpen(true)
+              navigate({ type: 'main', marketId: selectedMarketId })
+            }}
+            onOpenNotification={handleOpenNotification}
+          />
+        </motion.div>
       ) : activeTab === 'socials' ? (
         <motion.div
           className="layout-center"
@@ -575,25 +652,7 @@ const Layout = () => {
           transition={{ duration: 0.25 }}
           style={{ gridColumn: '1 / -1' }}
         >
-          <SocialsPanel
-            onBack={() => {
-              setActiveTab('main')
-              navigate({ type: 'main', marketId: selectedMarketId })
-            }}
-            chats={chats}
-            onChatRead={handleChatRead}
-            shareMarket={shareMarketPayload}
-            initialActiveChatId={socialsInitialChatId ?? undefined}
-            pendingShare={pendingShare ?? undefined}
-            onPendingShareHandled={() => setPendingShare(null)}
-            pendingShareText={pendingShareText ?? undefined}
-            onPendingShareTextHandled={() => setPendingShareText(null)}
-            pendingShareTrade={pendingShareTrade ?? undefined}
-            onPendingShareTradeHandled={() => setPendingShareTrade(null)}
-            onAddFriend={(handle) => addFriendChat(handle)}
-            onOpenMarket={openMarket}
-            onViewProfile={(handle) => openProfile(handle)}
-          />
+          {socialsPanel}
         </motion.div>
       ) : activeTab === 'profile' ? (
         <motion.div
@@ -603,52 +662,28 @@ const Layout = () => {
           transition={{ duration: 0.25 }}
           style={{ gridColumn: '1 / -1' }}
         >
-          <ProfilePanel
-            viewingHandle={appState.ui.viewingProfileHandle}
-            onBackToSelfProfile={() => openProfile(null)}
-            onOpenMarket={openMarket}
-            onSharePnL={(text) => {
-              const targetChatId = 'group-1'
-              setSocialsInitialChatId(targetChatId)
-              setPendingShare(null)
-              setPendingShareTrade(null)
-              setPendingShareText({ key: `pnl-${Date.now()}`, chatId: targetChatId, text })
-              setActiveTab('socials')
-              navigate({ type: 'socials' })
-            }}
-            onShareTrade={(trade) => {
-              const targetChatId = 'group-1'
-              setSocialsInitialChatId(targetChatId)
-              setPendingShare(null)
-              setPendingShareText(null)
-              setPendingShareTrade({ key: `trade-${Date.now()}`, chatId: targetChatId, trade })
-              setActiveTab('socials')
-              navigate({ type: 'socials' })
-            }}
-          />
+          {profilePanel}
         </motion.div>
       ) : null}
 
-      <div
-        className="layout-center"
-        style={{ gridColumn: '1 / -1', display: activeTab === 'discovery' ? undefined : 'none' }}
-        aria-hidden={activeTab !== 'discovery'}
-      >
-        <DiscoveryPanel
-          isVisible={activeTab === 'discovery'}
-          onBack={() => {
-            setActiveTab('main')
-            navigate({ type: 'main', marketId: selectedMarketId })
-          }}
-          onCreateWager={() => setCreateWagerOpen(true)}
-          injectWager={pendingWager}
-          onWagerInjected={() => setPendingWager(null)}
-          onOpenMarket={openMarket}
-          onExecuteTrade={handleDiscoveryTrade}
-          onViewProfile={(handle) => openProfile(handle)}
-          walletBalance={appState.wallet.balanceUsd}
-        />
-      </div>
+      {!homeMobileLayout && activeTab === 'discovery' && (
+        <div className="layout-center" style={{ gridColumn: '1 / -1' }}>
+          <DiscoveryPanel
+            isVisible
+            onBack={() => {
+              setActiveTab('main')
+              navigate({ type: 'main', marketId: selectedMarketId })
+            }}
+            onCreateWager={() => setCreateWagerOpen(true)}
+            injectWager={pendingWager}
+            onWagerInjected={() => setPendingWager(null)}
+            onOpenMarket={openMarket}
+            onExecuteTrade={handleDiscoveryTrade}
+            onViewProfile={(handle) => openProfile(handle)}
+            walletBalance={appState.wallet.balanceUsd}
+          />
+        </div>
+      )}
 
       {isMobileMain && (
         <MobileTradeSheet
@@ -672,7 +707,7 @@ const Layout = () => {
                 ? 'tab3'
                 : 'tab4'
         }
-        hasUnreadMessages={hasUnreadMessages}
+        hasUnreadMessages={hasUnreadMessagesFlag}
         onTabClick={(tabId) => {
           setMobileSheetOpen(false)
           if (tabId === 'tab1') {

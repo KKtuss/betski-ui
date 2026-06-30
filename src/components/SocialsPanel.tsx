@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { motion } from 'framer-motion'
 import {
   ArrowLeft,
   BarChart3,
@@ -17,63 +16,20 @@ import {
 } from 'lucide-react'
 import MarketShareCard from './MarketShareCard'
 import TradeShareCard from './TradeShareCard'
-import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
-import { getMockMessages, SOCIAL_AUTHOR_AVATARS } from '../data/socialMock'
+import {
+  addDmChat,
+  appendMessage,
+  markChatRead,
+  type SocialChat
+} from '../data/socialStore'
+import { useSocialStore } from '../hooks/useSocialStore'
+import { SOCIAL_AUTHOR_AVATARS, type Message } from '../data/socialMock'
 import { resolveMarketShareData } from '../utils/resolveMarketShareData'
 import './SocialsPanel.css'
 
-type ChatKind = 'dm' | 'group' | 'system'
 type ChatFilter = 'all' | 'dms' | 'groups' | 'mentions'
 
-interface Chat {
-  id: string
-  kind: ChatKind
-  title: string
-  subtitle: string
-  unreadCount: number
-  avatar?: string
-  members?: string[]
-  verified?: boolean
-  online?: boolean
-  systemIcon?: 'news' | 'alerts'
-  hasMention?: boolean
-}
-
-interface Message {
-  id: string
-  chatId: string
-  author: 'me' | 'other'
-  authorLabel?: string
-  type: 'text' | 'market' | 'trade'
-  text?: string
-  market?: {
-    marketId?: string
-    videoId: number
-    title: string
-    yesOdds: number
-    chart: { value: number; timestamp: number }[]
-    timeLeftLabel: string
-    thumbnailVideoUrl?: string
-    thumbnailFallbackSrc?: string
-    thumbnailUrls?: string[]
-    volume24h?: number
-    holders?: number
-    winRate?: number
-    priceChange?: number
-  }
-  trade?: {
-    title: string
-    side: 'YES' | 'NO'
-    entry: number
-    exit: number
-    pnlUsd: number
-    pnlPct: number
-    chart: { value: number; timestamp: number }[]
-    thumbnailSrc?: string
-    thumbnailFallbackSrc?: string
-  }
-  timestamp: number
-}
+interface Chat extends SocialChat {}
 
 interface SocialsPanelProps {
   onBack: () => void
@@ -200,6 +156,7 @@ const SocialsPanel = ({
   onAddFriend,
   onViewProfile
 }: SocialsPanelProps) => {
+  const socialState = useSocialStore()
   const [activeChatId, setActiveChatId] = useState(() => initialActiveChatId ?? 'group-1')
   const [draft, setDraft] = useState('')
   const [query, setQuery] = useState('')
@@ -211,51 +168,33 @@ const SocialsPanel = ({
   const [addFriendOpen, setAddFriendOpen] = useState(false)
   const [addFriendHandle, setAddFriendHandle] = useState('')
   const [mobileChatOpen, setMobileChatOpen] = useState(false)
-  useDiscoveryCatalog()
 
   useEffect(() => {
-    if (activeChatId) onChatRead?.(activeChatId)
+    if (activeChatId) {
+      markChatRead(activeChatId)
+      onChatRead?.(activeChatId)
+    }
   }, [activeChatId, onChatRead])
 
   const chats: Chat[] = useMemo(
-    () =>
-      providedChats ?? [
-        {
-          id: 'group-1',
-          kind: 'group',
-          title: 'Betskiing',
-          subtitle: 'lets go lets go lets go',
-          unreadCount: 2,
-          verified: true,
-          online: true,
-          members: ['/Stems/BetskiPEFFPEE.png', '/Stems/moggorrr%20transparent.png', '/Stems/epstein.png']
-        },
-        {
-          id: 'dm-1',
-          kind: 'dm',
-          title: 'MarkDiTob',
-          subtitle: 'got fills?',
-          unreadCount: 0,
-          online: true,
-          avatar: '/Stems/moggorrr%20transparent.png'
-        },
-        {
-          id: 'dm-3',
-          kind: 'dm',
-          title: 'BenBetski',
-          subtitle: 'Betski',
-          unreadCount: 1,
-          avatar: '/Stems/BetskiPEFFPEE.png'
-        }
-      ],
-    [providedChats]
+    () => providedChats ?? socialState.chats,
+    [providedChats, socialState.chats]
   )
 
-  const [messages, setMessages] = useState<Message[]>(() => getMockMessages())
+  const allMessages = socialState.messages
+
+  const messages = useMemo(
+    () => allMessages.filter((m) => m.chatId === activeChatId).sort((a, b) => a.timestamp - b.timestamp),
+    [allMessages, activeChatId]
+  )
 
   useEffect(() => {
-    if (!initialActiveChatId) return
-    setActiveChatId(initialActiveChatId)
+    if (initialActiveChatId) {
+      setActiveChatId(initialActiveChatId)
+      setMobileChatOpen(true)
+    } else {
+      setMobileChatOpen(false)
+    }
   }, [initialActiveChatId])
 
   useEffect(() => {
@@ -265,18 +204,15 @@ const SocialsPanel = ({
     const targetChat = chats.find((c) => c.id === pendingShare.chatId)
     setActiveChatId(pendingShare.chatId)
     setMobileChatOpen(true)
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `m-market-${Date.now()}`,
-        chatId: pendingShare.chatId,
-        author: 'me',
-        authorLabel: targetChat?.kind === 'group' ? 'You' : undefined,
-        type: 'market',
-        market: pendingShare.market,
-        timestamp: Date.now()
-      }
-    ])
+    appendMessage({
+      id: `m-market-${Date.now()}`,
+      chatId: pendingShare.chatId,
+      author: 'me',
+      authorLabel: targetChat?.kind === 'group' ? 'You' : undefined,
+      type: 'market',
+      market: pendingShare.market,
+      timestamp: Date.now()
+    })
     onPendingShareHandled?.()
   }, [pendingShare, chats, onPendingShareHandled])
 
@@ -287,18 +223,15 @@ const SocialsPanel = ({
     const targetChat = chats.find((c) => c.id === pendingShareText.chatId)
     setActiveChatId(pendingShareText.chatId)
     setMobileChatOpen(true)
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `m-text-${Date.now()}`,
-        chatId: pendingShareText.chatId,
-        author: 'me',
-        authorLabel: targetChat?.kind === 'group' ? 'You' : undefined,
-        type: 'text',
-        text: pendingShareText.text,
-        timestamp: Date.now()
-      }
-    ])
+    appendMessage({
+      id: `m-text-${Date.now()}`,
+      chatId: pendingShareText.chatId,
+      author: 'me',
+      authorLabel: targetChat?.kind === 'group' ? 'You' : undefined,
+      type: 'text',
+      text: pendingShareText.text,
+      timestamp: Date.now()
+    })
     onPendingShareTextHandled?.()
   }, [pendingShareText, chats, onPendingShareTextHandled])
 
@@ -309,24 +242,21 @@ const SocialsPanel = ({
     const targetChat = chats.find((c) => c.id === pendingShareTrade.chatId)
     setActiveChatId(pendingShareTrade.chatId)
     setMobileChatOpen(true)
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `m-trade-${Date.now()}`,
-        chatId: pendingShareTrade.chatId,
-        author: 'me',
-        authorLabel: targetChat?.kind === 'group' ? 'You' : undefined,
-        type: 'trade',
-        trade: pendingShareTrade.trade,
-        timestamp: Date.now()
-      }
-    ])
+    appendMessage({
+      id: `m-trade-${Date.now()}`,
+      chatId: pendingShareTrade.chatId,
+      author: 'me',
+      authorLabel: targetChat?.kind === 'group' ? 'You' : undefined,
+      type: 'trade',
+      trade: pendingShareTrade.trade,
+      timestamp: Date.now()
+    })
     onPendingShareTradeHandled?.()
   }, [pendingShareTrade, chats, onPendingShareTradeHandled])
 
   const displayChats = useMemo(() => {
     return chats.map((chat) => {
-      const chatMessages = messages.filter((m) => m.chatId === chat.id)
+      const chatMessages = allMessages.filter((m) => m.chatId === chat.id)
       const lastMsg = chatMessages[chatMessages.length - 1]
 
       let dynamicSubtitle = chat.subtitle
@@ -359,7 +289,7 @@ const SocialsPanel = ({
         lastMessageAt: lastMsg?.timestamp ?? Date.now() - 1000 * 60 * 60
       }
     })
-  }, [chats, messages])
+  }, [chats, allMessages])
 
   const dmUnreadCount = useMemo(
     () => displayChats.filter((c) => c.kind === 'dm' && c.unreadCount > 0).length,
@@ -377,12 +307,12 @@ const SocialsPanel = ({
     })
   }, [displayChats, query, chatFilter])
 
-  const activeChat = displayChats.find((c) => c.id === activeChatId) ?? displayChats[0]
+  const activeChat = displayChats.find((c) => c.id === activeChatId) ?? displayChats[0] ?? chats[0]
   if (!activeChat) {
     return null
   }
   const isGroupChat = activeChat.kind === 'group'
-  const activeMessages = messages.filter((m) => m.chatId === activeChat.id)
+  const activeMessages = messages
 
   const tradeContextMarket = useMemo(() => {
     const marketMsg = [...activeMessages].reverse().find((m) => m.type === 'market' && m.market)
@@ -420,25 +350,22 @@ const SocialsPanel = ({
   const sendMessage = (textOverride?: string) => {
     const text = (textOverride ?? draft).trim()
     if (!text) return
-    setMessages((prev) => [
-      ...prev,
-      {
-        id: `m-${Date.now()}`,
-        chatId: activeChat.id,
-        author: 'me',
-        authorLabel: isGroupChat ? 'You' : undefined,
-        type: 'text',
-        text,
-        timestamp: Date.now()
-      }
-    ])
+    appendMessage({
+      id: `m-${Date.now()}`,
+      chatId: activeChat.id,
+      author: 'me',
+      authorLabel: isGroupChat ? 'You' : undefined,
+      type: 'text',
+      text,
+      timestamp: Date.now()
+    })
     setDraft('')
   }
 
   const submitAddFriend = () => {
     const handle = addFriendHandle.trim()
     if (!handle) return
-    const newChatId = onAddFriend?.(handle)
+    const newChatId = onAddFriend?.(handle) ?? addDmChat(handle)
     if (newChatId) {
       setActiveChatId(newChatId)
       setMobileChatOpen(true)
@@ -477,14 +404,22 @@ const SocialsPanel = ({
     return chat.title.slice(0, 1).toUpperCase()
   }
 
+  if (!activeChat) {
+    return (
+      <div className="socials-shell socials-shell--empty">
+        <div className="socials-left-head">
+          <button className="socials-back" onClick={onBack} type="button" aria-label="Back">
+            <ArrowLeft size={16} />
+          </button>
+          <span className="socials-sidebar-title">SOCIALS</span>
+        </div>
+        <p className="socials-empty-copy">No conversations yet.</p>
+      </div>
+    )
+  }
+
   return (
-    <motion.div
-      className="socials-shell"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.25 }}
-      whileHover={{ scale: 1 }}
-    >
+    <div className="socials-shell">
       {addFriendOpen && (
         <div className="socials-modal-backdrop" role="presentation" onClick={() => setAddFriendOpen(false)}>
           <div
@@ -788,7 +723,7 @@ const SocialsPanel = ({
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
