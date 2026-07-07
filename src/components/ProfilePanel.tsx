@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowLeft, BadgeCheck, Pencil, Send } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Bell, Pencil, Settings } from 'lucide-react'
 import { useAppStore } from '../hooks/useAppStore'
 import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
 import { CURRENT_USER_HANDLE } from '../data/appStore'
@@ -31,13 +31,11 @@ import './ProfilePanel.css'
 type ProfileMobileSection = 'profile' | 'trading'
 
 const ProfilePanel = ({
-  onSharePnL,
   onShareTrade,
   viewingHandle = null,
   onBackToSelfProfile,
   onOpenMarket
 }: {
-  onSharePnL?: (text: string) => void
   onShareTrade?: (trade: {
     marketId?: string
     title: string
@@ -72,6 +70,7 @@ const ProfilePanel = ({
   const [tapeView, setTapeView] = useState<'activity' | 'history'>('activity')
   const [lootboxVideoOpen, setLootboxVideoOpen] = useState(false)
   const isMobileLayout = useHomeMobileLayout()
+  const [notifSettingsOpen, setNotifSettingsOpen] = useState(false)
   const [mobileSection, setMobileSection] = useState<ProfileMobileSection>('profile')
   const mobileProfileSectionRef = useRef<HTMLDivElement>(null)
   const mobileTradingSectionRef = useRef<HTMLDivElement>(null)
@@ -225,14 +224,6 @@ const ProfilePanel = ({
     }
   }, [windowedTrades])
 
-  const sharePnlText = useMemo(() => {
-    const label = PROFILE_TIME_WINDOWS.find(w => w.id === profileTimeWindow)?.label ?? profileTimeWindow.toUpperCase()
-    const net = formatUsdSigned(tradingStats.totalPnl)
-    const wr = `${tradingStats.winRate.toFixed(0)}%`
-    const vol = formatUsd(tradingStats.buyVolume + tradingStats.sellVolume)
-    return `${displayName} • Net PnL (${label}): ${net} • Win rate: ${wr} • Volume: ${vol}`
-  }, [profileTimeWindow, tradingStats.totalPnl, tradingStats.winRate, tradingStats.buyVolume, tradingStats.sellVolume, displayName])
-
   const positions = useMemo<ProfilePosition[]>(() => {
     if (!isSelf) {
       return (profileUser?.positions ?? []).map((p) => ({
@@ -321,16 +312,6 @@ const ProfilePanel = ({
     <div className="profile-trading">
       <div className="profile-trading-top">
         <div className="profile-section-title">Trading Data</div>
-        {isSelf && onSharePnL && (
-          <button
-            type="button"
-            className="profile-share-pnl-btn"
-            onClick={() => onSharePnL(sharePnlText)}
-            title="Share PnL to socials"
-          >
-            <Send size={14} />
-          </button>
-        )}
       </div>
 
       <div className="profile-trading-summary">
@@ -403,7 +384,34 @@ const ProfilePanel = ({
     <ProfilePositionsList positions={positions} onOpenMarket={onOpenMarket} />
   )
 
-  const notificationSettings = isSelf ? <NotificationSettingsSection /> : null
+  const notificationSettingsPopup =
+    isSelf && notifSettingsOpen ? (
+      <div
+        className="profile-notif-settings-overlay"
+        role="presentation"
+        onClick={() => setNotifSettingsOpen(false)}
+      >
+        <div
+          id="profile-notif-settings"
+          className="profile-notif-settings-popup"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="notif-settings-heading"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <NotificationSettingsSection onClose={() => setNotifSettingsOpen(false)} />
+        </div>
+      </div>
+    ) : null
+
+  useEffect(() => {
+    if (!notifSettingsOpen) return
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setNotifSettingsOpen(false)
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [notifSettingsOpen])
 
   return (
     <motion.div
@@ -432,7 +440,23 @@ const ProfilePanel = ({
             {isSelf ? 'PROFILE' : displayName.toUpperCase()}
           </div>
         </div>
-        <div className="time-selector" role="tablist" aria-label="Stats time window">
+        <div className="profile-header-right">
+          {isSelf && (
+            <button
+              type="button"
+              className={`profile-notif-bell-btn${notifSettingsOpen ? ' is-active' : ''}`}
+              onClick={() => setNotifSettingsOpen((open) => !open)}
+              aria-label="Notification settings"
+              aria-expanded={notifSettingsOpen}
+              aria-controls="profile-notif-settings"
+            >
+              <span className="profile-notif-settings-icon" aria-hidden>
+                <Bell size={17} strokeWidth={2} />
+                <Settings size={9} strokeWidth={2.5} className="profile-notif-settings-gear" />
+              </span>
+            </button>
+          )}
+          <div className="time-selector" role="tablist" aria-label="Stats time window">
           {PROFILE_TIME_WINDOWS.map(({ id, label }) => {
             const active = profileTimeWindow === id
             return (
@@ -448,6 +472,7 @@ const ProfilePanel = ({
               </button>
             )
           })}
+          </div>
         </div>
       </div>
 
@@ -482,7 +507,6 @@ const ProfilePanel = ({
               >
                 {profileCard}
                 {lootboxesStrip}
-                {notificationSettings}
               </div>
               <div
                 ref={mobileTradingSectionRef}
@@ -498,25 +522,20 @@ const ProfilePanel = ({
           </>
         ) : (
           <div className="profile-grid">
-            <div className="profile-left-stack">
-              {profileCard}
-              {notificationSettings}
-            </div>
-
-            <div className="profile-center-stack">
-              {tradingBlock}
-              <div className="profile-center-bottom-row">
-                {highlightsGrid}
-                {lootboxesStrip}
-              </div>
-            </div>
-
+            {profileCard}
+            {tradingBlock}
             {equityChart}
+            <div className="profile-center-bottom-row">
+              {highlightsGrid}
+              {lootboxesStrip}
+            </div>
             {tradeTape}
             {positionsList}
           </div>
         )}
       </div>
+
+      {notificationSettingsPopup}
 
       <AnimatePresence>
         {lootboxVideoOpen && (

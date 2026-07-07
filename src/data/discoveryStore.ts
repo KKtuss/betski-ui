@@ -5,6 +5,7 @@ import { CURRENT_USER_HANDLE } from './appStore'
 import { resolveContentLink } from '../utils/resolveContentLink'
 import { isPlaceholderThumbnail, needsThumbnailProxy, proxiedThumbnailUrl, PLACEHOLDER_THUMB } from '../utils/thumbnailProxy'
 import { clamp } from '../utils/math'
+import { getWindowStartValue } from '../utils/marketHistory'
 
 const STORAGE_KEY = 'betski-discovery-catalog'
 
@@ -166,9 +167,6 @@ export const updateDiscoveryCatalog = (
 }
 
 const quantizeLiveOdds = (value: number) => Math.round(value * 2) / 2
-
-const getWindowStartValue = (chart: Batch['chart'], now: number, windowMs: number) =>
-  chart.find((point) => point.timestamp >= now - windowMs)?.value ?? chart[0]?.value ?? 50
 
 export const advanceBatchMarketTick = (
   marketId: string,

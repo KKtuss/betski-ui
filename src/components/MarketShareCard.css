@@ -92,16 +92,6 @@
   justify-content: center;
 }
 
-.market-share-chart-band {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
-  column-gap: 6px;
-  row-gap: 6px;
-  min-width: 0;
-  width: 100%;
-}
-
 .market-share-side--yes {
   grid-column: 1;
   grid-row: 1;
@@ -161,29 +151,6 @@
 
 .market-share-side--no .market-share-side-delta {
   color: rgba(255, 107, 107, 0.85);
-}
-
-.market-share-chart {
-  grid-column: 2;
-  grid-row: 1;
-  width: calc(100% - 14px);
-  max-width: calc(100% - 14px);
-  justify-self: center;
-  height: 52px;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  overflow: hidden;
-  padding: 0 1px;
-}
-
-.market-share-chart .discovery-sparkline {
-  width: 100%;
-  height: 44px;
-  max-width: none;
 }
 
 .market-share-stats {

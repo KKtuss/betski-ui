@@ -12,12 +12,12 @@
   width: auto;
   aspect-ratio: 9 / 16;
   border-radius: 5px;
-  transform-origin: center center;
+  transform-origin: bottom center;
   overflow: hidden;
   background: #1a1a1a;
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 14px rgba(0, 0, 0, 0.38);
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .discovery-preview-card:hover {

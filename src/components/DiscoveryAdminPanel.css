@@ -60,12 +60,12 @@
 }
 
 .discovery-admin-btn--primary {
-  border-color: rgba(255, 153, 102, 0.35);
-  background: linear-gradient(135deg, rgba(255, 153, 102, 0.18) 0%, rgba(255, 94, 98, 0.18) 100%);
+  border-color: rgba(255, 106, 0, 0.35);
+  background: var(--betski-sunset-soft);
 }
 
 .discovery-admin-btn--danger {
-  border-color: rgba(255, 94, 98, 0.35);
+  border-color: rgba(238, 9, 121, 0.35);
   color: #ffb4b6;
 }
 
@@ -101,7 +101,7 @@
   right: 0;
   bottom: 0;
   height: 2px;
-  background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+  background: var(--betski-sunset);
 }
 
 .discovery-admin-body {
@@ -158,8 +158,8 @@
 }
 
 .discovery-admin-icon-btn.active {
-  color: #ff9966;
-  border-color: rgba(255, 153, 102, 0.35);
+  color: var(--betski-orange);
+  border-color: rgba(255, 106, 0, 0.35);
 }
 
 .discovery-admin-fields {
@@ -196,7 +196,7 @@
 
 .discovery-admin-field input:focus {
   outline: none;
-  border-color: rgba(255, 153, 102, 0.45);
+  border-color: rgba(255, 106, 0, 0.45);
 }
 
 .discovery-admin-field--wide {
@@ -298,14 +298,14 @@
 
 .discovery-admin-link-input:focus {
   outline: none;
-  border-color: rgba(255, 153, 102, 0.45);
+  border-color: rgba(255, 106, 0, 0.45);
 }
 
 .discovery-admin-link-resolve {
   align-self: flex-start;
   appearance: none;
-  border: 1px solid rgba(255, 153, 102, 0.25);
-  background: rgba(255, 153, 102, 0.08);
+  border: 1px solid rgba(255, 106, 0, 0.25);
+  background: rgba(255, 106, 0, 0.08);
   color: #ffb899;
   border-radius: 6px;
   padding: 5px 10px;

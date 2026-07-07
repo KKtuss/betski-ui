@@ -199,7 +199,7 @@ export const CreateWagerView = ({ onClose, onPublish }: { onClose: () => void; o
       >
       <div className="discovery-create-head">
         <button type="button" className="discovery-back" onClick={onClose} aria-label="Close">
-          <ArrowLeft size={20} color="#FF9966" />
+          <ArrowLeft size={20} color="var(--betski-orange)" />
         </button>
         <div className="discovery-create-title">Create a wager</div>
         <div className="discovery-create-subtitle">

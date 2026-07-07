@@ -8,6 +8,7 @@ import {
   Newspaper,
   TrendingUp,
   Trophy,
+  X,
   Zap
 } from 'lucide-react'
 import { useNotifications } from '../hooks/useNotifications'
@@ -54,9 +55,15 @@ const formatTime = (ts: number) => {
 type NotificationCenterPanelProps = {
   onBack: () => void
   onOpenNotification: (notification: AppNotification) => void
+  variant?: 'page' | 'popover'
 }
 
-const NotificationCenterPanel = ({ onBack, onOpenNotification }: NotificationCenterPanelProps) => {
+const NotificationCenterPanel = ({
+  onBack,
+  onOpenNotification,
+  variant = 'page'
+}: NotificationCenterPanelProps) => {
+  const isPopover = variant === 'popover'
   const state = useNotifications()
   const unread = useMemo(() => getUnreadCount(), [state.notifications])
 
@@ -106,15 +113,17 @@ const NotificationCenterPanel = ({ onBack, onOpenNotification }: NotificationCen
 
   return (
     <motion.div
-      className="panel notification-center"
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.22 }}
+      className={`panel notification-center${isPopover ? ' notification-center--popover' : ''}`}
+      initial={isPopover ? { opacity: 0, y: -6, scale: 0.98 } : { opacity: 0, y: 8 }}
+      animate={isPopover ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, y: 0 }}
+      transition={{ duration: 0.18 }}
     >
       <div className="panel-header notification-center-header">
-        <button type="button" className="notification-back-btn" onClick={onBack} aria-label="Back">
-          <ArrowLeft size={20} strokeWidth={2.25} />
-        </button>
+        {!isPopover && (
+          <button type="button" className="notification-back-btn" onClick={onBack} aria-label="Back">
+            <ArrowLeft size={20} strokeWidth={2.25} />
+          </button>
+        )}
         <div className="notification-center-title">
           <span className="notification-center-wordmark">NOTIFICATIONS</span>
           {unread > 0 && (
@@ -145,6 +154,11 @@ const NotificationCenterPanel = ({ onBack, onOpenNotification }: NotificationCen
                 Clear
               </button>
             </>
+          )}
+          {isPopover && (
+            <button type="button" className="notification-close-btn" onClick={onBack} aria-label="Close">
+              <X size={16} strokeWidth={2.25} />
+            </button>
           )}
         </div>
       </div>

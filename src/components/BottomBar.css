@@ -25,6 +25,9 @@
   gap: 8px;
   border-radius: 20px;
   overflow: visible;
+  --bottom-bar-active-glow:
+    drop-shadow(0 0 5px rgba(255, 106, 0, 0.3))
+    drop-shadow(0 0 7px rgba(238, 9, 121, 0.22));
 }
 
 .bottom-bar-center {
@@ -86,7 +89,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+  background: var(--betski-sunset);
   opacity: 0;
   transition: opacity 0.4s ease;
 }
@@ -106,27 +109,41 @@
 }
 
 /* Hover state for tabs */
-.bottom-tab:hover {
+.bottom-tab:hover:not(.active) {
   color: #a0a0a0;
   background: transparent; /* Removed hover background container */
 }
 
 .bottom-tab.active {
-  color: #ffffff;
-  background-color: transparent; /* Removed background pill */
+  background-color: transparent;
   transform: translateY(0);
 }
 
-/* Active indicator accent */
 .bottom-tab.active svg {
-  stroke: #FF5E62;
-  filter: drop-shadow(0 0 8px rgba(255, 94, 98, 0.4)); /* Restored subtle glow */
+  filter: var(--bottom-bar-active-glow);
+}
+
+.bottom-bar-sprite {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bottom-tab-unread-dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--betski-sunset);
+  box-shadow: 0 0 8px rgba(255, 106, 0, 0.8);
+  pointer-events: none;
 }
 
 .bottom-bar-center.active .betski-logo-gradient {
   background: #fff; /* Brighten base */
-  filter: drop-shadow(0 0 12px rgba(255, 106, 0, 0.5)); /* Logo glow */
-  transform: scale(1.05);
+  filter: var(--bottom-bar-active-glow);
 }
 
 .bottom-bar-center.active .betski-logo-gradient::before {
@@ -134,10 +151,6 @@
 }
 
 /* Hover effect for center logo */
-.bottom-bar-center:hover .betski-logo-gradient {
-  transform: scale(1);
-}
-
 .bottom-bar-center:hover .betski-logo-gradient::before {
   opacity: 0.8;
 }

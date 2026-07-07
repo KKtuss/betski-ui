@@ -66,13 +66,7 @@ const TradeShareCard = ({
     return picked.map((url) => getDisplayThumbnailUrl(url))
   }, [marketId, title, thumbnailUrls, thumbnailSrc, thumbnailFallbackSrc])
 
-  const sparkData = useMemo<DataPoint[]>(() => {
-    if (chart.length >= 2) return chart
-    return [
-      { value: entry, timestamp: 0 },
-      { value: exit, timestamp: 1 }
-    ]
-  }, [chart, entry, exit])
+  const sparkData = chart
 
   const priceMove = exit - entry
   const moveLabel = `${priceMove >= 0 ? '+' : ''}${priceMove.toFixed(1)}¢`
@@ -108,13 +102,13 @@ const TradeShareCard = ({
         </div>
 
         <div className="trade-share-content">
-          <div className="trade-share-chart-band">
+          <div className="share-chart-band share-chart-band--with-stats trade-share-chart-band">
             <div className="trade-share-edge trade-share-edge--entry">
               <span className="trade-share-edge-label">Entry</span>
               <strong className="trade-share-edge-price">{formatPrice(entry)}</strong>
             </div>
 
-            <div className="trade-share-chart" aria-hidden="true">
+            <div className="share-chart-band__chart trade-share-chart" aria-hidden="true">
               <DiscoverySparkline data={sparkData} />
             </div>
 

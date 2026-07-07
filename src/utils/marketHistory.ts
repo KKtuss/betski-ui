@@ -194,6 +194,9 @@ export const buildMarketHistory = ({
   return adjusted
 }
 
+export const getWindowStartValue = (chart: DataPoint[], now: number, windowMs: number) =>
+  chart.find((point) => point.timestamp >= now - windowMs)?.value ?? chart[0]?.value ?? 50
+
 export const chartWindowsFromHistory = (
   history: DataPoint[],
   now: number

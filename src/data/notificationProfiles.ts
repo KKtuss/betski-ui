@@ -71,4 +71,37 @@ export const BUILTIN_NOTIFICATION_PROFILES: NotificationProfile[] = [
 export const getBuiltinProfile = (id: string): NotificationProfile | undefined =>
   BUILTIN_NOTIFICATION_PROFILES.find((p) => p.id === id)
 
+/** Simple UX presets surfaced in profile — map to persisted builtin profile ids. */
+export const NOTIFICATION_QUICK_PRESETS = [
+  {
+    id: 'minimal',
+    profileId: 'quiet',
+    label: 'Minimal',
+    description: 'Critical market events in-app only — no push.'
+  },
+  {
+    id: 'balanced',
+    profileId: 'trading',
+    label: 'Balanced',
+    description: 'Trading, watchlist, and key fills — less social noise.'
+  },
+  {
+    id: 'all',
+    profileId: 'all',
+    label: 'All',
+    description: 'Every alert in-app and as push notifications.'
+  }
+] as const
+
+export type NotificationQuickPresetId = (typeof NOTIFICATION_QUICK_PRESETS)[number]['id']
+
+export const getQuickPresetByProfileId = (profileId: string) =>
+  NOTIFICATION_QUICK_PRESETS.find((preset) => preset.profileId === profileId)
+
+export const isQuickPresetProfileId = (profileId: string): boolean =>
+  NOTIFICATION_QUICK_PRESETS.some((preset) => preset.profileId === profileId)
+
+export const getQuickPresetById = (presetId: NotificationQuickPresetId) =>
+  NOTIFICATION_QUICK_PRESETS.find((preset) => preset.id === presetId)
+
 export const DEFAULT_ACTIVE_PROFILE_ID = 'all'

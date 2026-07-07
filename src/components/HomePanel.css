@@ -128,13 +128,16 @@
   height: 16px;
   padding: 0 4px;
   border-radius: 8px;
-  background: #e53935;
+  background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
   color: #fff;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
   flex-shrink: 0;
   border: 2px solid #0a0a0a;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 2px 8px rgba(255, 106, 0, 0.42);
 }
 
 .home-header-actions {
@@ -142,6 +145,28 @@
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 20;
+}
+
+.home-notif-btn.is-active {
+  border-color: rgba(255, 106, 0, 0.45);
+  background: rgba(255, 106, 0, 0.12);
+  color: #ff9a5c;
+}
+
+.home-panel--notif-open {
+  overflow: visible;
+  z-index: 30;
+}
+
+.home-notif-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 1200;
+  width: 268px;
+  max-width: min(268px, calc(100vw - 16px));
 }
 
 .home-profile-btn {
@@ -184,57 +209,6 @@
 }
 .home-collapse-btn:hover,
 .home-side-toggle:hover { color: var(--hm-text); }
-
-/* ─── Composer bar ──────────────────────────────────────────────────────────── */
-.home-composer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 12px 8px;
-  padding: 8px 10px;
-  background: var(--hm-card);
-  border: 1px solid var(--hm-border);
-  border-radius: 10px;
-  flex-shrink: 0;
-  min-width: 0;
-  width: calc(100% - 24px);
-  max-width: calc(100% - 24px);
-  box-sizing: border-box;
-}
-
-.home-composer-avatar {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.home-composer-placeholder {
-  flex: 1;
-  min-width: 0;
-  font-size: 12px;
-  color: var(--hm-dim);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.home-composer-send {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: transparent;
-  border: none;
-  color: var(--hm-muted);
-  cursor: pointer;
-  transition: color 0.15s;
-  flex-shrink: 0;
-}
-.home-composer-send:hover { color: var(--hm-text); }
 
 /* ─── Scroll container ───────────────────────────────────────────────────────── */
 .home-content {
@@ -716,7 +690,7 @@
   flex-direction: column;
   justify-content: flex-end;
   text-align: left;
-  transition: transform 0.18s;
+  transition: opacity 0.18s ease;
   box-sizing: border-box;
 }
 .home-article-card:hover {

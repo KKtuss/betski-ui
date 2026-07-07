@@ -148,8 +148,7 @@
   margin-bottom: 2px;
 }
 
-.mts-page > .chart-panel .chart-resolution-pill,
-.mts-page > .chart-panel .chart-time-left {
+.mts-page > .chart-panel .chart-resolution-pill {
   font-size: 10px;
 }
 

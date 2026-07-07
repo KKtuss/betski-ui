@@ -18,20 +18,25 @@
   width: 100%;
   padding: 12px;
   border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(12, 12, 16, 0.94);
+  border: 1px solid var(--notif-warning-border);
+  background:
+    linear-gradient(135deg, var(--notif-warning-soft) 0%, transparent 42%),
+    var(--notif-surface);
   box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(14px);
-  color: #fff;
+    inset 3px 0 0 var(--notif-warning),
+    var(--notif-elevation);
+  backdrop-filter: blur(16px);
+  color: var(--notif-text-primary);
   text-align: left;
   cursor: pointer;
   pointer-events: auto;
 }
 
 .notif-toast:hover {
-  border-color: rgba(255, 106, 0, 0.45);
+  border-color: rgba(255, 106, 0, 0.62);
+  box-shadow:
+    inset 3px 0 0 var(--notif-warning),
+    var(--notif-elevation-hover);
 }
 
 .notif-toast-icon {
@@ -41,8 +46,10 @@
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  background: rgba(255, 106, 0, 0.12);
-  color: #ff8a3d;
+  background: var(--notif-warning-soft);
+  border: 1px solid var(--notif-warning-border);
+  color: var(--notif-warning);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
   overflow: hidden;
 }
 
@@ -61,23 +68,23 @@
 
 .notif-toast-kicker {
   font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-weight: 700;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: rgba(255, 106, 0, 0.9);
+  color: var(--notif-warning);
 }
 
 .notif-toast-title {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.25;
-  color: #fff;
+  color: var(--notif-text-primary);
 }
 
 .notif-toast-body {
   font-size: 12px;
-  line-height: 1.35;
-  color: rgba(255, 255, 255, 0.62);
+  line-height: 1.4;
+  color: var(--notif-text-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -91,12 +98,110 @@
   width: 24px;
   height: 24px;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--notif-text-muted);
 }
 
 .notif-toast-close:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--notif-text-primary);
+}
+
+/* Category tone hierarchy — hooks for data-category when present */
+.notif-toast[data-category='messages'],
+.notif-toast[data-category='news'],
+.notif-toast[data-category='tracked_trades'] {
+  border-color: var(--notif-info-border);
+  background:
+    linear-gradient(135deg, var(--notif-info-soft) 0%, transparent 42%),
+    var(--notif-surface);
+  box-shadow:
+    inset 3px 0 0 var(--notif-info),
+    var(--notif-elevation);
+}
+
+.notif-toast[data-category='messages']:hover,
+.notif-toast[data-category='news']:hover,
+.notif-toast[data-category='tracked_trades']:hover {
+  border-color: rgba(126, 184, 255, 0.5);
+  box-shadow:
+    inset 3px 0 0 var(--notif-info),
+    var(--notif-elevation-hover);
+}
+
+.notif-toast[data-category='messages'] .notif-toast-icon,
+.notif-toast[data-category='news'] .notif-toast-icon,
+.notif-toast[data-category='tracked_trades'] .notif-toast-icon {
+  background: var(--notif-info-soft);
+  border-color: var(--notif-info-border);
+  color: var(--notif-info);
+}
+
+.notif-toast[data-category='messages'] .notif-toast-kicker,
+.notif-toast[data-category='news'] .notif-toast-kicker,
+.notif-toast[data-category='tracked_trades'] .notif-toast-kicker {
+  color: var(--notif-info);
+}
+
+.notif-toast[data-category='market_resolution'],
+.notif-toast[data-category='wager_fills'] {
+  border-color: var(--notif-success-border);
+  background:
+    linear-gradient(135deg, var(--notif-success-soft) 0%, transparent 42%),
+    var(--notif-surface);
+  box-shadow:
+    inset 3px 0 0 var(--notif-success),
+    var(--notif-elevation);
+}
+
+.notif-toast[data-category='market_resolution']:hover,
+.notif-toast[data-category='wager_fills']:hover {
+  border-color: rgba(45, 213, 110, 0.55);
+  box-shadow:
+    inset 3px 0 0 var(--notif-success),
+    var(--notif-elevation-hover);
+}
+
+.notif-toast[data-category='market_resolution'] .notif-toast-icon,
+.notif-toast[data-category='wager_fills'] .notif-toast-icon {
+  background: var(--notif-success-soft);
+  border-color: var(--notif-success-border);
+  color: var(--notif-success);
+}
+
+.notif-toast[data-category='market_resolution'] .notif-toast-kicker,
+.notif-toast[data-category='wager_fills'] .notif-toast-kicker {
+  color: var(--notif-success);
+}
+
+.notif-toast[data-category='wager_promotions'],
+.notif-toast[data-category='watchlist'] {
+  border-color: var(--notif-warning-border);
+  background:
+    linear-gradient(135deg, var(--notif-warning-soft) 0%, transparent 42%),
+    var(--notif-surface);
+  box-shadow:
+    inset 3px 0 0 var(--notif-warning),
+    var(--notif-elevation);
+}
+
+.notif-toast[data-category='wager_promotions']:hover,
+.notif-toast[data-category='watchlist']:hover {
+  border-color: rgba(255, 106, 0, 0.62);
+  box-shadow:
+    inset 3px 0 0 var(--notif-warning),
+    var(--notif-elevation-hover);
+}
+
+.notif-toast[data-category='wager_promotions'] .notif-toast-icon,
+.notif-toast[data-category='watchlist'] .notif-toast-icon {
+  background: var(--notif-warning-soft);
+  border-color: var(--notif-warning-border);
+  color: var(--notif-warning);
+}
+
+.notif-toast[data-category='wager_promotions'] .notif-toast-kicker,
+.notif-toast[data-category='watchlist'] .notif-toast-kicker {
+  color: var(--notif-warning);
 }
 
 @media (max-width: 640px) {
@@ -104,5 +209,9 @@
     left: 12px;
     right: 12px;
     width: auto;
+  }
+
+  .notif-toast {
+    touch-action: pan-y;
   }
 }

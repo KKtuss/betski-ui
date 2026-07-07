@@ -20,7 +20,7 @@
   border-radius: 8px;
   overflow: hidden;
   cursor: crosshair;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--chart-grid);
 }
 
 .liquidity-strip--large {
@@ -34,9 +34,9 @@
   border-radius: inherit;
   background: linear-gradient(
     to right,
-    rgba(255, 77, 77, 0.06) 0%,
+    color-mix(in srgb, var(--chart-loss) 12%, transparent) 0%,
     rgba(255, 255, 255, 0.03) 50%,
-    rgba(45, 213, 110, 0.06) 100%
+    color-mix(in srgb, var(--chart-profit) 12%, transparent) 100%
   );
 }
 
@@ -123,8 +123,8 @@
   gap: 2px;
   padding: 4px 8px;
   border-radius: 6px;
-  background: rgba(12, 12, 14, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--chart-tooltip-bg);
+  border: 1px solid var(--chart-tooltip-border);
   pointer-events: none;
   white-space: nowrap;
   z-index: 10;
@@ -157,7 +157,7 @@
   gap: 2px;
   padding: 8px;
   border-radius: 10px;
-  background: rgba(12, 12, 14, 0.97);
+  background: var(--chart-tooltip-bg);
   backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 153, 102, 0.3);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
@@ -181,7 +181,7 @@
   gap: 8px;
   padding: 6px 8px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--chart-grid);
   background: rgba(255, 255, 255, 0.04);
   color: #fff;
   cursor: pointer;

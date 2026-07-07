@@ -1,12 +1,14 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeftRight, Bell, ChevronLeft, Send, TrendingUp } from 'lucide-react'
+import { ArrowLeftRight, Bell, ChevronLeft, TrendingUp } from 'lucide-react'
 import { buildMarketCatalog } from '../data/marketCatalog'
 import { useDiscoveryCatalog } from '../hooks/useDiscoveryCatalog'
 import { useAppStore } from '../hooks/useAppStore'
 import { useNotifications } from '../hooks/useNotifications'
 import { getUnreadCount } from '../data/notificationStore'
 import { CURRENT_USER_HANDLE, type MarketId } from '../data/appStore'
+import type { AppNotification } from '../types/notifications'
+import NotificationCenterPanel from './NotificationCenterPanel'
 import './Panel.css'
 import './HomePanel.css'
 
@@ -16,7 +18,7 @@ type HomePanelProps = {
   variant?: HomePanelVariant
   onOpenMarket?: (marketId: MarketId) => void
   onViewProfile?: (handle: string) => void
-  onOpenNotifications?: () => void
+  onOpenNotification?: (notification: AppNotification) => void
   onCollapse?: () => void
   side?: 'left' | 'right'
   onToggleSide?: () => void
@@ -37,47 +39,13 @@ const fmtVol = (v: number) => {
   return `$${Math.round(v)}`
 }
 
-const MiniSparkline = ({
-  data,
-  positive = true,
-  width = 80,
-  height = 28,
-}: {
-  data: number[]
-  positive?: boolean
-  width?: number
-  height?: number
-}) => {
-  if (data.length < 2) return <svg width={width} height={height} aria-hidden />
-  const min = Math.min(...data)
-  const max = Math.max(...data)
-  const range = Math.max(max - min, 0.001)
-  const pad = 2
-  const pts = data.map((v, i) => {
-    const x = pad + (i / (data.length - 1)) * (width - pad * 2)
-    const y = pad + (1 - (v - min) / range) * (height - pad * 2)
-    return `${x.toFixed(1)},${y.toFixed(1)}`
-  })
-  const color = positive ? '#2DD56E' : '#FF5E62'
-  return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden>
-      <path
-        d={`M ${pts.join(' L ')}`}
-        fill="none"
-        stroke={color}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
+import { EngineMiniSparkline } from '../charts/components/EngineMiniSparkline'
 
 const HomePanel = ({
   variant = 'fullscreen',
   onOpenMarket,
   onViewProfile,
-  onOpenNotifications,
+  onOpenNotification,
   onCollapse,
   side = 'left',
   onToggleSide,
@@ -87,6 +55,28 @@ const HomePanel = ({
   const appState = useAppStore()
   const notifState = useNotifications()
   const unreadCount = useMemo(() => getUnreadCount(), [notifState.notifications])
+  const [notifPanelOpen, setNotifPanelOpen] = useState(false)
+  const notifBtnRef = useRef<HTMLButtonElement>(null)
+  const notifPopoverRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!notifPanelOpen) return
+    const onPointerDown = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (notifBtnRef.current?.contains(target)) return
+      if (notifPopoverRef.current?.contains(target)) return
+      setNotifPanelOpen(false)
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setNotifPanelOpen(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [notifPanelOpen])
 
   // Real markets — exclude legacy video captions, sort by total volume.
   const markets = useMemo(
@@ -220,7 +210,7 @@ const HomePanel = ({
 
   return (
     <motion.div
-      className={`panel home-panel home-panel--${variant}`}
+      className={`panel home-panel home-panel--${variant}${notifPanelOpen ? ' home-panel--notif-open' : ''}`}
       style={{ height: '100%', minHeight: 0 }}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -247,19 +237,24 @@ const HomePanel = ({
           </div>
         </div>
         <div className="home-header-actions">
-          <button
-            type="button"
-            className="home-notif-btn"
-            onClick={() => onOpenNotifications?.()}
-            aria-label={unreadCount > 0 ? `${unreadCount} notifications` : 'Notifications'}
-          >
-            <Bell size={16} strokeWidth={2.25} />
-            {unreadCount > 0 && (
-              <span className="home-notif-badge" aria-hidden>
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </button>
+          <div className="home-notif-anchor">
+            <button
+              ref={notifBtnRef}
+              type="button"
+              className={`home-notif-btn${notifPanelOpen ? ' is-active' : ''}`}
+              onClick={() => setNotifPanelOpen((open) => !open)}
+              aria-label={unreadCount > 0 ? `${unreadCount} notifications` : 'Notifications'}
+              aria-expanded={notifPanelOpen}
+              aria-haspopup="dialog"
+            >
+              <Bell size={16} strokeWidth={2.25} />
+              {unreadCount > 0 && (
+                <span className="home-notif-badge" aria-hidden>
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+          </div>
           <button
             type="button"
             className="home-profile-btn"
@@ -283,20 +278,19 @@ const HomePanel = ({
               <ArrowLeftRight size={16} strokeWidth={2.25} />
             </button>
           )}
+          {notifPanelOpen && (
+            <div ref={notifPopoverRef} className="home-notif-popover">
+              <NotificationCenterPanel
+                variant="popover"
+                onBack={() => setNotifPanelOpen(false)}
+                onOpenNotification={(notification) => {
+                  setNotifPanelOpen(false)
+                  onOpenNotification?.(notification)
+                }}
+              />
+            </div>
+          )}
         </div>
-      </div>
-
-      {/* ── Composer bar ── */}
-      <div className="home-composer">
-        <img
-          src={selfUser?.avatar ?? '/Stems/betskuu.png'}
-          alt=""
-          className="home-composer-avatar"
-        />
-        <span className="home-composer-placeholder">What's happening in markets?</span>
-        <button type="button" className="home-composer-send" aria-label="Post">
-          <Send size={15} strokeWidth={2} />
-        </button>
       </div>
 
       {/* ── Scrollable body ── */}
@@ -326,7 +320,7 @@ const HomePanel = ({
                     {fmtPnl(w.pnl)}
                   </span>
                   <span className="home-wallet-pnl-label">24h PNL</span>
-                  <MiniSparkline data={w.equity} positive={w.pnl >= 0} width={96} height={22} />
+                  <EngineMiniSparkline data={w.equity} positive={w.pnl >= 0} width={96} height={22} />
                 </button>
               ))}
             </div>
@@ -370,7 +364,7 @@ const HomePanel = ({
                       </div>
                     </div>
                     <span className="home-market-spark" aria-hidden>
-                      <MiniSparkline data={chartData} positive={positive} width={56} height={22} />
+                      <EngineMiniSparkline data={chartData} positive={positive} width={56} height={22} />
                     </span>
                     <div className="home-market-vol">
                       <span className="home-market-vol-amt">{fmtVol(m.volume24h)}</span>

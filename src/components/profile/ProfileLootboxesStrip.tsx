@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Box, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   LOOTBOX_CHIP_IMAGE_SRC,
   LOOTBOX_ITEMS,
@@ -44,12 +44,6 @@ const ProfileLootboxesStrip = ({ onOpenLootbox }: ProfileLootboxesStripProps) =>
 
   return (
     <div className="profile-lootboxes-panel profile-lootboxes-panel--half">
-      <div className="profile-lootboxes-title">
-        <div className="profile-lootboxes-icon">
-          <Box size={14} />
-        </div>
-        <div>Lootboxes</div>
-      </div>
       <div className="profile-lootboxes-strip">
         <button
           type="button"

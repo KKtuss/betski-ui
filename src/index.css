@@ -55,6 +55,37 @@ body {
   --color-green: #2DD56E;
   --color-red: #FF4D4D;
   --color-orange: #ff9966;
+  /* Betski brand — sunset (logo/badge) + coral (discovery/wordmarks) */
+  --betski-orange: #ff9966;
+  --betski-coral: #ff5e62;
+  --betski-purple: #ee0979;
+  --betski-amber: #ff6a00;
+  --betski-sunset: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+  --betski-sunset-soft: rgba(255, 106, 0, 0.16);
+  --betski-sunset-90: linear-gradient(135deg, rgba(238, 9, 121, 0.9) 0%, rgba(255, 106, 0, 0.9) 100%);
+  --betski-coral-gradient: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+  --notif-success: var(--color-green);
+  --notif-success-soft: rgba(45, 213, 110, 0.14);
+  --notif-success-border: rgba(45, 213, 110, 0.42);
+  --notif-warning: #ff8a3d;
+  --notif-warning-soft: rgba(255, 106, 0, 0.16);
+  --notif-warning-border: rgba(255, 106, 0, 0.52);
+  --notif-info: #8ec5ff;
+  --notif-info-soft: rgba(126, 184, 255, 0.12);
+  --notif-info-border: rgba(126, 184, 255, 0.38);
+  --notif-surface: rgba(14, 14, 18, 0.98);
+  --notif-surface-raised: rgba(20, 20, 26, 0.98);
+  --notif-text-primary: #ffffff;
+  --notif-text-secondary: rgba(255, 255, 255, 0.78);
+  --notif-text-muted: rgba(255, 255, 255, 0.52);
+  --notif-elevation:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 2px 8px rgba(0, 0, 0, 0.32),
+    0 16px 44px rgba(0, 0, 0, 0.52);
+  --notif-elevation-hover:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 4px 12px rgba(0, 0, 0, 0.38),
+    0 20px 48px rgba(0, 0, 0, 0.58);
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-medium: rgba(255, 255, 255, 0.08);
   --border-strong: rgba(255, 255, 255, 0.1);

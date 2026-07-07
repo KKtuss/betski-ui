@@ -9,7 +9,7 @@
 }
 
 .discovery-friends-row-name--link:hover {
-  color: #ff9966;
+  color: var(--betski-orange);
 }
 
 /* ----- Friends bought indicator -------------------------------------------- */

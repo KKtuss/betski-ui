@@ -78,14 +78,14 @@ const MarketShareCard = ({
         </div>
 
         <div className="market-share-content">
-          <div className="market-share-chart-band">
+          <div className="share-chart-band share-chart-band--with-stats market-share-chart-band">
             <div className="market-share-side market-share-side--yes">
               <span className="market-share-side-label">YES</span>
               <strong className="market-share-side-price">{yesOdds.toFixed(1)}¢</strong>
               <em className="market-share-side-delta">{yesDelta}</em>
             </div>
 
-            <div className="market-share-chart" aria-hidden="true">
+            <div className="share-chart-band__chart market-share-chart" aria-hidden="true">
               <DiscoverySparkline data={chart} />
             </div>
 

@@ -1,25 +1,6 @@
 import { mulberry32 } from './random'
 
-export const seriesToPath = (
-  series: number[],
-  width: number,
-  height: number,
-  padding: number,
-  minY: number,
-  maxY: number
-) => {
-  if (series.length < 2) return ''
-  const w = width - padding * 2
-  const h = height - padding * 2
-  const toX = (i: number) => padding + (i / (series.length - 1)) * w
-  const range = Math.max(1, maxY - minY)
-  const toY = (v: number) => padding + (1 - (v - minY) / range) * h
-  let d = `M ${toX(0)} ${toY(series[0])}`
-  for (let i = 1; i < series.length; i++) {
-    d += ` L ${toX(i)} ${toY(series[i])}`
-  }
-  return d
-}
+export { seriesToPath } from '../charts/data/transformChartData'
 
 export const buildTradeSparkline = (buyPrice: number, sellPrice: number, seed: number) => {
   const n = 15

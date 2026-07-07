@@ -75,7 +75,7 @@
 .wager-liquidity-summary-fill {
   height: 100%;
   border-radius: 2px;
-  background: linear-gradient(90deg, #ff9966, #ff6a00);
+  background: var(--betski-sunset-90);
 }
 
 .wager-liquidity-summary-hint {
@@ -131,8 +131,8 @@
   margin-top: 6px;
   padding: 3px 7px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 153, 102, 0.18);
-  background: rgba(255, 153, 102, 0.06);
+  border: 1px solid rgba(255, 106, 0, 0.18);
+  background: rgba(255, 106, 0, 0.06);
   color: rgba(255, 255, 255, 0.48);
   font-size: 10px;
   font-weight: 700;
@@ -176,8 +176,8 @@
 
 .wager-fill-mode-btn.active {
   color: #fff;
-  border-color: rgba(255, 153, 102, 0.28);
-  background: rgba(255, 153, 102, 0.12);
+  border-color: rgba(255, 106, 0, 0.28);
+  background: rgba(255, 106, 0, 0.12);
 }
 
 .wager-trade-label {
@@ -221,9 +221,9 @@
 
 .wager-trade-quick.active,
 .wager-trade-quick:hover {
-  border-color: rgba(255, 153, 102, 0.45);
+  border-color: rgba(255, 106, 0, 0.45);
   color: #fff;
-  background: rgba(255, 153, 102, 0.1);
+  background: rgba(255, 106, 0, 0.1);
 }
 
 .wager-match-summary {
@@ -254,7 +254,7 @@
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 153, 102, 0.08), transparent 36%),
+    radial-gradient(circle at 50% 0%, rgba(255, 106, 0, 0.08), transparent 36%),
     rgba(255, 255, 255, 0.025);
 }
 
@@ -318,7 +318,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #ff9966 0%, var(--color-green) 100%);
+  background: linear-gradient(90deg, var(--betski-orange) 0%, var(--color-green) 100%);
   box-shadow: 0 0 14px rgba(45, 213, 110, 0.2);
 }
 
@@ -378,8 +378,8 @@
 
 .wager-counterparty-row.is-matchable:hover,
 .wager-counterparty-row.is-selected {
-  border-color: rgba(255, 153, 102, 0.32);
-  background: rgba(255, 153, 102, 0.08);
+  border-color: rgba(255, 106, 0, 0.32);
+  background: rgba(255, 106, 0, 0.08);
 }
 
 .wager-counterparty-person {
@@ -639,8 +639,8 @@
 
 .wager-ref-mode-btn.active {
   color: #fff;
-  border-color: rgba(255, 153, 102, 0.28);
-  background: rgba(255, 153, 102, 0.12);
+  border-color: rgba(255, 106, 0, 0.28);
+  background: rgba(255, 106, 0, 0.12);
   box-shadow: none;
 }
 
@@ -1140,7 +1140,7 @@ div.wager-ref-book-rows::-webkit-scrollbar-thumb,
 
 .wager-ref-amount-input:focus {
   outline: none;
-  border-color: rgba(255, 153, 102, 0.4);
+  border-color: rgba(255, 106, 0, 0.4);
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -1165,14 +1165,14 @@ div.wager-ref-book-rows::-webkit-scrollbar-thumb,
 
 .wager-ref-quick-btn:hover {
   color: #fff;
-  border-color: rgba(255, 153, 102, 0.36);
-  background: rgba(255, 153, 102, 0.1);
+  border-color: rgba(255, 106, 0, 0.36);
+  background: rgba(255, 106, 0, 0.1);
 }
 
 .wager-ref-quick-btn.active {
   color: #fff;
-  border-color: rgba(255, 153, 102, 0.5);
-  background: rgba(255, 153, 102, 0.15);
+  border-color: rgba(255, 106, 0, 0.5);
+  background: rgba(255, 106, 0, 0.15);
 }
 
 .wager-ref-gain-card {
@@ -1230,7 +1230,7 @@ div.wager-ref-book-rows::-webkit-scrollbar-thumb,
 }
 
 .wager-ref-footer a {
-  color: rgba(255, 153, 102, 0.9);
+  color: rgba(255, 106, 0, 0.9);
   text-decoration: none;
   font-weight: 700;
 }

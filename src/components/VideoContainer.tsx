@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useMemo } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Send, Volume2, VolumeX } from 'lucide-react'
+import { MOTION_ACTION_BUTTON } from '../utils/motionPresets'
 import MediaCard, { type MediaSlide } from './MediaCard'
 import type { Market } from '../data/marketCatalog'
 import './VideoContainer.css'
@@ -553,6 +554,7 @@ const VideoContainer = ({
           </motion.div>
         </div>
 
+        <div className="container-controls-anchor">
         <motion.div
           className="container-controls"
           initial={{ x: 20, opacity: 0 }}
@@ -563,8 +565,11 @@ const VideoContainer = ({
           className="action-button long-button"
           onClick={() => onLongClick?.()}
           aria-label={market.type === 'wager' ? 'Yes' : 'Long'}
-          whileHover={{ scale: 1.1, boxShadow: '0 8px 20px rgba(45, 213, 110, 0.4)' }}
-          whileTap={{ scale: 0.95 }}
+          {...MOTION_ACTION_BUTTON}
+          whileHover={{
+            ...MOTION_ACTION_BUTTON.whileHover,
+            boxShadow: '0 8px 20px rgba(45, 213, 110, 0.4)',
+          }}
         >
           <AnimatePresence mode="wait" initial={false}>
             {showPositions && longUsd > 0 ? (
@@ -599,8 +604,11 @@ const VideoContainer = ({
           className="action-button short-button"
           onClick={() => onShortClick?.()}
           aria-label={market.type === 'wager' ? 'No' : 'Short'}
-          whileHover={{ scale: 1.1, boxShadow: '0 8px 20px rgba(255, 77, 77, 0.4)' }}
-          whileTap={{ scale: 0.95 }}
+          {...MOTION_ACTION_BUTTON}
+          whileHover={{
+            ...MOTION_ACTION_BUTTON.whileHover,
+            boxShadow: '0 8px 20px rgba(255, 77, 77, 0.4)',
+          }}
         >
           <AnimatePresence mode="wait" initial={false}>
             {showPositions && shortUsd > 0 ? (
@@ -645,6 +653,7 @@ const VideoContainer = ({
           </button>
         </motion.div>
       </motion.div>
+        </div>
       </div>
     </div>
   )

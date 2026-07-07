@@ -8,6 +8,7 @@
 }
 
 .profile-panel {
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
@@ -31,8 +32,10 @@
     0 4px 6px rgba(0, 0, 0, 0.12),
     0 18px 44px rgba(0, 0, 0, 0.32);
   --profile-row-gap: 14px;
-  --profile-center-row-min: clamp(168px, 20vh, 240px);
-  --profile-activity-min: 160px;
+  --profile-left-col: clamp(240px, 16vw, 320px);
+  --profile-right-col: clamp(360px, 28vw, 500px);
+  --profile-highlights-band-h: clamp(118px, 12.5vh, 140px);
+  --profile-activity-min: clamp(168px, 20vh, 220px);
 }
 
 .profile-header {
@@ -60,6 +63,88 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.profile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.profile-notif-bell-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.78);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-notif-bell-btn:hover,
+.profile-notif-bell-btn.is-active {
+  border-color: rgba(255, 106, 0, 0.45);
+  background: rgba(255, 106, 0, 0.1);
+  color: #ff9a5c;
+}
+
+.profile-notif-settings-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.profile-notif-settings-gear {
+  position: absolute;
+  right: -4px;
+  bottom: -3px;
+  padding: 1px;
+  border-radius: 999px;
+  background: rgba(10, 10, 11, 0.92);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.profile-notif-bell-btn:hover .profile-notif-settings-gear,
+.profile-notif-bell-btn.is-active .profile-notif-settings-gear {
+  background: rgba(28, 16, 8, 0.96);
+  box-shadow: 0 0 0 1px rgba(255, 106, 0, 0.35);
+}
+
+.profile-notif-settings-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.profile-notif-settings-popup {
+  width: min(440px, 100%);
+  max-height: min(560px, calc(100% - 24px));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(12, 12, 16, 0.98);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 24px 64px rgba(0, 0, 0, 0.62);
 }
 
 .profile-header .time-selector {
@@ -117,67 +202,298 @@
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns: clamp(160px, 11vw, 210px) 1fr clamp(340px, 25vw, 460px);
+  grid-template-columns: var(--profile-left-col) minmax(0, 1fr) var(--profile-right-col);
   grid-template-rows:
-    minmax(min-content, auto)
-    minmax(var(--profile-center-row-min), auto)
-    minmax(var(--profile-activity-min), 1fr);
+    minmax(0, 1.12fr)
+    var(--profile-highlights-band-h)
+    minmax(var(--profile-activity-min), 1.5fr);
   gap: var(--profile-row-gap);
 }
 
-.profile-left-stack {
-  display: contents;
-}
-
-.profile-center-stack {
-  display: contents;
-}
-
-.profile-card {
+.profile-grid > .profile-card {
   grid-column: 1;
   grid-row: 1 / span 2;
   align-self: stretch;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
 }
 
-.profile-trading {
+.profile-grid > .profile-trading {
   grid-column: 2;
   grid-row: 1;
-  align-self: start;
+  align-self: stretch;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.profile-center-bottom-row {
+.profile-grid > .profile-trading .profile-trading-top,
+.profile-grid > .profile-trading .profile-trading-summary,
+.profile-grid > .profile-trading .profile-trading-details {
+  flex: 0 0 auto;
+}
+
+.profile-grid > .profile-center-bottom-row {
   grid-column: 2;
   grid-row: 2;
-  flex: 0 0 auto;
-  min-height: var(--profile-center-row-min);
   width: 100%;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
   display: grid;
   grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
   gap: var(--profile-row-gap);
   align-items: stretch;
-  overflow: visible;
+  overflow: hidden;
 }
 
-.profile-center-bottom-row > * {
+.profile-grid > .profile-center-bottom-row > * {
   min-width: 0;
+  min-height: 0;
 }
 
-.profile-charts {
+.profile-grid > .profile-center-bottom-row > .profile-highlights-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.profile-grid > .profile-center-bottom-row > .profile-lootboxes-panel--half {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.profile-grid .profile-highlights-grid {
+  flex: 1 1 0;
+  min-height: 0;
+  align-items: stretch;
+}
+
+.profile-grid .profile-highlights-empty {
+  flex: 1 1 0;
+  display: flex;
+  align-items: center;
+}
+
+.profile-grid > .profile-charts {
   grid-column: 3;
   grid-row: 1 / span 2;
   min-height: 0;
+  align-self: stretch;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-.profile-last-trades {
+.profile-grid > .profile-charts .profile-chart-head,
+.profile-grid > .profile-charts .profile-chart-head-top,
+.profile-grid > .profile-charts .profile-chart-legend {
+  flex: 0 0 auto;
+}
+
+.profile-grid > .profile-charts .profile-chart-surface {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.profile-grid > .profile-last-trades {
   grid-column: 1 / span 2;
   grid-row: 3;
   min-height: 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
 }
 
-.profile-side-panel {
+.profile-grid > .profile-last-trades .profile-tape-head {
+  flex: 0 0 auto;
+}
+
+.profile-grid > .profile-last-trades .profile-trades-list {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+.profile-grid > .profile-side-panel {
   grid-column: 3;
   grid-row: 3;
   min-height: 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-grid > .profile-side-panel .profile-section-title {
+  flex: 0 0 auto;
+}
+
+.profile-grid > .profile-side-panel .profile-positions {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+@media (min-width: 901px) {
+  .profile-panel {
+    --profile-row-gap: 11px;
+    --profile-left-col: clamp(192px, 12.8vw, 256px);
+    --profile-right-col: clamp(304px, 26vw, 448px);
+    --profile-highlights-band-h: clamp(100px, 10.8vh, 118px);
+    --profile-activity-min: clamp(152px, 18vh, 200px);
+  }
+
+  .profile-content {
+    padding: 12px;
+  }
+
+  .profile-header {
+    gap: 10px;
+  }
+
+  .profile-title {
+    font-size: 11px;
+  }
+
+  .profile-back-btn,
+  .profile-notif-bell-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+  }
+
+  .profile-panel .time-btn {
+    font-size: 9px;
+    padding: 3px 8px;
+  }
+
+  .profile-card,
+  .profile-trading,
+  .profile-charts,
+  .profile-last-trades,
+  .profile-side-panel,
+  .profile-lootboxes-panel,
+  .profile-highlights-panel {
+    border-radius: 11px;
+  }
+
+  .profile-card {
+    padding: 11px 10px 10px;
+    gap: 8px;
+  }
+
+  .profile-avatar {
+    max-width: min(128px, 88%);
+    border-radius: 10px;
+  }
+
+  .profile-card-name {
+    font-size: 11px;
+  }
+
+  .profile-trader-badge {
+    font-size: 8px;
+    padding: 2px 6px;
+  }
+
+  .profile-level,
+  .profile-social-label {
+    font-size: 9px;
+  }
+
+  .profile-social-value {
+    font-size: 10px;
+  }
+
+  .profile-social-stats {
+    gap: 6px;
+    padding-top: 3px;
+  }
+
+  .profile-xp-track {
+    height: 4px;
+  }
+
+  .profile-xp-label {
+    font-size: 8px;
+  }
+
+  .profile-grid > .profile-trading {
+    padding: 12px;
+    gap: 9px;
+  }
+
+  .profile-section-title {
+    font-size: 10px;
+  }
+
+  .profile-trading-summary {
+    padding: 9px 10px;
+    gap: 9px;
+    border-radius: 10px;
+  }
+
+  .profile-summary-label {
+    font-size: 8px;
+  }
+
+  .profile-summary-value {
+    font-size: clamp(21px, 2.5vw, 26px);
+  }
+
+  .profile-summary-right {
+    gap: 8px 11px;
+  }
+
+  .profile-summary-k {
+    font-size: 8px;
+  }
+
+  .profile-summary-v {
+    font-size: 10px;
+  }
+
+  .profile-trading-details {
+    padding: 9px 10px;
+    gap: 6px 8px;
+    border-radius: 10px;
+  }
+
+  .profile-detail-k {
+    font-size: 9px;
+  }
+
+  .profile-detail-v {
+    font-size: 10px;
+  }
+
+  .profile-grid > .profile-last-trades,
+  .profile-grid > .profile-side-panel {
+    padding: 12px;
+    gap: 9px;
+  }
+
+  .profile-edit-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+  }
+}
+
+@media (min-width: 901px) and (max-height: 1080px) {
+  .profile-panel {
+    --profile-highlights-band-h: clamp(94px, 10.2vh, 112px);
+    --profile-activity-min: clamp(144px, 17vh, 188px);
+    --profile-right-col: clamp(292px, 24.5vw, 424px);
+    --profile-row-gap: 10px;
+  }
 }
 
 .profile-card {
@@ -212,7 +528,7 @@
 }
 
 .profile-trading {
-  overflow: visible;
+  overflow: hidden;
   min-height: min-content;
 }
 
@@ -225,7 +541,7 @@
 
 .profile-lootboxes-panel,
 .profile-highlights-panel {
-  overflow: visible;
+  overflow: hidden;
   min-height: 0;
 }
 
@@ -373,7 +689,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 1;
-  max-width: 120px;
+  max-width: min(160px, 88%);
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--profile-border);
@@ -398,6 +714,30 @@
   z-index: 1;
 }
 
+.profile-grid > .profile-card .profile-avatar {
+  flex: 1 1 0;
+  min-height: 72px;
+  width: min(88%, 100%);
+  max-width: 100%;
+  max-height: none;
+  align-self: center;
+}
+
+.profile-grid > .profile-card .profile-identity-name-row,
+.profile-grid > .profile-card .profile-identity-meta,
+.profile-grid > .profile-card .profile-xp-block {
+  flex: 0 0 auto;
+}
+
+.profile-grid > .profile-card .profile-social-stats {
+  flex: 1 1 0;
+  min-height: 0;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
 .profile-trading {
   padding: 16px;
   display: flex;
@@ -411,26 +751,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-}
-
-.profile-share-pnl-btn {
-  appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  color: #d0d0d0;
-  border-radius: 8px;
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-.profile-share-pnl-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
 }
 
 .profile-trading-summary {
@@ -640,6 +960,46 @@
   letter-spacing: 0.08em;
 }
 
+@media (min-width: 901px) {
+  .profile-summary-value {
+    font-size: clamp(21px, 2.5vw, 26px);
+  }
+
+  .profile-summary-v {
+    font-size: 10px;
+  }
+
+  .profile-detail-k {
+    font-size: 9px;
+  }
+
+  .profile-detail-v {
+    font-size: 10px;
+  }
+
+  .profile-section-title {
+    font-size: 10px;
+  }
+
+  .profile-card-name {
+    font-size: 11px;
+  }
+
+  .profile-trader-badge {
+    font-size: 8px;
+    padding: 2px 6px;
+  }
+
+  .profile-level,
+  .profile-social-label {
+    font-size: 9px;
+  }
+
+  .profile-social-value {
+    font-size: 10px;
+  }
+}
+
 @media (max-width: 1200px) {
   .profile-summary-right {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -652,8 +1012,8 @@
 }
 
 @media (max-width: 1050px) {
-  .profile-center-bottom-row {
-    grid-template-columns: 1fr;
+  .profile-grid > .profile-center-bottom-row {
+    grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
   }
 }
 
@@ -774,17 +1134,18 @@
 
   .profile-mobile-section .profile-highlights-panel {
     min-height: 0;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .profile-mobile-section .profile-highlights-grid {
-    min-height: 160px;
+    justify-content: space-between;
   }
 
   .profile-mobile-section .profile-highlight-card {
-    width: auto;
     flex: 1 1 0;
+    width: auto;
     min-width: 0;
+    max-width: 112px;
   }
 
   .profile-mobile-section .profile-card {
@@ -796,8 +1157,22 @@
     max-width: 140px;
   }
 
+  .profile-mobile-section .profile-lootboxes-panel,
   .profile-mobile-section .profile-lootboxes-panel--half {
-    min-height: 120px;
+    flex: 0 0 auto;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .profile-mobile-section .profile-lootboxes-panel--half .profile-lootboxes-strip {
+    flex: 0 0 auto;
+    height: auto;
+  }
+
+  .profile-mobile-section .profile-lootboxes-panel {
+    padding: 10px;
+    gap: 8px;
   }
 
   .profile-mobile-section .profile-last-trades,

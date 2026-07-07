@@ -19,15 +19,16 @@ type ProfileHighlightsGridProps = {
   rows: ProfileHighlightRow[]
 }
 
+const formatOdds = (price: number) => `${(price * 100).toFixed(1)}¢`
+
 const ProfileHighlightsGrid = ({ rows }: ProfileHighlightsGridProps) => (
   <div className="profile-highlights-panel">
-    <div className="profile-highlights-grid" role="list">
-      {rows.map((row, idx) => {
+    {rows.length === 0 ? (
+      <div className="profile-highlights-empty">No closed trades yet</div>
+    ) : (
+      <div className="profile-highlights-grid" role="list">
+        {rows.map((row, idx) => {
         const { series, buyIdx, sellIdx } = buildTradeSparkline(row.buyPrice, row.sellPrice, 42011 + idx * 997)
-        const sw = 112
-        const sh = 52
-        const padX = 12
-        const padY = 4
         const isPositive = row.pnlUsd >= 0
         const gradientId = `highlightSparkGrad-${idx}-${isPositive ? 'pos' : 'neg'}`
         return (
@@ -45,26 +46,36 @@ const ProfileHighlightsGrid = ({ rows }: ProfileHighlightsGridProps) => (
               onError={onProfileMarketThumbError}
             />
             <div className="profile-highlight-overlay" aria-hidden />
-            <h3 className="profile-highlight-market">
-              <span className="profile-highlight-rank">{idx + 1}</span>
-              <span className="profile-highlight-rank-sep" aria-hidden>
-                -
-              </span>
-              <span className="profile-highlight-market-text">{row.displayTitle}</span>
-            </h3>
-            <div className="profile-highlight-footer">
-              <div className={`profile-highlight-pnl ${row.pnlUsd >= 0 ? 'pos' : 'neg'}`}>
-                {formatUsdSigned(row.pnlUsd)}
+
+            <span className="profile-highlight-rank">{idx + 1}</span>
+
+            <div className="profile-highlight-body">
+              <h3 className="profile-highlight-market">{row.displayTitle}</h3>
+
+              <div className="profile-highlight-prices">
+                <div className="profile-highlight-price-col">
+                  <span className="profile-highlight-price-label">Entry</span>
+                  <span className="profile-highlight-price-value">{formatOdds(row.buyPrice)}</span>
+                </div>
+                <div className="profile-highlight-price-col profile-highlight-price-col--exit">
+                  <span className="profile-highlight-price-label">Exit</span>
+                  <span className="profile-highlight-price-value">{formatOdds(row.sellPrice)}</span>
+                </div>
               </div>
+
+              <span className={`profile-highlight-pnl ${isPositive ? 'pos' : 'neg'}`}>
+                {formatUsdSigned(row.pnlUsd)}
+              </span>
+
               <div className="profile-highlight-chart">
                 <Sparkline
                   series={series}
                   buyIdx={buyIdx}
                   sellIdx={sellIdx}
-                  width={sw}
-                  height={sh}
-                  padX={padX}
-                  padY={padY}
+                  width={96}
+                  height={28}
+                  padX={8}
+                  padY={3}
                   isPositive={isPositive}
                   gradientId={gradientId}
                 />
@@ -73,7 +84,8 @@ const ProfileHighlightsGrid = ({ rows }: ProfileHighlightsGridProps) => (
           </article>
         )
       })}
-    </div>
+      </div>
+    )}
   </div>
 )
 

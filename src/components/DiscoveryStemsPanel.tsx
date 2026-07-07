@@ -1,11 +1,11 @@
 import { useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Flame, TrendingUp, Clock, Sparkles, Banknote } from 'lucide-react'
-import type { DataPoint } from '../types/chart'
+import type { Batch } from '../types/discovery'
+import { buildMarketHistory } from '../utils/marketHistory'
 import { TradeActions } from './discovery/TradeActions'
 import { formatCompactUsd } from '../utils/formatCompact'
 import { capitalizeFirst } from '../utils/discoveryFormat'
-import type { Batch } from '../types/discovery'
 import { BatchPreviewCards } from './discovery/BatchPreviewCards'
 import { DiscoverySparkline } from './discovery/DiscoverySparkline'
 import './Panel.css'
@@ -18,52 +18,15 @@ import './DiscoveryStemsPanel.css'
  * stable for slide decks. Reached via `?stems=1` (see `App.tsx`).
  */
 
-/**
- * Generate a 24-point sparkline that travels from `start` to `end` with real
- * mid-trend movement: a primary sine wave + a faster secondary wave + light
- * jitter, all on top of the linear trajectory. `amplitude` controls how
- * dramatic the swings are (~10–20 looks lively for a 0–100 chart);
- * `swings` is roughly the number of peaks across the chart. Endpoints are
- * pinned so the price block stays in sync with the chart.
- */
-const buildSeries = (
-  start: number,
-  end: number,
-  seed: number,
-  amplitude: number,
-  swings: number = 2
-): DataPoint[] => {
-  const points = 24
-  const stepMs = 1000 * 60 * 60
+const buildStemsChart = (seed: number, targetOdds: number, resolutionTimestamp: number) => {
   const now = Date.now()
-  let a = (seed * 2654435761) >>> 0
-  const rand = () => {
-    a = (a + 0x6D2B79F5) | 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-  const phase = rand() * Math.PI * 2
-  const secondaryAmp = amplitude * 0.45
-  const secondaryFreq = swings * 1.8 + rand() * 0.6
-  const noise = amplitude * 0.22
-
-  const series: DataPoint[] = []
-  for (let i = 0; i < points; i++) {
-    const t = i / (points - 1)
-    const linear = start + (end - start) * t
-    const wave1 = Math.sin(t * Math.PI * 2 * swings + phase) * amplitude
-    const wave2 = Math.sin(t * Math.PI * 2 * secondaryFreq + phase * 1.7) * secondaryAmp
-    const jitter = (rand() - 0.5) * noise * 2
-    // Taper waves toward the endpoints so the pinned start/end don't create
-    // a visual jump; full amplitude lives in the middle of the chart.
-    const taper = Math.sin(t * Math.PI)
-    const v = linear + (wave1 + wave2) * (0.35 + taper * 0.65) + jitter
-    series.push({ value: Math.max(2, Math.min(98, v)), timestamp: now - (points - 1 - i) * stepMs })
-  }
-  series[0] = { ...series[0], value: start }
-  series[series.length - 1] = { ...series[series.length - 1], value: end }
-  return series
+  return buildMarketHistory({
+    seed,
+    now,
+    anchorValue: targetOdds,
+    resolutionTimestamp,
+    createdAtTimestamp: now - 30 * 24 * 60 * 60 * 1000
+  })
 }
 
 const buildPreviews = (
@@ -114,7 +77,7 @@ const stemsBatches: Batch[] = [
     holders: 1840,
     top10WinRate: 64,
     avgHoldMinutes: 192,
-    chart: buildSeries(62, 67, 11, 13, 2),
+    chart: buildStemsChart(11, 67, new Date('2026-05-31T05:00:00').getTime()),
     previews: buildPreviews('speed', 480, speedThumbnails),
     priceChange: 5.2,
     friendBuys: []
@@ -132,7 +95,7 @@ const stemsBatches: Batch[] = [
     holders: 920,
     top10WinRate: 52,
     avgHoldMinutes: 108,
-    chart: buildSeries(43, 41, 22, 18, 2.5),
+    chart: buildStemsChart(22, 41, new Date('2026-05-10T05:00:00').getTime()),
     previews: buildPreviews('clavicular', 220, clavicularThumbnails),
     priceChange: -2.1,
     friendBuys: []
@@ -150,7 +113,7 @@ const stemsBatches: Batch[] = [
     holders: 3210,
     top10WinRate: 71,
     avgHoldMinutes: 155,
-    chart: buildSeries(35, 92, 33, 13, 1.5),
+    chart: buildStemsChart(33, 92, new Date('2026-05-10T05:00:00').getTime()),
     previews: buildPreviews('coachella', 820, coachellaThumbnails),
     priceChange: 57.0,
     friendBuys: []
@@ -212,12 +175,7 @@ const DiscoveryStemsPanel = ({ onBack }: DiscoveryStemsPanelProps) => {
               <ArrowLeft size={20} color="#FF9966" />
             </button>
           )}
-          <div className="discovery-title" style={{
-            background: 'linear-gradient(135deg, #FF9966 0%, #FF5E62 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>DISCOVERY</div>
+          <div className="discovery-title discovery-title--gradient">DISCOVERY</div>
         </div>
         <div className="discovery-tabs">
           {tabs.map(tab => (

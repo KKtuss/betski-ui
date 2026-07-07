@@ -8,6 +8,11 @@
   min-height: 0;
   min-width: 0;
   width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.profile-grid .profile-lootboxes-panel {
   flex: 1 1 auto;
 }
 
@@ -18,12 +23,52 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+}
+
+/* Desktop grid band: strip + row fill panel, chips scale to row height */
+.profile-grid .profile-lootboxes-panel--half .profile-lootboxes-strip {
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.profile-grid .profile-lootboxes-panel--half .profile-lootboxes-row {
+  position: relative;
+  inset: auto;
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  max-height: 100%;
+  height: auto;
+  align-items: center;
+  padding: 4px 18px;
+  gap: clamp(4px, 0.8vw, 8px);
+  --lootbox-max: 56px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.profile-grid .profile-lootboxes-panel--half .lootbox-chip {
+  --chip-size: min(var(--lootbox-max), 100%);
+  height: var(--chip-size);
+  width: var(--chip-size);
+  max-height: 100%;
+  max-width: 100%;
+  flex: 0 0 var(--chip-size);
+  align-self: center;
+  aspect-ratio: 1;
 }
 
 .profile-lootboxes-panel--half .profile-lootboxes-strip {
   flex: 0 1 auto;
   min-height: 0;
   position: relative;
+  width: 100%;
 }
 
 .profile-lootboxes-panel--half .profile-lootboxes-row {
@@ -31,7 +76,7 @@
   position: relative;
   inset: auto;
   height: auto;
-  min-height: 88px;
+  min-height: 72px;
   align-items: center;
 }
 
@@ -43,30 +88,6 @@
   aspect-ratio: 1;
 }
 
-.profile-lootboxes-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--profile-font-ui);
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.profile-lootboxes-icon {
-  width: 22px;
-  height: 22px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, rgba(255, 94, 98, 0.18), rgba(255, 106, 0, 0.16));
-  border: 1px solid rgba(255, 94, 98, 0.18);
-  color: #FF9966;
-}
-
 .profile-lootboxes-row {
   --lootbox-size: 72px;
   display: flex;
@@ -76,7 +97,6 @@
   max-width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  /* Keep first/last cards clear of the side rails */
   padding: 8px 13px 10px 13px;
   box-sizing: border-box;
   -webkit-overflow-scrolling: touch;
@@ -91,11 +111,6 @@
 
 .profile-lootboxes-row::-webkit-scrollbar {
   display: none;
-}
-
-.profile-lootboxes-strip {
-  position: relative;
-  width: 100%;
 }
 
 .lootboxes-nav {
@@ -188,7 +203,6 @@
   opacity: 0.85;
 }
 
-/* Matches trading/orderbook LockAnimation: PNG padlock, no icon pill */
 .lootbox-lock {
   position: absolute;
   left: 50%;
@@ -213,30 +227,52 @@
   object-fit: contain;
   transform: scale(1.12);
   transform-origin: center center;
-  /* Same padlock asset as trading UI; neutral B&W on profile */
   filter: grayscale(1) contrast(1.14) brightness(1.05)
     drop-shadow(0 2px 10px rgba(0, 0, 0, 0.55));
+}
+
+@media (min-width: 901px) {
+  .profile-grid .profile-lootboxes-panel--half .profile-lootboxes-row {
+    --lootbox-max: 52px;
+    padding: 4px 18px;
+  }
+
+  .profile-lootboxes-panel {
+    padding: 10px 11px;
+    gap: 9px;
+  }
+
+  .profile-lootboxes-row {
+    gap: 8px;
+    border-radius: 10px;
+  }
 }
 
 @media (max-width: 1050px) {
   .profile-lootboxes-panel--half .profile-lootboxes-row {
     --lootbox-size: 60px;
-    position: relative;
-    inset: auto;
-    height: auto;
-    min-height: 72px;
-    align-items: center;
+    min-height: 68px;
   }
 
   .profile-lootboxes-panel--half .lootbox-chip {
     height: var(--lootbox-size);
     width: var(--lootbox-size);
     flex: 0 0 var(--lootbox-size);
-    align-self: center;
-    aspect-ratio: 1;
+  }
+}
+
+@media (max-width: 900px) {
+  .profile-mobile-section .profile-lootboxes-panel--half .profile-lootboxes-row {
+    --lootbox-size: 60px;
+    flex: 0 0 auto;
+    height: auto;
+    min-height: 72px;
+    padding: 8px 13px 10px;
   }
 
-  .profile-lootboxes-panel--half .profile-lootboxes-strip {
-    flex: 0 1 auto;
+  .profile-mobile-section .profile-lootboxes-panel--half .lootbox-chip {
+    height: var(--lootbox-size);
+    width: var(--lootbox-size);
+    flex: 0 0 var(--lootbox-size);
   }
 }

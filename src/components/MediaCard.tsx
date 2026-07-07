@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
 import { Volume2, VolumeX } from 'lucide-react'
 import {
   detectContentPlatform,
@@ -227,18 +226,16 @@ const MediaCard = ({
   else if (isToTheRight) opacityValue = Math.max(0.7, 0.9 - distanceFromActive * 0.05)
   else opacityValue = 0.3
 
-  const scale = isActive ? 1 : isToTheRight ? 0.95 : 0.9
   const videoSrc = resolved.legacyMp4 ?? resolved.videoUrl
   const poster = resolved.thumbnailUrl || '/Stems/betskuu.png'
   const isTikTokEmbed = mode === 'embed' && platform === 'tiktok'
 
   return (
-    <motion.div
+    <div
       className={`video-card media-card${isActive ? ' active' : ''}${isTikTokEmbed ? ' media-card--tiktok' : ''}`}
       style={{
         zIndex: zIndexValue,
         opacity: opacityValue,
-        transform: `scale(${scale})`
       }}
       onClick={handleCardClick}
     >
@@ -280,7 +277,7 @@ const MediaCard = ({
           {soundEnabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
         </button>
       )}
-    </motion.div>
+    </div>
   )
 }
 

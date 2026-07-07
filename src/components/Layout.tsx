@@ -333,7 +333,7 @@ const Layout = () => {
   const homePanelProps = {
     onOpenMarket: openMarket,
     onViewProfile: (handle: string) => openProfile(handle),
-    onOpenNotifications: openNotifications,
+    onOpenNotification: handleOpenNotification,
     onCollapse: () => setHomeFeedOpen(false),
     side: homeFeedSide,
     onToggleSide: () => setHomeFeedSide((prev) => (prev === 'left' ? 'right' : 'left')),
@@ -372,6 +372,7 @@ const Layout = () => {
         dataByWindow={liveChartDataByWindow}
         timeLeftLabel={effectiveMarket.timeLeftLabel}
         resolutionTimestamp={effectiveMarket.resolutionTimestamp}
+        volume24h={effectiveMarket.volume24h}
       />
       <RulesPanel
         rules={marketData.rules}
@@ -526,15 +527,6 @@ const Layout = () => {
       viewingHandle={appState.ui.viewingProfileHandle}
       onBackToSelfProfile={() => openProfile(null)}
       onOpenMarket={openMarket}
-      onSharePnL={(text) => {
-        const targetChatId = 'group-1'
-        setSocialsInitialChatId(targetChatId)
-        setPendingShare(null)
-        setPendingShareTrade(null)
-        setPendingShareText({ key: `pnl-${Date.now()}`, chatId: targetChatId, text })
-        setActiveTab('socials')
-        navigate({ type: 'socials' })
-      }}
       onShareTrade={(trade) => {
         const targetChatId = 'group-1'
         setSocialsInitialChatId(targetChatId)
@@ -611,9 +603,9 @@ const Layout = () => {
           </motion.div>
           <motion.div
             className="layout-center"
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45, delay: 0.2 }}
           >
             {videoBlock}
           </motion.div>

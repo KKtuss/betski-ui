@@ -1,7 +1,9 @@
 import {
   BUILTIN_NOTIFICATION_PROFILES,
   DEFAULT_ACTIVE_PROFILE_ID,
-  getBuiltinProfile
+  getBuiltinProfile,
+  getQuickPresetById,
+  type NotificationQuickPresetId
 } from './notificationProfiles'
 import type {
   AppNotification,
@@ -143,6 +145,12 @@ export const getCategoryPreferences = (category: NotificationCategory): Category
 
 export const setActiveProfileId = (profileId: string): void => {
   updateNotificationState((s) => ({ ...s, activeProfileId: profileId }))
+}
+
+export const applyQuickNotificationPreset = (presetId: NotificationQuickPresetId): void => {
+  const preset = getQuickPresetById(presetId)
+  if (!preset) return
+  setActiveProfileId(preset.profileId)
 }
 
 export const createCustomProfile = (

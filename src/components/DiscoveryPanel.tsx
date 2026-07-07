@@ -334,14 +334,9 @@ const DiscoveryPanel = ({
       <div className="panel-header discovery-header">
         <div className="discovery-left">
           <button type="button" className="discovery-back" onClick={onBack} aria-label="Back">
-            <ArrowLeft size={20} color="#FF9966" />
+            <ArrowLeft size={20} color="var(--betski-orange)" />
           </button>
-          <div className="discovery-title" style={{ 
-            background: 'linear-gradient(135deg, #FF9966 0%, #FF5E62 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-          }}>DISCOVERY</div>
+          <div className="discovery-title discovery-title--gradient">DISCOVERY</div>
           <div className="discovery-mode-toggle discovery-mode-toggle--tri" role="tablist" aria-label="Bet type">
             <motion.div
               className="discovery-mode-thumb"

@@ -357,3 +357,58 @@
     overflow: hidden;
   }
 }
+
+@media (min-width: 901px) {
+  .profile-panel .profile-tape-head {
+    gap: 9px;
+  }
+
+  .profile-panel .profile-tape-tab {
+    font-size: 9px;
+    padding: 5px 9px;
+    border-radius: 5px;
+  }
+
+  .profile-panel .profile-trades-list {
+    border-radius: 10px;
+  }
+
+  .profile-panel .profile-trade-row {
+    padding: 8px 10px;
+    gap: 8px;
+    font-size: 9px;
+  }
+
+  .profile-panel .profile-trade-row--activity {
+    grid-template-columns: 60px 20px minmax(0, 1fr) 52px 52px 44px;
+  }
+
+  .profile-panel .profile-trade-thumb-spacer,
+  .profile-panel .profile-trade-thumb-wrap {
+    height: 32px;
+    border-radius: 5px;
+  }
+
+  .profile-panel .profile-trade-type-col {
+    font-size: 8px;
+  }
+
+  .profile-panel .profile-trade-outcome {
+    font-size: 9px;
+  }
+
+  .profile-panel .profile-trade-market,
+  .profile-panel .profile-trade-market--feed {
+    font-size: 9px;
+  }
+
+  .profile-panel .profile-trade-market-side {
+    font-size: 8px;
+  }
+
+  .profile-panel .profile-trade-share-btn {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+  }
+}

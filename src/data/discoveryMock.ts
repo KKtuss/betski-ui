@@ -1,7 +1,6 @@
-import type { DataPoint } from '../types/chart'
 import type { Batch, BatchPreviewItem, FriendBuy, OpenBet, Wager } from '../types/discovery'
 import { clamp } from '../utils/math'
-import { buildMarketHistory } from '../utils/marketHistory'
+import { buildMarketHistory, getWindowStartValue } from '../utils/marketHistory'
 import { mulberry32 } from '../utils/random'
 
 export { mulberry32 } from '../utils/random'
@@ -62,9 +61,6 @@ const seedFromString = (value: string) =>
 
 const buildChart = (seed: number, now: number, resolutionTimestamp: number) =>
   buildMarketHistory({ seed, now, resolutionTimestamp })
-
-const getWindowStartValue = (chart: DataPoint[], now: number, windowMs: number) =>
-  chart.find((point) => point.timestamp >= now - windowMs)?.value ?? chart[0]?.value ?? 50
 
 export const getRandomPhoneThumbnailUrl = (index: number) => {
   return `https://picsum.photos/360/640?random=${1000 + index}`

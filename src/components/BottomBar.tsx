@@ -9,17 +9,23 @@ interface BottomBarProps {
   hasUnreadMessages?: boolean
 }
 
+const SUNSET_STROKE = 'url(#betski-tab-sunset)'
+
 /**
  * Discovery tab icon — three wide rectangle outlines stacked vertically.
  * Reads as a "lobby / list" of markets, matching the Discovery page layout.
  */
-const StackedRows = ({ size = 24, ...rest }: { size?: number | string } & SVGProps<SVGSVGElement>) => (
+const StackedRows = ({
+  size = 24,
+  stroke = 'currentColor',
+  ...rest
+}: { size?: number | string; stroke?: string } & SVGProps<SVGSVGElement>) => (
   <svg
     width={size}
     height={size}
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor"
+    stroke={stroke}
     strokeWidth={2}
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -30,6 +36,29 @@ const StackedRows = ({ size = 24, ...rest }: { size?: number | string } & SVGPro
     <rect x="3" y="17" width="18" height="4" rx="1" />
   </svg>
 )
+
+type TabIconComponent = typeof Home | typeof StackedRows | typeof MessageSquare | typeof User
+
+const TabIcon = ({
+  icon: Icon,
+  active,
+  size = 40,
+}: {
+  icon: TabIconComponent
+  active: boolean
+  size?: number
+}) => {
+  if (Icon === StackedRows) {
+    return <StackedRows size={size} stroke={active ? SUNSET_STROKE : 'currentColor'} />
+  }
+  return (
+    <Icon
+      size={size}
+      strokeWidth={2.25}
+      color={active ? SUNSET_STROKE : undefined}
+    />
+  )
+}
 
 const BottomBar = ({ onTabClick, currentTab, hasUnreadMessages }: BottomBarProps) => {
   const handleTabClick = (tabName: string) => {
@@ -51,6 +80,14 @@ const BottomBar = ({ onTabClick, currentTab, hasUnreadMessages }: BottomBarProps
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.4 }}
     >
+      <svg aria-hidden className="bottom-bar-sprite" width="0" height="0" focusable="false">
+        <defs>
+          <linearGradient id="betski-tab-sunset" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ee0979" />
+            <stop offset="100%" stopColor="#ff6a00" />
+          </linearGradient>
+        </defs>
+      </svg>
       {tabs.slice(0, 2).map((tab, index) => (
         <motion.button
           key={tab.id}
@@ -59,18 +96,17 @@ const BottomBar = ({ onTabClick, currentTab, hasUnreadMessages }: BottomBarProps
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <tab.icon size={40} />
+          <TabIcon icon={tab.icon} active={currentTab === tab.id} />
         </motion.button>
       ))}
       
       <motion.div 
         className={`bottom-bar-center ${currentTab === 'center' ? 'active' : ''}`}
         onClick={() => handleTabClick('center')}
-        whileHover={{ scale: 1 }}
-        whileTap={{ scale: 0.95 }}
+        whileTap={{ scale: 0.98 }}
         style={{ cursor: 'pointer' }}
       >
         <div className="betski-logo-gradient" />
@@ -93,22 +129,13 @@ const BottomBar = ({ onTabClick, currentTab, hasUnreadMessages }: BottomBarProps
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.98 }}
           style={{ position: 'relative' }}
         >
-          <tab.icon size={40} />
+          <TabIcon icon={tab.icon} active={currentTab === tab.id} />
           {tab.id === 'tab3' && hasUnreadMessages && (
-            <div style={{
-              position: 'absolute',
-              top: '10px',
-              right: '10px',
-              width: '8px',
-              height: '8px',
-              background: 'linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)', // Vibrant Betski logo gradient
-              borderRadius: '50%',
-              boxShadow: '0 0 8px rgba(255, 106, 0, 0.8)' // Stronger glow
-            }} />
+            <span className="bottom-tab-unread-dot" aria-hidden />
           )}
         </motion.button>
       ))}

@@ -70,7 +70,7 @@ export const BatchPreviewCards = ({ items }: { items: BatchPreviewItem[] }) => {
         const activeIndex = hoveredIndex ?? 0
         const active = idx === activeIndex
         const effectiveZ = hoveredIndex != null && active ? 999 : style.zIndex
-        const scale = active ? 1.18 : 1
+        const scale = active ? 1.08 : 1
         return (
           <div
             key={`${item.id}-${idx}`}
