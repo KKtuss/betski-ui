@@ -19,23 +19,47 @@
   display: inline-flex;
   align-items: center;
   align-self: flex-start;
-  gap: 6px;
-  margin-top: 4px;
+  gap: var(--space-xs);
+  margin-top: var(--space-2xs);
   padding: 1px 7px 1px 1px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
-  cursor: default;
+  cursor: pointer;
   transition: background 0.18s ease, border-color 0.18s ease;
   outline: none;
   width: max-content;
   max-width: 100%;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .discovery-friends:hover,
-.discovery-friends:focus-visible {
+.discovery-friends:focus-visible,
+.discovery-friends.is-open {
   background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.16);
+}
+
+/* Empty state — kept in the layout so every row is the same height, but
+   visually de-emphasised and inert (no hover/popover). */
+.discovery-friends--empty {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.discovery-friends--empty:hover,
+.discovery-friends--empty:focus-visible {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.discovery-friends-avatar--empty {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: none;
 }
 
 .discovery-friends-stack {
@@ -86,15 +110,15 @@
   background: rgba(12, 13, 14, 0.96);
   margin-left: -7px;
   color: #fff;
-  font-size: 9px;
-  font-weight: 800;
+  font-size: var(--type-meta);
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 
 .discovery-friends-label {
-  font-size: 10px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: rgba(255, 255, 255, 0.78);
   letter-spacing: 0.15px;
@@ -107,9 +131,9 @@
   position: fixed;
   z-index: 1000;
   width: max-content;
-  min-width: 220px;
+  min-width: var(--size-220);
   max-width: 320px;
-  padding: 10px 12px;
+  padding: var(--space-sm) var(--space-sm);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.13);
   background: rgba(9, 10, 11, 0.98);
@@ -131,12 +155,12 @@
 }
 
 .discovery-friends-popover-head {
-  font-size: 10px;
-  font-weight: 900;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.55);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
 }
 
 .discovery-friends-list {
@@ -145,14 +169,14 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-xs);
 }
 
 .discovery-friends-row {
   display: grid;
   grid-template-columns: 22px 1fr auto auto auto;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .discovery-friends-row-avatar {
@@ -170,7 +194,7 @@
 }
 
 .discovery-friends-row-name {
-  font-size: 12px;
+  font-size: var(--type-card-header);
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
@@ -179,15 +203,15 @@
 }
 
 .discovery-friends-row-time {
-  font-size: 10px;
+  font-size: var(--type-meta);
   color: rgba(255, 255, 255, 0.45);
 }
 
 .discovery-friends-row-side {
-  font-size: 10px;
-  font-weight: 900;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   padding: 2px 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   letter-spacing: 0.06em;
 }
 
@@ -204,8 +228,8 @@
 }
 
 .discovery-friends-row-odds {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--type-meta);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: rgba(255, 255, 255, 0.62);
   letter-spacing: 0.01em;
@@ -213,8 +237,53 @@
 }
 
 .discovery-friends-row-amount {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--type-card-header);
+  font-weight: 700;
   color: rgba(255, 255, 255, 0.88);
   font-variant-numeric: tabular-nums;
+}
+
+/* Phone: compact chip so it doesn't dominate the denser rows. */
+@media (max-width: 900px) {
+  .discovery-friends {
+    gap: 3px;
+    margin-top: 1px;
+    padding: 0 4px 0 0;
+    border-radius: 999px;
+  }
+
+  .discovery-friends-avatar,
+  .discovery-friends-extra {
+    width: 13px;
+    height: 13px;
+    margin-left: -4px;
+    border-width: 1px;
+  }
+
+  .discovery-friends-avatar:first-child {
+    margin-left: 0;
+  }
+
+  .discovery-friends-label {
+    font-size: var(--type-label);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .discovery-friends-popover--portal {
+    min-width: min(260px, calc(100vw - 24px));
+    max-width: min(300px, calc(100vw - 24px));
+    padding: 8px;
+    border-radius: 10px;
+  }
+
+  .discovery-friends-row {
+    grid-template-columns: 18px 1fr auto auto auto;
+    gap: 6px;
+  }
+
+  .discovery-friends-row-avatar {
+    width: 18px;
+    height: 18px;
+  }
 }

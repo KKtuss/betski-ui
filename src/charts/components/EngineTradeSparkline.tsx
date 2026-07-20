@@ -65,6 +65,7 @@ export const EngineTradeSparkline = ({
             y2={height - padY}
             stroke="rgba(255,255,255,0.10)"
             strokeWidth="1"
+            vectorEffect="non-scaling-stroke"
           />
           {paths.areaPath && <path d={paths.areaPath} fill={`url(#tradeSparkline-${uid})`} />}
           {paths.linePath && (
@@ -75,6 +76,7 @@ export const EngineTradeSparkline = ({
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              vectorEffect="non-scaling-stroke"
             />
           )}
           <circle cx={bx} cy={by} r="3.5" fill={isPositive ? 'var(--chart-profit)' : 'rgba(255,255,255,0.7)'} />

@@ -87,6 +87,10 @@ const ProfileEquityChart = ({
                   return padding + (1 - (value - minY) / Math.max(1, maxY - minY)) * (height - padding * 2)
                 }
 
+                const allValues = [...chart.tradingSeries, ...chart.lpSeries, ...chart.marketSeries]
+                const dataMax = allValues.length ? Math.max(...allValues) : 0
+                const dataMin = allValues.length ? Math.min(...allValues) : 0
+
                 return (
                   <>
                     <ChartSvg
@@ -94,8 +98,13 @@ const ProfileEquityChart = ({
                       viewportHeight={chart.height}
                       preserveStretch
                       className="profile-chart-svg"
-                      style={{ cursor: 'crosshair', width: '100%', height: '100%' }}
-                      onMouseMove={(e) => {
+                      style={{
+                        cursor: 'crosshair',
+                        width: '100%',
+                        height: '100%',
+                        touchAction: 'pan-y'
+                      }}
+                      onPointerMove={(e) => {
                         const rect = e.currentTarget.getBoundingClientRect()
                         const mouseX = e.clientX - rect.left
                         const pctX = mouseX / rect.width
@@ -116,7 +125,8 @@ const ProfileEquityChart = ({
                           label: chart.labels[idx]
                         })
                       }}
-                      onMouseLeave={() => setHoveredChartPoint(null)}
+                      onPointerLeave={() => setHoveredChartPoint(null)}
+                      onPointerCancel={() => setHoveredChartPoint(null)}
                     >
                       <line
                         x1={chart.padding}
@@ -125,6 +135,7 @@ const ProfileEquityChart = ({
                         y2={chart.y0}
                         stroke={chartTheme.grid}
                         strokeWidth="1"
+                        vectorEffect="non-scaling-stroke"
                       />
                       <path
                         d={chart.paths.marketCreating}
@@ -132,6 +143,7 @@ const ProfileEquityChart = ({
                         stroke={chartTheme.series.marketCreating}
                         strokeWidth="1.25"
                         strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
                       />
                       <path
                         d={chart.paths.lp}
@@ -140,6 +152,7 @@ const ProfileEquityChart = ({
                         strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeDasharray="4 4"
+                        vectorEffect="non-scaling-stroke"
                       />
                       <path
                         d={chart.paths.trading}
@@ -147,6 +160,7 @@ const ProfileEquityChart = ({
                         stroke={chartTheme.series.trading}
                         strokeWidth="2"
                         strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
                       />
                       {hoveredChartPoint && (
                         <ChartCrosshair
@@ -167,6 +181,17 @@ const ProfileEquityChart = ({
                         />
                       )}
                     </ChartSvg>
+                    {/* HTML overlays (SVG text would distort under the stretched viewBox) */}
+                    {!hoveredChartPoint && dataMax !== dataMin && (
+                      <>
+                        <span className="profile-chart-scale profile-chart-scale--max">
+                          {formatUsdSigned(Math.round(dataMax))}
+                        </span>
+                        <span className="profile-chart-scale profile-chart-scale--min">
+                          {formatUsdSigned(Math.round(dataMin))}
+                        </span>
+                      </>
+                    )}
                     {hoveredChartPoint && (
                       <ChartTooltip
                         left={`${hoveredChartPoint.pctX * 100}%`}
@@ -179,11 +204,20 @@ const ProfileEquityChart = ({
                       >
                         <div className="pct-tip-label">{hoveredChartPoint.label}</div>
                         <ChartTooltipRow
-                          label="T"
+                          label="Trading"
+                          swatchColor={chartTheme.series.trading}
                           value={formatUsdSigned(Math.round(hoveredChartPoint.trading))}
                         />
-                        <ChartTooltipRow label="L" value={formatUsdSigned(Math.round(hoveredChartPoint.lp))} />
-                        <ChartTooltipRow label="M" value={formatUsdSigned(Math.round(hoveredChartPoint.mc))} />
+                        <ChartTooltipRow
+                          label="LP"
+                          swatchColor={chartTheme.series.lp}
+                          value={formatUsdSigned(Math.round(hoveredChartPoint.lp))}
+                        />
+                        <ChartTooltipRow
+                          label="Markets"
+                          swatchColor={chartTheme.series.marketCreating}
+                          value={formatUsdSigned(Math.round(hoveredChartPoint.mc))}
+                        />
                       </ChartTooltip>
                     )}
                   </>

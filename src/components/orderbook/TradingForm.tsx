@@ -128,8 +128,8 @@ const TradingForm = ({
       className={`trading-form trading-form--${mode}${compact ? ' trading-form--compact' : ''}`}
     >
       <header className="trading-form__header">
-        <button type="button" className="trading-form__back" onClick={onBack} aria-label="Back">
-          <ArrowLeft size={compact ? 16 : 18} />
+        <button type="button" className="betski-back trading-form__back" onClick={onBack} aria-label="Back">
+          <ArrowLeft size={20} strokeWidth={2} />
         </button>
         <h2 className="trading-form__title">TRADE</h2>
       </header>

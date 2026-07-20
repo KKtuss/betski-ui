@@ -25,6 +25,7 @@ import {
 } from '../data/socialStore'
 import { useSocialStore } from '../hooks/useSocialStore'
 import { SOCIAL_AUTHOR_AVATARS, type Message } from '../data/socialMock'
+import { DEFAULT_AVATAR, normalizeAvatarUrl, onAvatarError, resolveProfileAvatar } from '../utils/avatarUrl'
 import { resolveMarketShareData } from '../utils/resolveMarketShareData'
 import './SocialsPanel.css'
 
@@ -210,6 +211,19 @@ const formatChatTime = (timestamp: number) => {
   return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`
 }
 
+/* Stable per-sender accent colors for group chats (Telegram-style). */
+const AUTHOR_COLORS = [
+  '#5AB0FF', '#2DD56E', '#FF9966', '#C792EA', '#F78C6C', '#56C7D6', '#F7B955', '#FF7A9C',
+]
+const authorColor = (label: string) => {
+  let hash = 0
+  for (let i = 0; i < label.length; i += 1) hash = (hash * 31 + label.charCodeAt(i)) >>> 0
+  return AUTHOR_COLORS[hash % AUTHOR_COLORS.length]
+}
+
+const messageGroupKey = (msg: Message) =>
+  msg.author === 'me' ? 'me' : msg.authorLabel ?? 'other'
+
 const renderMessageText = (text: string): ReactNode => {
   const parts = text.split(/(\bYES\b|\bNO\b)/g)
   if (parts.length === 1) return text
@@ -292,62 +306,76 @@ const SocialsPanel = ({
     }
   }, [initialActiveChatId])
 
-  useEffect(() => {
-    if (!pendingShare) return
-    if (handledPendingShareKeyRef.current === pendingShare.key) return
-    handledPendingShareKeyRef.current = pendingShare.key
-    const targetChat = chats.find((c) => c.id === pendingShare.chatId)
-    setActiveChatId(pendingShare.chatId)
-    setMobileChatOpen(true)
+  const groupAuthorLabel = (chatId: string) => {
+    const chat = chats.find((c) => c.id === chatId)
+    return chat?.kind === 'group' ? 'You' : undefined
+  }
+
+  const flushPendingShare = (pending: NonNullable<SocialsPanelProps['pendingShare']>) => {
+    if (handledPendingShareKeyRef.current === pending.key) return
+    handledPendingShareKeyRef.current = pending.key
+    onPendingShareHandled?.()
     appendMessage({
-      id: `m-market-${Date.now()}`,
-      chatId: pendingShare.chatId,
+      id: `m-market-${pending.key}`,
+      chatId: pending.chatId,
       author: 'me',
-      authorLabel: targetChat?.kind === 'group' ? 'You' : undefined,
+      authorLabel: groupAuthorLabel(pending.chatId),
       type: 'market',
-      market: pendingShare.market,
+      market: pending.market,
       timestamp: Date.now()
     })
-    onPendingShareHandled?.()
-  }, [pendingShare, chats, onPendingShareHandled])
+    setActiveChatId(pending.chatId)
+    setMobileChatOpen(true)
+  }
+
+  const flushPendingShareText = (pending: NonNullable<SocialsPanelProps['pendingShareText']>) => {
+    if (handledPendingShareTextKeyRef.current === pending.key) return
+    handledPendingShareTextKeyRef.current = pending.key
+    onPendingShareTextHandled?.()
+    appendMessage({
+      id: `m-text-${pending.key}`,
+      chatId: pending.chatId,
+      author: 'me',
+      authorLabel: groupAuthorLabel(pending.chatId),
+      type: 'text',
+      text: pending.text,
+      timestamp: Date.now()
+    })
+    setActiveChatId(pending.chatId)
+    setMobileChatOpen(true)
+  }
+
+  const flushPendingShareTrade = (pending: NonNullable<SocialsPanelProps['pendingShareTrade']>) => {
+    if (handledPendingShareTradeKeyRef.current === pending.key) return
+    handledPendingShareTradeKeyRef.current = pending.key
+    onPendingShareTradeHandled?.()
+    appendMessage({
+      id: `m-trade-${pending.key}`,
+      chatId: pending.chatId,
+      author: 'me',
+      authorLabel: groupAuthorLabel(pending.chatId),
+      type: 'trade',
+      trade: pending.trade,
+      timestamp: Date.now()
+    })
+    setActiveChatId(pending.chatId)
+    setMobileChatOpen(true)
+  }
+
+  useEffect(() => {
+    if (!pendingShare) return
+    flushPendingShare(pendingShare)
+  }, [pendingShare])
 
   useEffect(() => {
     if (!pendingShareText) return
-    if (handledPendingShareTextKeyRef.current === pendingShareText.key) return
-    handledPendingShareTextKeyRef.current = pendingShareText.key
-    const targetChat = chats.find((c) => c.id === pendingShareText.chatId)
-    setActiveChatId(pendingShareText.chatId)
-    setMobileChatOpen(true)
-    appendMessage({
-      id: `m-text-${Date.now()}`,
-      chatId: pendingShareText.chatId,
-      author: 'me',
-      authorLabel: targetChat?.kind === 'group' ? 'You' : undefined,
-      type: 'text',
-      text: pendingShareText.text,
-      timestamp: Date.now()
-    })
-    onPendingShareTextHandled?.()
-  }, [pendingShareText, chats, onPendingShareTextHandled])
+    flushPendingShareText(pendingShareText)
+  }, [pendingShareText])
 
   useEffect(() => {
     if (!pendingShareTrade) return
-    if (handledPendingShareTradeKeyRef.current === pendingShareTrade.key) return
-    handledPendingShareTradeKeyRef.current = pendingShareTrade.key
-    const targetChat = chats.find((c) => c.id === pendingShareTrade.chatId)
-    setActiveChatId(pendingShareTrade.chatId)
-    setMobileChatOpen(true)
-    appendMessage({
-      id: `m-trade-${Date.now()}`,
-      chatId: pendingShareTrade.chatId,
-      author: 'me',
-      authorLabel: targetChat?.kind === 'group' ? 'You' : undefined,
-      type: 'trade',
-      trade: pendingShareTrade.trade,
-      timestamp: Date.now()
-    })
-    onPendingShareTradeHandled?.()
-  }, [pendingShareTrade, chats, onPendingShareTradeHandled])
+    flushPendingShareTrade(pendingShareTrade)
+  }, [pendingShareTrade])
 
   const displayChats = useMemo(() => {
     return chats.map((chat) => {
@@ -441,10 +469,10 @@ const SocialsPanel = ({
   }
 
   const resolveAuthorAvatar = (msg: Message) => {
-    if (msg.author === 'me') return SOCIAL_AUTHOR_AVATARS.You
-    if (msg.authorLabel && SOCIAL_AUTHOR_AVATARS[msg.authorLabel]) return SOCIAL_AUTHOR_AVATARS[msg.authorLabel]
-    if (activeChat.kind === 'dm' && activeChat.avatar) return activeChat.avatar
-    return activeChat.members?.[0] ?? '/Stems/betskuu.png'
+    if (msg.author === 'me') return resolveProfileAvatar('You', SOCIAL_AUTHOR_AVATARS.You)
+    if (msg.authorLabel) return resolveProfileAvatar(msg.authorLabel, SOCIAL_AUTHOR_AVATARS[msg.authorLabel])
+    if (activeChat.kind === 'dm' && activeChat.avatar) return normalizeAvatarUrl(activeChat.avatar)
+    return activeChat.members?.[0] ? normalizeAvatarUrl(activeChat.members[0]) : DEFAULT_AVATAR
   }
 
   const renderChatAvatar = (chat: Chat) => {
@@ -459,13 +487,13 @@ const SocialsPanel = ({
       return (
         <div className="socials-avatar-presentoir">
           {chat.members?.slice(0, 3).map((member, index) => (
-            <img key={index} src={member} alt="" className="presentoir-img" />
+            <img key={index} src={normalizeAvatarUrl(member)} alt="" className="presentoir-img" onError={onAvatarError} />
           ))}
         </div>
       )
     }
     if (chat.avatar) {
-      return <img src={chat.avatar} alt="" className="socials-chat-img socials-chat-img--round" />
+      return <img src={normalizeAvatarUrl(chat.avatar)} alt="" className="socials-chat-img socials-chat-img--round" onError={onAvatarError} />
     }
     return chat.title.slice(0, 1).toUpperCase()
   }
@@ -474,8 +502,8 @@ const SocialsPanel = ({
     return (
       <div className="socials-shell socials-shell--empty">
         <div className="socials-left-head">
-          <button className="socials-back" onClick={onBack} type="button" aria-label="Back">
-            <ArrowLeft size={16} />
+          <button className="betski-back socials-back" onClick={onBack} type="button" aria-label="Back">
+            <ArrowLeft size={20} strokeWidth={2} />
           </button>
           <span className="socials-sidebar-title">SOCIALS</span>
         </div>
@@ -529,8 +557,8 @@ const SocialsPanel = ({
       <div className={`socials-body${mobileChatOpen ? ' show-chat' : ''}`}>
         <div className="socials-left">
           <div className="socials-left-head">
-            <button className="socials-back" onClick={onBack} type="button" aria-label="Back">
-              <ArrowLeft size={16} />
+            <button className="betski-back socials-back" onClick={onBack} type="button" aria-label="Back">
+              <ArrowLeft size={20} strokeWidth={2} />
             </button>
             <span className="socials-sidebar-title">SOCIALS</span>
             <button
@@ -585,11 +613,15 @@ const SocialsPanel = ({
                 <div className="socials-chat-meta">
                   <div className="socials-chat-row">
                     <span className="socials-chat-title">{chat.title}</span>
-                    <span className="socials-chat-time">{formatChatTime(chat.lastMessageAt)}</span>
                   </div>
                   <div className="socials-chat-subtitle">{chat.subtitle}</div>
                 </div>
-                {chat.unreadCount > 0 && <div className="socials-chat-unread">{chat.unreadCount}</div>}
+                <div className="socials-chat-trailing">
+                  <span className="socials-chat-time">{formatChatTime(chat.lastMessageAt)}</span>
+                  {chat.unreadCount > 0 && (
+                    <span className="socials-chat-unread">{chat.unreadCount}</span>
+                  )}
+                </div>
               </button>
             ))}
           </div>
@@ -612,11 +644,11 @@ const SocialsPanel = ({
           <div className="socials-chat-header">
             <button
               type="button"
-              className="socials-chat-back"
+              className="betski-back socials-chat-back"
               onClick={() => setMobileChatOpen(false)}
               aria-label="Back to chats"
             >
-              <ArrowLeft size={18} />
+              <ArrowLeft size={20} strokeWidth={2} />
             </button>
 
             <button
@@ -739,23 +771,50 @@ const SocialsPanel = ({
             )}
 
             <div className="socials-messages">
-              {activeMessages.map((msg) => {
+              {activeMessages.map((msg, index) => {
                 const marketView =
                   msg.type === 'market' && msg.market
                     ? resolveMessageMarket(msg.market, shareMarket)
                     : null
 
+                const prev = activeMessages[index - 1]
+                const next = activeMessages[index + 1]
+                const groupKey = messageGroupKey(msg)
+                const firstOfGroup = !prev || messageGroupKey(prev) !== groupKey
+                const lastOfGroup = !next || messageGroupKey(next) !== groupKey
+                const isMe = msg.author === 'me'
+                const showAuthor = isGroupChat && !!msg.authorLabel && !isMe && firstOfGroup
+                const timeLabel = formatChatTime(msg.timestamp)
+
                 return (
-                <div key={msg.id} className={`socials-message ${msg.author === 'me' ? 'me' : 'other'}`}>
-                  {msg.author !== 'me' && (
-                    <img src={resolveAuthorAvatar(msg)} alt="" className="socials-msg-avatar" />
-                  )}
+                <div
+                  key={msg.id}
+                  className={[
+                    'socials-message',
+                    isMe ? 'me' : 'other',
+                    firstOfGroup ? 'is-group-start' : '',
+                    lastOfGroup ? 'is-group-end' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  {!isMe &&
+                    (lastOfGroup ? (
+                      <img src={resolveAuthorAvatar(msg)} alt="" className="socials-msg-avatar" onError={onAvatarError} />
+                    ) : (
+                      <span className="socials-msg-avatar-spacer" aria-hidden="true" />
+                    ))}
                   <div className="socials-message-stack">
-                    {isGroupChat && msg.authorLabel && msg.author !== 'me' && (
-                      <div className="socials-author other">{msg.authorLabel}</div>
+                    {showAuthor && (
+                      <div className="socials-author other" style={{ color: authorColor(msg.authorLabel as string) }}>
+                        {msg.authorLabel}
+                      </div>
                     )}
                     {msg.type === 'text' ? (
-                      <div className="socials-bubble">{renderMessageText(msg.text ?? '')}</div>
+                      <div className="socials-bubble">
+                        <span className="socials-bubble-text">{renderMessageText(msg.text ?? '')}</span>
+                        <span className="socials-bubble-time">{timeLabel}</span>
+                      </div>
                     ) : msg.type === 'market' && marketView ? (
                       <div className="socials-embed">
                         <MarketShareCard
@@ -795,9 +854,12 @@ const SocialsPanel = ({
                       </div>
                     ) : null}
                   </div>
-                  {msg.author === 'me' && (
-                    <img src={SOCIAL_AUTHOR_AVATARS.You} alt="" className="socials-msg-avatar" />
-                  )}
+                  {isMe &&
+                    (lastOfGroup ? (
+                      <img src={resolveProfileAvatar('You', SOCIAL_AUTHOR_AVATARS.You)} alt="" className="socials-msg-avatar" onError={onAvatarError} />
+                    ) : (
+                      <span className="socials-msg-avatar-spacer" aria-hidden="true" />
+                    ))}
                 </div>
                 )
               })}

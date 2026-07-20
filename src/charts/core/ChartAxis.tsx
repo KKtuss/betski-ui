@@ -10,9 +10,10 @@ type XTick = {
 type ChartAxisProps = {
   xTicks: XTick[]
   height: number
+  fontSize?: number
 }
 
-export const ChartAxis = ({ xTicks, height }: ChartAxisProps) => (
+export const ChartAxis = ({ xTicks, height, fontSize = 11 }: ChartAxisProps) => (
   <>
     {xTicks.map((tick) => (
       <text
@@ -21,9 +22,9 @@ export const ChartAxis = ({ xTicks, height }: ChartAxisProps) => (
         y={height - 6}
         textAnchor={tick.textAnchor}
         fill={chartTheme.axis}
-        fontSize="11"
-        fontFamily="Roboto Mono, monospace"
-        fontWeight="650"
+        fontSize={fontSize}
+        fontWeight="600"
+        style={{ userSelect: 'none', fontFamily: 'var(--font-mono, monospace)' }}
       >
         {tick.label}
       </text>

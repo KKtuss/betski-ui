@@ -1,11 +1,16 @@
-export const PLACEHOLDER_THUMB = '/Stems/betskuu.png'
+export const PLACEHOLDER_THUMB = '/Stems/BetskiPEFFPEE.png'
 
 const PROXY_HOST_PATTERNS = [
   'tiktokcdn',
   'tiktokv.com',
+  'ttlivecdn',
+  'muscdn',
+  'byteoversea',
+  'ibyteimg',
   'cdninstagram',
   'fbcdn.net',
-  'instagram.com'
+  'instagram.com',
+  'googleusercontent.com'
 ]
 
 export function extractUpstreamThumbnailUrl(url: string): string {

@@ -1,6 +1,6 @@
 import type { SyntheticEvent } from 'react'
 
-export const PROFILE_MARKET_THUMB_FALLBACK = '/Stems/betskuu.png'
+export const PROFILE_MARKET_THUMB_FALLBACK = '/Stems/BetskiPEFFPEE.png'
 
 /** Same Picsum phone format as DiscoveryPanel (`360/640?random=`) — stable image per key */
 export const discoveryStyleThumbnailUrl = (key: string) => {

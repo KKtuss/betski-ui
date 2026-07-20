@@ -1,5 +1,6 @@
 import type { Message } from './socialMock'
 import { PROFILE_AVATARS } from './profileRegistry'
+import { normalizeAvatarUrl, resolveProfileAvatar } from '../utils/avatarUrl'
 import { emitMessageNotification } from '../utils/notificationEmitter'
 
 export type SocialChatKind = 'dm' | 'group' | 'system'
@@ -25,6 +26,7 @@ export type SocialState = {
 }
 
 const STORAGE_KEY = 'betski-social-state-v1'
+const MAX_MESSAGES_PER_CHAT = 120
 
 type Listener = () => void
 const listeners = new Set<Listener>()
@@ -226,6 +228,54 @@ export const seedSocialState = (): SocialState => ({
   messages: seedMessages()
 })
 
+const migrateChat = (chat: SocialChat): SocialChat => ({
+  ...chat,
+  avatar: chat.avatar ? normalizeAvatarUrl(chat.avatar) : chat.avatar,
+  members: chat.members?.map((member) => normalizeAvatarUrl(member))
+})
+
+const messageFingerprint = (message: Message): string => {
+  if (message.type === 'text') {
+    return `${message.chatId}|${message.author}|${message.authorLabel ?? ''}|text|${message.text ?? ''}`
+  }
+  if (message.type === 'market') {
+    return `${message.chatId}|${message.author}|${message.authorLabel ?? ''}|market|${message.market?.marketId ?? ''}|${message.market?.title ?? ''}`
+  }
+  if (message.type === 'trade' && message.trade) {
+    const t = message.trade
+    return `${message.chatId}|${message.author}|${message.authorLabel ?? ''}|trade|${t.marketId ?? ''}|${t.title}|${t.side}|${t.entry}|${t.exit}|${t.pnlUsd}`
+  }
+  return `${message.chatId}|${message.id}`
+}
+
+/** Drop consecutive duplicate demo spam and cap per-chat history length. */
+const sanitizeMessages = (messages: Message[]): Message[] => {
+  const deduped: Message[] = []
+  const seenFingerprints = new Set<string>()
+
+  for (const message of messages) {
+    const fp = messageFingerprint(message)
+    if (seenFingerprints.has(fp)) continue
+    seenFingerprints.add(fp)
+    deduped.push(message)
+  }
+
+  const byChat = new Map<string, Message[]>()
+  for (const message of deduped) {
+    const bucket = byChat.get(message.chatId) ?? []
+    bucket.push(message)
+    byChat.set(message.chatId, bucket)
+  }
+
+  const capped: Message[] = []
+  for (const bucket of byChat.values()) {
+    const sorted = [...bucket].sort((a, b) => a.timestamp - b.timestamp)
+    capped.push(...sorted.slice(-MAX_MESSAGES_PER_CHAT))
+  }
+
+  return capped.sort((a, b) => a.timestamp - b.timestamp)
+}
+
 const hydrateFromStorage = (): SocialState => {
   if (typeof window === 'undefined') return seedSocialState()
   try {
@@ -242,13 +292,20 @@ const hydrateFromStorage = (): SocialState => {
     const mergedChats = [
       ...(parsed.chats ?? []),
       ...seeded.chats.filter((c) => !chatIds.has(c.id))
-    ]
+    ].map(migrateChat)
     const messageIds = new Set(parsed.messages?.map((m) => m.id) ?? [])
-    const mergedMessages = [
+    const mergedMessages = sanitizeMessages([
       ...(parsed.messages ?? []),
       ...seeded.messages.filter((m) => !messageIds.has(m.id))
-    ]
-    return { version: 1, chats: mergedChats, messages: mergedMessages }
+    ])
+    const state = { version: 1 as const, chats: mergedChats, messages: mergedMessages }
+    const needsPersist =
+      JSON.stringify(parsed.chats ?? []).includes('betskuu.png') ||
+      mergedMessages.length !== (parsed.messages?.length ?? 0)
+    if (needsPersist) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+    }
+    return state
   } catch {
     return seedSocialState()
   }
@@ -287,12 +344,23 @@ export const getMessagesForChat = (chatId: string): Message[] =>
 
 export const appendMessage = (message: Message): void => {
   updateSocialState((s) => {
+    if (s.messages.some((m) => m.id === message.id)) return s
+
+    const fp = messageFingerprint(message)
+    const lastInChat = [...s.messages].reverse().find((m) => m.chatId === message.chatId)
+    if (lastInChat && messageFingerprint(lastInChat) === fp) return s
+
     const chats = s.chats.map((c) =>
       c.id === message.chatId
-        ? { ...c, subtitle: messagePreview(message), unreadCount: message.author === 'me' ? 0 : c.unreadCount }
+        ? {
+            ...c,
+            subtitle: messagePreview(message),
+            unreadCount: message.author === 'me' ? 0 : c.unreadCount + 1
+          }
         : c
     )
-    return { ...s, chats, messages: [...s.messages, message] }
+    const messages = sanitizeMessages([...s.messages, message])
+    return { ...s, chats, messages }
   })
 }
 
@@ -310,7 +378,7 @@ export const addDmChat = (handle: string): string => {
   if (existing) return existing.id
 
   const chatId = `dm-${Date.now()}`
-  const avatar = PROFILE_AVATARS[trimmed] ?? '/Stems/betskuu.png'
+  const avatar = resolveProfileAvatar(trimmed)
   updateSocialState((s) => ({
     ...s,
     chats: [
@@ -335,12 +403,23 @@ const messagePreview = (message: Message): string => {
   return 'New message'
 }
 
-/** Simulate an inbound message from a tracked profile (for demo reactivity). */
+/** Simulate an inbound message from a tracked profile (manual demo / test only). */
 export const simulateInboundMessage = (params: {
   chatId: string
   senderHandle: string
   text: string
 }): void => {
+  const state = loadSocialState()
+  const lastInChat = [...state.messages].reverse().find((m) => m.chatId === params.chatId)
+  if (
+    lastInChat &&
+    lastInChat.authorLabel === params.senderHandle &&
+    lastInChat.type === 'text' &&
+    lastInChat.text === params.text
+  ) {
+    return
+  }
+
   const message: Message = {
     id: `in-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     chatId: params.chatId,
@@ -350,15 +429,8 @@ export const simulateInboundMessage = (params: {
     text: params.text,
     timestamp: Date.now()
   }
-  updateSocialState((s) => ({
-    ...s,
-    messages: [...s.messages, message],
-    chats: s.chats.map((c) =>
-      c.id === params.chatId
-        ? { ...c, subtitle: params.text, unreadCount: c.unreadCount + 1 }
-        : c
-    )
-  }))
+  appendMessage(message)
+
   const chat = getChatById(params.chatId)
   emitMessageNotification({
     chatId: params.chatId,

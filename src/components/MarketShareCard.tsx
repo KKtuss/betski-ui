@@ -44,10 +44,10 @@ const MarketShareCard = ({
   const displayThumbs = useMemo(() => {
     const urls =
       thumbnailUrls?.filter(Boolean) ??
-      (thumbnailFallbackSrc ? [thumbnailFallbackSrc] : ['/Stems/betskuu.png'])
+      (thumbnailFallbackSrc ? [thumbnailFallbackSrc] : ['/Stems/BetskiPEFFPEE.png'])
     const picked = urls.slice(0, 3)
     while (picked.length < 3) {
-      picked.push(picked[picked.length - 1] ?? '/Stems/betskuu.png')
+      picked.push(picked[picked.length - 1] ?? '/Stems/BetskiPEFFPEE.png')
     }
     return picked.map((url) => getDisplayThumbnailUrl(url))
   }, [thumbnailUrls, thumbnailFallbackSrc])
@@ -71,7 +71,7 @@ const MarketShareCard = ({
               decoding="async"
               referrerPolicy="no-referrer"
               onError={(e) => {
-                e.currentTarget.src = '/Stems/betskuu.png'
+                e.currentTarget.src = '/Stems/BetskiPEFFPEE.png'
               }}
             />
           ))}

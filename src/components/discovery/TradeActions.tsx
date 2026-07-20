@@ -1,6 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import ActionButton from './ActionButton'
+import { triggerCollectionFly } from '../../utils/collectionFlyBus'
 import './TradeActions.css'
 
 export type OnExecuteTrade = (params: {
@@ -11,12 +13,16 @@ export type OnExecuteTrade = (params: {
   price: number
 }) => void
 
+type Feedback = { type: 'yes' | 'no'; price: number; amountUsd: number }
+type ToastAnchor = { top: number; height: number; width: number }
+
 export const TradeActions = ({
   yesPrice,
   noPrice,
   amountUsd,
   marketId,
   marketName,
+  thumbnailUrls,
   onExecuteTrade
 }: {
   yesPrice: number
@@ -24,58 +30,120 @@ export const TradeActions = ({
   amountUsd: number
   marketId?: string
   marketName?: string
+  thumbnailUrls?: string[]
   onExecuteTrade?: OnExecuteTrade
 }) => {
-  const [feedback, setFeedback] = useState<{ type: 'yes' | 'no'; price: number; amountUsd: number } | null>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const dismissTimerRef = useRef<number | null>(null)
+  const [feedback, setFeedback] = useState<Feedback | null>(null)
+  const [anchor, setAnchor] = useState<ToastAnchor | null>(null)
 
-  const handleTrade = (type: 'yes' | 'no', price: number, amount: number) => {
-    if (marketId && marketName && onExecuteTrade) {
-      onExecuteTrade({ marketId, marketName, side: type, usdAmount: amount, price })
+  const measureAnchor = () => {
+    const row = rootRef.current?.closest('.discovery-row') as HTMLElement | null
+    if (!row) return null
+    const rect = row.getBoundingClientRect()
+    return {
+      top: rect.top,
+      height: Math.max(36, rect.height),
+      width: Math.max(96, rect.width / 3)
     }
-    setFeedback({ type, price, amountUsd: amount })
-    setTimeout(() => setFeedback(null), 2500)
   }
 
+  useEffect(() => {
+    return () => {
+      if (dismissTimerRef.current != null) window.clearTimeout(dismissTimerRef.current)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!feedback) return
+    const sync = () => {
+      const next = measureAnchor()
+      if (next) setAnchor(next)
+    }
+    sync()
+    window.addEventListener('scroll', sync, true)
+    window.addEventListener('resize', sync)
+    return () => {
+      window.removeEventListener('scroll', sync, true)
+      window.removeEventListener('resize', sync)
+    }
+  }, [feedback])
+
+  const handleTrade = (type: 'yes' | 'no', price: number, amount: number) => {
+    // Only animate after a real quick-buy — never on stems/demo rows without a trade handler.
+    if (!marketId || !marketName || !onExecuteTrade) return
+
+    onExecuteTrade({ marketId, marketName, side: type, usdAmount: amount, price })
+    if (thumbnailUrls && thumbnailUrls.length > 0) {
+      triggerCollectionFly(thumbnailUrls)
+    }
+    setAnchor(measureAnchor())
+    setFeedback({ type, price, amountUsd: amount })
+    if (dismissTimerRef.current != null) window.clearTimeout(dismissTimerRef.current)
+    dismissTimerRef.current = window.setTimeout(() => {
+      setFeedback(null)
+      setAnchor(null)
+      dismissTimerRef.current = null
+    }, 2200)
+  }
+
+  const toast =
+    typeof document !== 'undefined'
+      ? createPortal(
+          <AnimatePresence>
+            {feedback && anchor ? (
+              <motion.div
+                key={`${marketId ?? 'trade'}-${feedback.type}-${feedback.price}`}
+                className={`discovery-trade-toast ${feedback.type}`}
+                style={{
+                  top: anchor.top,
+                  height: anchor.height,
+                  width: anchor.width
+                }}
+                initial={{ x: '110%', opacity: 0.85 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: '110%', opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 420, damping: 32 }}
+                role="status"
+                aria-live="polite"
+                aria-label={`Bought ${feedback.type === 'yes' ? 'Yes' : 'No'} for $${feedback.amountUsd} at ${feedback.price} cents`}
+              >
+                <span className="discovery-trade-toast-rail" aria-hidden="true" />
+                <div className="discovery-trade-toast-body">
+                  <div className="discovery-trade-toast-row">
+                    <span className="discovery-trade-toast-label">bought</span>
+                    <span className="discovery-trade-toast-sep" aria-hidden="true">:</span>
+                    <span className="discovery-trade-toast-value discovery-trade-toast-value--side">
+                      {feedback.type === 'yes' ? 'YES' : 'NO'}
+                    </span>
+                  </div>
+                  <div className="discovery-trade-toast-row">
+                    <span className="discovery-trade-toast-label">for</span>
+                    <span className="discovery-trade-toast-sep" aria-hidden="true">:</span>
+                    <span className="discovery-trade-toast-value">${feedback.amountUsd}</span>
+                  </div>
+                  <div className="discovery-trade-toast-row">
+                    <span className="discovery-trade-toast-label">@</span>
+                    <span className="discovery-trade-toast-sep" aria-hidden="true">:</span>
+                    <span className="discovery-trade-toast-value">{feedback.price}¢</span>
+                  </div>
+                </div>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>,
+          document.body
+        )
+      : null
+
   return (
-    <div className="discovery-actions" style={{ position: 'relative', width: '60px', height: '28px' }}>
-      <AnimatePresence initial={false}>
-        {!feedback && (
-          <motion.div
-            key="buttons"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
-            className="discovery-actions-buttons"
-            style={{ position: 'absolute', inset: 0 }}
-          >
-            <ActionButton type="yes" price={yesPrice} amountUsd={amountUsd} onTrade={handleTrade} />
-            <ActionButton type="no" price={noPrice} amountUsd={amountUsd} onTrade={handleTrade} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
-      <AnimatePresence>
-        {feedback && (
-          <motion.div
-            key="feedback"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.2 }}
-            className={`discovery-trade-feedback ${feedback.type}`}
-            style={{ position: 'absolute', right: -4, top: -6, bottom: -6, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}
-          >
-            <div className="feedback-pill">
-              <span className="feedback-action">BOUGHT</span>
-              <div className="feedback-details">
-                <span className="feedback-side">{feedback.type === 'yes' ? 'YES' : 'NO'}</span>
-                <span className="feedback-price">${feedback.amountUsd} @{feedback.price}¢</span>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="discovery-actions" ref={rootRef}>
+      <div className="discovery-actions-buttons">
+        <ActionButton type="yes" price={yesPrice} amountUsd={amountUsd} onTrade={handleTrade} />
+        <span className="discovery-actions-divider" aria-hidden="true" />
+        <ActionButton type="no" price={noPrice} amountUsd={amountUsd} onTrade={handleTrade} />
+      </div>
+      {toast}
     </div>
   )
 }

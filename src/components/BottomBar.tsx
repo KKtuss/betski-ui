@@ -42,19 +42,25 @@ type TabIconComponent = typeof Home | typeof StackedRows | typeof MessageSquare 
 const TabIcon = ({
   icon: Icon,
   active,
-  size = 40,
+  size = 36,
 }: {
   icon: TabIconComponent
   active: boolean
   size?: number
 }) => {
   if (Icon === StackedRows) {
-    return <StackedRows size={size} stroke={active ? SUNSET_STROKE : 'currentColor'} />
+    return (
+      <StackedRows
+        size={size}
+        stroke={active ? SUNSET_STROKE : 'currentColor'}
+        strokeWidth={2.35}
+      />
+    )
   }
   return (
     <Icon
       size={size}
-      strokeWidth={2.25}
+      strokeWidth={2.35}
       color={active ? SUNSET_STROKE : undefined}
     />
   )
@@ -82,7 +88,7 @@ const BottomBar = ({ onTabClick, currentTab, hasUnreadMessages }: BottomBarProps
     >
       <svg aria-hidden className="bottom-bar-sprite" width="0" height="0" focusable="false">
         <defs>
-          <linearGradient id="betski-tab-sunset" x1="0%" y1="100%" x2="100%" y2="0%">
+          <linearGradient id="betski-tab-sunset" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#ee0979" />
             <stop offset="100%" stopColor="#ff6a00" />
           </linearGradient>
@@ -132,6 +138,7 @@ const BottomBar = ({ onTabClick, currentTab, hasUnreadMessages }: BottomBarProps
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
           style={{ position: 'relative' }}
+          {...(tab.id === 'tab4' ? { 'data-bottom-tab': 'profile' } : {})}
         >
           <TabIcon icon={tab.icon} active={currentTab === tab.id} />
           {tab.id === 'tab3' && hasUnreadMessages && (

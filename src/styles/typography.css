@@ -1,0 +1,248 @@
+/**
+ * Betski UI — strict typography design system.
+ * Six sizes + card-header tier. Three weights only: 500, 600, 700.
+ */
+
+:root {
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Roboto Mono', ui-monospace, monospace;
+
+  /* ── Type scale (fixed — do not add sizes) ──
+     Baseline: 1920×1080 @ 100% zoom. Sizes are ~0.9 of the legacy
+     2560-tuned scale so text reads at a professional desktop density. */
+  --type-hero: 29px;        /* was 32 */
+  --type-title: 18px;       /* was 20 */
+  --type-stat-lg: 16px;     /* was 18 */
+  --type-body: 14px;        /* was 15 */
+  --type-meta: 12px;        /* was 13 */
+  --type-label: 10px;       /* was 11 */
+  --type-card-header: 13px; /* was 14 */
+
+  /* Legacy aliases → map to strict scale */
+  --type-display-lg: var(--type-hero);
+  --type-display-md: var(--type-title);
+  --type-display-sm: var(--type-stat-lg);
+  --type-heading-page: var(--type-card-header);
+  --type-heading-section: var(--type-meta);
+  --type-heading-card: var(--type-card-header);
+  --type-body-sm: var(--type-meta);
+  --type-caption: var(--type-label);
+  --type-caption-sm: var(--type-label);
+  --type-micro: var(--type-label);
+  --type-nano: var(--type-label);
+
+  /* ── Font weights (500 / 600 / 700 only) ── */
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-regular: var(--weight-medium);
+  --weight-extrabold: var(--weight-bold);
+
+  /* ── Line heights ── */
+  --leading-tight: 1.1;
+  --leading-snug: 1.25;
+  --leading-normal: 1.35;
+  --leading-body: 1.4;
+  --leading-relaxed: 1.5;
+
+  /* ── Letter spacing ── */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+  --tracking-wider: 0.06em;
+  --tracking-widest: 0.08em;
+  --tracking-card-header: 0.05em;
+
+  /* ── Text color hierarchy ── */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.78);
+  --text-muted: rgba(255, 255, 255, 0.52);
+  --text-dim: rgba(255, 255, 255, 0.38);
+
+  /* ── Card header accent (orange) ── */
+  --color-card-header: var(--betski-orange, #ff9966);
+  --gradient-card-header: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
+}
+
+/* ── Phone type scale ──
+   Aggressive density pass: ~20–25% under desktop so phone UI reads compact
+   without changing desktop. All tokenized text follows these seven primitives. */
+@media (max-width: 900px) {
+  :root {
+    --type-hero: 20px;        /* 29 */
+    --type-title: 13px;       /* 18 */
+    --type-stat-lg: 12px;     /* 16 */
+    --type-body: 11px;        /* 14 */
+    --type-card-header: 10px; /* 13 */
+    --type-meta: 9px;         /* 12 */
+    --type-label: 8px;        /* 10 */
+  }
+}
+
+/* ── Semantic utilities ── */
+
+.type-hero {
+  font-size: var(--type-hero);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.type-title {
+  font-size: var(--type-title);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+}
+
+.type-stat-lg {
+  font-size: var(--type-stat-lg);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.type-body {
+  font-size: var(--type-body);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-body);
+}
+
+.type-body-strong {
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-body);
+}
+
+.type-meta {
+  font-size: var(--type-meta);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  color: var(--text-muted);
+}
+
+.type-label {
+  font-size: var(--type-label);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+}
+
+.type-card-header {
+  font-family: var(--font-ui);
+  font-size: var(--type-card-header);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-card-header);
+  text-transform: uppercase;
+  background: var(--gradient-card-header);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Unified card / section headers ── */
+.chart-eyebrow,
+.orderbook-title,
+.profile-section-title,
+.home-sect-title {
+  font-family: var(--font-ui);
+  font-size: var(--type-card-header);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-card-header);
+  text-transform: uppercase;
+  background: var(--gradient-card-header);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.type-num-hero {
+  font-size: var(--type-hero);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.type-num-lg {
+  font-size: var(--type-stat-lg);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.type-num-md {
+  font-size: var(--type-body);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.type-num-sm {
+  font-size: var(--type-meta);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.type-username {
+  font-size: var(--type-title);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+}
+
+.type-username-list {
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
+}
+
+.type-username-meta {
+  font-size: var(--type-label);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  color: var(--text-dim);
+}
+
+/* Legacy utility class aliases */
+.type-display-lg {
+  font-size: var(--type-hero);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.type-display-sm {
+  font-size: var(--type-stat-lg);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.type-heading-page,
+.type-heading-card {
+  font-size: var(--type-card-header);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-card-header);
+  text-transform: uppercase;
+}
+
+.type-heading-section {
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+}
+
+.type-caption,
+.type-caption-sm,
+.type-label-micro {
+  font-size: var(--type-label);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  color: var(--text-muted);
+}

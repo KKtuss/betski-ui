@@ -19,13 +19,13 @@
    container size is. Also give rows extra breathing room. */
 .discovery-panel--stems .discovery-sparkline {
   width: 100%;
-  max-width: 220px;
-  height: 48px;
+  max-width: var(--size-220);
+  height: var(--size-48);
 }
 
 .discovery-panel--stems .discovery-row--grid {
-  min-height: 110px;
-  padding-left: 8px;
+  min-height: var(--size-110);
+  padding-left: var(--space-xs);
 }
 
 /* Tighten the left inset between the row edge and the first thumbnail.
@@ -33,7 +33,7 @@
    negative margin on the preview-cards stack) so the first card sits
    ~30px closer to the row's left edge without re-doing the cascade. */
 .discovery-panel--stems .discovery-list-inner {
-  padding-left: 6px;
+  padding-left: var(--space-xs);
 }
 
 .discovery-panel--stems .discovery-td--market .discovery-preview-cards {
@@ -85,30 +85,13 @@
   }
 }
 
-/* "Lit up" YES / NO buttons by default — same look as the live page's :hover
-   state, but applied permanently on the stems page so screenshots show them
-   active. */
-.discovery-panel--stems .discovery-action-btn.yes {
-  color: #2DD56E;
-  border-color: #2DD56E;
-  background: rgba(45, 213, 110, 0.05);
-  box-shadow: 0 0 8px rgba(45, 213, 110, 0.15);
-}
+/* Stems page: keep the joined Y/N shell; only tint letter hover targets. */
+@media (hover: hover) and (pointer: fine) {
+  .discovery-panel--stems .discovery-action-btn.yes:hover {
+    background: rgba(45, 213, 110, 0.1);
+  }
 
-.discovery-panel--stems .discovery-action-btn.no {
-  color: #FF4D4D;
-  border-color: #FF4D4D;
-  background: rgba(255, 77, 77, 0.05);
-  box-shadow: 0 0 8px rgba(255, 77, 77, 0.15);
-}
-
-/* Slightly stronger glow on actual hover so they still feel interactive. */
-.discovery-panel--stems .discovery-action-btn.yes:hover {
-  background: rgba(45, 213, 110, 0.12);
-  box-shadow: 0 0 12px rgba(45, 213, 110, 0.28);
-}
-
-.discovery-panel--stems .discovery-action-btn.no:hover {
-  background: rgba(255, 77, 77, 0.12);
-  box-shadow: 0 0 12px rgba(255, 77, 77, 0.28);
+  .discovery-panel--stems .discovery-action-btn.no:hover {
+    background: rgba(255, 77, 77, 0.1);
+  }
 }

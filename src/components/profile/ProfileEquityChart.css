@@ -57,7 +57,7 @@
 }
 
 .pct-tip-label {
-  font-size: 9px;
+  font-size: var(--type-meta);
   font-family: var(--profile-font-ui);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
@@ -80,7 +80,7 @@
 
 .profile-chart-legend .chart-legend-item {
   gap: 7px;
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 600;
   letter-spacing: 0.02em;
   color: rgba(255, 255, 255, 0.62);
@@ -98,6 +98,27 @@
   height: 100%;
 }
 
+/* Quiet min/max scale hints so the plot has a readable magnitude */
+.profile-chart-scale {
+  position: absolute;
+  left: 8px;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: var(--type-label);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1;
+}
+
+.profile-chart-scale--max {
+  top: 6px;
+}
+
+.profile-chart-scale--min {
+  bottom: 6px;
+}
+
 @media (min-width: 901px) {
   .profile-panel .profile-charts {
     padding: 12px;
@@ -110,7 +131,7 @@
   }
 
   .profile-panel .profile-chart-time-selector .time-btn {
-    font-size: 9px;
+    font-size: var(--type-meta);
     padding: 3px 8px;
   }
 
@@ -128,7 +149,7 @@
   }
 
   .profile-panel .profile-chart-legend .chart-legend-item {
-    font-size: 9px;
+    font-size: var(--type-meta);
     gap: 6px;
   }
 

@@ -6,6 +6,9 @@ import { linkPreviewApiPlugin } from './vite-plugins/linkPreviewApi'
 export default defineConfig({
   base: './',
   plugins: [react(), linkPreviewApiPlugin()],
+  server: {
+    host: true,
+  },
   build: {
     rollupOptions: {
       output: {

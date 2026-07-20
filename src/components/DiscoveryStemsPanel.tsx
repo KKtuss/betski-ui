@@ -171,8 +171,8 @@ const DiscoveryStemsPanel = ({ onBack }: DiscoveryStemsPanelProps) => {
       <div className="panel-header discovery-header">
         <div className="discovery-left">
           {onBack && (
-            <button type="button" className="discovery-back" onClick={onBack} aria-label="Back">
-              <ArrowLeft size={20} color="#FF9966" />
+            <button type="button" className="betski-back discovery-back" onClick={onBack} aria-label="Back">
+              <ArrowLeft size={20} strokeWidth={2} />
             </button>
           )}
           <div className="discovery-title discovery-title--gradient">DISCOVERY</div>
@@ -273,7 +273,12 @@ const DiscoveryStemsPanel = ({ onBack }: DiscoveryStemsPanelProps) => {
                 </div>
 
                 <div className="discovery-td discovery-td--action" role="cell">
-                  <TradeActions yesPrice={batch.yesOdds} noPrice={batch.noOdds} amountUsd={quickBuyUsd} />
+                  <TradeActions
+                    yesPrice={batch.yesOdds}
+                    noPrice={batch.noOdds}
+                    amountUsd={quickBuyUsd}
+                    thumbnailUrls={batch.previews.map((p) => p.thumbnailUrl).filter(Boolean)}
+                  />
                 </div>
               </motion.div>
             ))}

@@ -333,8 +333,8 @@ const DiscoveryPanel = ({
     >
       <div className="panel-header discovery-header">
         <div className="discovery-left">
-          <button type="button" className="discovery-back" onClick={onBack} aria-label="Back">
-            <ArrowLeft size={20} color="var(--betski-orange)" />
+          <button type="button" className="betski-back discovery-back" onClick={onBack} aria-label="Back">
+            <ArrowLeft size={20} strokeWidth={2} />
           </button>
           <div className="discovery-title discovery-title--gradient">DISCOVERY</div>
           <div className="discovery-mode-toggle discovery-mode-toggle--tri" role="tablist" aria-label="Bet type">
@@ -375,80 +375,82 @@ const DiscoveryPanel = ({
             </button>
           </div>
         </div>
-        <div className="discovery-tabs discovery-tabs--wagers">
-          <div className="discovery-sort" ref={sortMenuRef}>
-            <button
-              type="button"
-              className="discovery-sort-trigger"
-              onClick={() => setSortMenuOpen(prev => !prev)}
-              aria-haspopup="listbox"
-              aria-expanded={sortMenuOpen}
-            >
-              <span className="discovery-sort-label">Sort: </span>
-              <span className="discovery-sort-value">{activeSortLabel}</span>
-              <ChevronDown size={14} />
-            </button>
-            <AnimatePresence>
-              {sortMenuOpen && (
-                <motion.ul
-                  className="discovery-sort-menu"
-                  role="listbox"
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.14 }}
-                >
-                  {sortOptions.map(opt => (
-                    <li key={opt.id} role="option" aria-selected={activeSortValue === opt.id}>
-                      <button
-                        type="button"
-                        className={`discovery-sort-option ${activeSortValue === opt.id ? 'active' : ''}`}
-                        onClick={() => handleSortSelect(opt.id)}
-                      >
-                        {opt.label}
-                      </button>
-                    </li>
-                  ))}
-                </motion.ul>
-              )}
-            </AnimatePresence>
+        <div className="discovery-header-tools">
+          <div className="discovery-tabs discovery-tabs--wagers">
+            <div className="discovery-sort" ref={sortMenuRef}>
+              <button
+                type="button"
+                className="discovery-sort-trigger"
+                onClick={() => setSortMenuOpen(prev => !prev)}
+                aria-haspopup="listbox"
+                aria-expanded={sortMenuOpen}
+              >
+                <span className="discovery-sort-label">Sort: </span>
+                <span className="discovery-sort-value">{activeSortLabel}</span>
+                <ChevronDown size={14} />
+              </button>
+              <AnimatePresence>
+                {sortMenuOpen && (
+                  <motion.ul
+                    className="discovery-sort-menu"
+                    role="listbox"
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -4 }}
+                    transition={{ duration: 0.14 }}
+                  >
+                    {sortOptions.map(opt => (
+                      <li key={opt.id} role="option" aria-selected={activeSortValue === opt.id}>
+                        <button
+                          type="button"
+                          className={`discovery-sort-option ${activeSortValue === opt.id ? 'active' : ''}`}
+                          onClick={() => handleSortSelect(opt.id)}
+                        >
+                          {opt.label}
+                        </button>
+                      </li>
+                    ))}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
-        </div>
-        <div className="discovery-header-actions">
-          {mode !== 'markets' && (
-            <button
-              type="button"
-              className="discovery-create-wager"
-              onClick={() => onCreateWager?.()}
-              aria-label="Create a new wager"
-            >
-              <Plus size={14} strokeWidth={3} />
-              <span>Create wager</span>
-            </button>
-          )}
-          <div className="discovery-quickbuy">
-            <div className="discovery-quickbuy-label">Quick buy</div>
-            <div className="discovery-quickbuy-pills" role="group" aria-label="Quick buy amount">
-              {[10, 25, 50, 100].map(v => (
-                <button
-                  key={v}
-                  type="button"
-                  className={`discovery-quickbuy-pill ${quickBuyUsd === v ? 'active' : ''}`}
-                  onClick={() => setQuickBuyUsd(v)}
-                >
-                  ${v}
-                </button>
-              ))}
-              <input
-                className="discovery-quickbuy-input"
-                value={String(quickBuyUsd)}
-                onChange={(e) => {
-                  const n = Math.max(1, Math.min(10_000, Number(e.target.value.replace(/[^\d]/g, '')) || 0))
-                  setQuickBuyUsd(n)
-                }}
-                inputMode="numeric"
-                aria-label="Custom quick buy amount"
-              />
+          <div className="discovery-header-actions">
+            {mode !== 'markets' && (
+              <button
+                type="button"
+                className="discovery-create-wager"
+                onClick={() => onCreateWager?.()}
+                aria-label="Create a new wager"
+              >
+                <Plus size={14} strokeWidth={3} />
+                <span>Create wager</span>
+              </button>
+            )}
+            <div className="discovery-quickbuy">
+              <div className="discovery-quickbuy-label">Quick buy</div>
+              <div className="discovery-quickbuy-pills" role="group" aria-label="Quick buy amount">
+                {[10, 25, 50, 100].map(v => (
+                  <button
+                    key={v}
+                    type="button"
+                    className={`discovery-quickbuy-pill ${quickBuyUsd === v ? 'active' : ''}`}
+                    onClick={() => setQuickBuyUsd(v)}
+                  >
+                    ${v}
+                  </button>
+                ))}
+                <input
+                  className="discovery-quickbuy-input"
+                  value={String(quickBuyUsd)}
+                  onChange={(e) => {
+                    const n = Math.max(1, Math.min(10_000, Number(e.target.value.replace(/[^\d]/g, '')) || 0))
+                    setQuickBuyUsd(n)
+                  }}
+                  inputMode="numeric"
+                  aria-label="Custom quick buy amount"
+                />
+              </div>
             </div>
           </div>
         </div>

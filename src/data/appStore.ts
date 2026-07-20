@@ -2,6 +2,7 @@ import { mulberry32 } from '../utils/random'
 import { emitWagerFillNotification } from '../utils/notificationEmitter'
 import { PROFILE_SEEDS, TREND_MARKETS } from './profileRegistry'
 import { tradeRecordsToProfileTrades } from '../utils/tradeHistory'
+import { resolveProfileAvatar } from '../utils/avatarUrl'
 
 export type MarketId = string
 
@@ -210,6 +211,7 @@ const syncCurrentUserProfile = (state: AppState): AppState => {
       ...state.users,
       [CURRENT_USER]: {
         ...base,
+        avatar: resolveProfileAvatar(CURRENT_USER, base.avatar),
         positions: friendPositions,
         trades: friendTrades,
         markets: Math.max(base.markets, new Set(state.trades.map((t) => t.marketId)).size)
@@ -234,6 +236,25 @@ const readLegacyState = (): Partial<AppState> | null => {
   } catch {
     return null
   }
+}
+
+const mergeStoredUsers = (
+  seeded: Record<string, UserProfile>,
+  parsed: Record<string, UserProfile> | undefined
+): Record<string, UserProfile> => {
+  const handles = new Set([...Object.keys(seeded), ...Object.keys(parsed ?? {})])
+  const users: Record<string, UserProfile> = {}
+
+  for (const handle of handles) {
+    const base = { ...seeded[handle], ...parsed?.[handle] }
+    if (!base.handle) continue
+    users[handle] = {
+      ...base,
+      avatar: resolveProfileAvatar(handle, base.avatar)
+    }
+  }
+
+  return users
 }
 
 const hydrateFromStorage = (): AppState => {
@@ -274,10 +295,14 @@ const hydrateFromStorage = (): AppState => {
       wallet: parsed.wallet ?? seeded.wallet,
       positions: parsed.positions ?? {},
       trades: parsed.trades ?? [],
-      users: { ...seeded.users, ...parsed.users },
+      users: mergeStoredUsers(seeded.users, parsed.users),
       ui: { ...seeded.ui, ...parsed.ui }
     }
-    return syncCurrentUserProfile(merged)
+    const synced = syncCurrentUserProfile(merged)
+    if (JSON.stringify(parsed.users ?? {}).includes('betskuu.png')) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(synced))
+    }
+    return synced
   } catch {
     return seedAppState()
   }

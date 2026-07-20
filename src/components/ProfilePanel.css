@@ -16,7 +16,7 @@
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   /* Inter — index.html */
-  --profile-font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --profile-font-ui: var(--font-ui);
   --profile-label: rgba(255, 255, 255, 0.48);
   --profile-label-soft: rgba(255, 255, 255, 0.42);
   --profile-ink: rgba(255, 255, 255, 0.92);
@@ -33,7 +33,7 @@
     0 18px 44px rgba(0, 0, 0, 0.32);
   --profile-row-gap: 14px;
   --profile-left-col: clamp(240px, 16vw, 320px);
-  --profile-right-col: clamp(360px, 28vw, 500px);
+  --profile-right-col: clamp(360px, 26vw, 500px);
   --profile-highlights-band-h: clamp(118px, 12.5vh, 140px);
   --profile-activity-min: clamp(168px, 20vh, 220px);
 }
@@ -42,33 +42,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-sm);
 }
 
 .profile-header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-sm);
 }
 
+/* Uses shared .betski-back (Discovery source of truth) */
 .profile-back-btn {
-  appearance: none;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  color: #d0d0d0;
-  border-radius: 8px;
-  width: 32px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .profile-header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-sm);
   flex-shrink: 0;
 }
 
@@ -78,8 +69,8 @@
   background: rgba(255, 255, 255, 0.04);
   color: rgba(255, 255, 255, 0.78);
   border-radius: 8px;
-  width: 32px;
-  height: 32px;
+  width: var(--icon-btn-md);
+  height: var(--icon-btn-md);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -109,7 +100,7 @@
   right: -4px;
   bottom: -3px;
   padding: 1px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(10, 10, 11, 0.92);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
@@ -153,16 +144,16 @@
 
 .profile-title {
   font-family: var(--profile-font-ui);
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
+  font-size: var(--type-title);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
   text-transform: uppercase;
 }
 
 .profile-content {
   align-items: stretch;
   justify-content: flex-start;
-  padding: 16px;
+  padding: var(--space-md);
   overflow: hidden;
   min-height: 0;
   display: flex;
@@ -345,32 +336,33 @@
   .profile-panel {
     --profile-row-gap: 11px;
     --profile-left-col: clamp(192px, 12.8vw, 256px);
-    --profile-right-col: clamp(304px, 26vw, 448px);
+    /* Equity chart + positions column keeps expanding on wide/tall monitors
+       (the 1920×1080 design value is pinned by the max-height:1080 block below). */
+    --profile-right-col: clamp(304px, 26vw, 620px);
     --profile-highlights-band-h: clamp(100px, 10.8vh, 118px);
     --profile-activity-min: clamp(152px, 18vh, 200px);
   }
 
   .profile-content {
-    padding: 12px;
+    padding: var(--space-sm);
   }
 
   .profile-header {
-    gap: 10px;
+    gap: var(--space-sm);
   }
 
   .profile-title {
-    font-size: 11px;
+    font-size: var(--type-title);
   }
 
-  .profile-back-btn,
   .profile-notif-bell-btn {
-    width: 26px;
-    height: 26px;
+    width: var(--control-2xs);
+    height: var(--control-2xs);
     border-radius: 7px;
   }
 
   .profile-panel .time-btn {
-    font-size: 9px;
+    font-size: var(--type-meta);
     padding: 3px 8px;
   }
 
@@ -386,7 +378,7 @@
 
   .profile-card {
     padding: 11px 10px 10px;
-    gap: 8px;
+    gap: var(--space-xs);
   }
 
   .profile-avatar {
@@ -395,25 +387,25 @@
   }
 
   .profile-card-name {
-    font-size: 11px;
+    font-size: var(--type-body);
   }
 
   .profile-trader-badge {
-    font-size: 8px;
+    font-size: var(--type-meta);
     padding: 2px 6px;
   }
 
   .profile-level,
   .profile-social-label {
-    font-size: 9px;
+    font-size: var(--type-meta);
   }
 
   .profile-social-value {
-    font-size: 10px;
+    font-size: var(--type-meta);
   }
 
   .profile-social-stats {
-    gap: 6px;
+    gap: var(--space-xs);
     padding-top: 3px;
   }
 
@@ -422,16 +414,16 @@
   }
 
   .profile-xp-label {
-    font-size: 8px;
+    font-size: var(--type-meta);
   }
 
   .profile-grid > .profile-trading {
-    padding: 12px;
+    padding: var(--space-sm);
     gap: 9px;
   }
 
   .profile-section-title {
-    font-size: 10px;
+    font-size: var(--type-card-header);
   }
 
   .profile-trading-summary {
@@ -441,11 +433,11 @@
   }
 
   .profile-summary-label {
-    font-size: 8px;
+    font-size: var(--type-meta);
   }
 
   .profile-summary-value {
-    font-size: clamp(21px, 2.5vw, 26px);
+    font-size: var(--type-hero);
   }
 
   .profile-summary-right {
@@ -453,30 +445,30 @@
   }
 
   .profile-summary-k {
-    font-size: 8px;
+    font-size: var(--type-meta);
   }
 
   .profile-summary-v {
-    font-size: 10px;
+    font-size: var(--type-meta);
   }
 
   .profile-trading-details {
     padding: 9px 10px;
-    gap: 6px 8px;
+    gap: var(--space-xs) var(--space-xs);
     border-radius: 10px;
   }
 
   .profile-detail-k {
-    font-size: 9px;
+    font-size: var(--type-meta);
   }
 
   .profile-detail-v {
-    font-size: 10px;
+    font-size: var(--type-meta);
   }
 
   .profile-grid > .profile-last-trades,
   .profile-grid > .profile-side-panel {
-    padding: 12px;
+    padding: var(--space-sm);
     gap: 9px;
   }
 
@@ -502,8 +494,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 14px 12px 12px;
-  gap: 10px;
+  padding: var(--space-md) var(--space-sm) var(--space-sm);
+  gap: var(--space-sm);
   width: 100%;
   max-width: none;
   flex: 0 0 auto;
@@ -554,8 +546,8 @@
   background: rgba(255, 255, 255, 0.04);
   color: rgba(255, 255, 255, 0.72);
   border-radius: 8px;
-  width: 28px;
-  height: 28px;
+  width: var(--icon-btn-xs);
+  height: var(--icon-btn-xs);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -570,8 +562,8 @@
 
 .profile-card-name {
   font-family: var(--profile-font-ui);
-  font-weight: 700;
-  font-size: 13px;
+  font-weight: var(--weight-semibold);
+  font-size: var(--type-body);
   letter-spacing: -0.01em;
   color: var(--profile-ink);
   line-height: 1.2;
@@ -581,7 +573,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: var(--space-2xs);
   width: 100%;
 }
 
@@ -595,7 +587,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-xs);
   width: 100%;
 }
 
@@ -603,9 +595,9 @@
   display: inline-flex;
   align-items: center;
   padding: 3px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-family: var(--profile-font-ui);
-  font-size: 9px;
+  font-size: var(--type-meta);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -616,7 +608,7 @@
 
 .profile-level {
   font-family: var(--profile-font-ui);
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 500;
   color: var(--profile-label);
 }
@@ -631,7 +623,7 @@
 .profile-xp-track {
   width: 100%;
   height: 5px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
@@ -645,7 +637,7 @@
 .profile-xp-label {
   text-align: center;
   font-family: var(--profile-font-ui);
-  font-size: 10px;
+  font-size: var(--type-meta);
   font-weight: 500;
   color: var(--profile-label);
   font-variant-numeric: tabular-nums;
@@ -655,8 +647,8 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-top: 4px;
+  gap: var(--space-xs);
+  padding-top: var(--space-2xs);
   border-top: 1px solid var(--profile-border-soft);
 }
 
@@ -664,7 +656,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-xs);
   min-width: 0;
 }
 
@@ -672,7 +664,7 @@
   color: var(--profile-label);
   font-family: var(--profile-font-ui);
   font-weight: 500;
-  font-size: 11px;
+  font-size: var(--type-meta);
 }
 
 .profile-social-value {
@@ -680,7 +672,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--profile-ink);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--type-card-header);
   letter-spacing: -0.015em;
   white-space: nowrap;
 }
@@ -716,7 +708,7 @@
 
 .profile-grid > .profile-card .profile-avatar {
   flex: 1 1 0;
-  min-height: 72px;
+  min-height: var(--size-72);
   width: min(88%, 100%);
   max-width: 100%;
   max-height: none;
@@ -739,10 +731,10 @@
 }
 
 .profile-trading {
-  padding: 16px;
+  padding: var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-sm);
   width: 100%;
 }
 
@@ -750,15 +742,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .profile-trading-summary {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px 12px;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-sm);
   border-radius: 12px;
   border: 1px solid var(--profile-border);
   background: radial-gradient(circle at 18% 30%, rgba(255, 106, 0, 0.12), transparent 55%),
@@ -770,25 +762,25 @@
 .profile-summary-left {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-xs);
   min-width: 0;
 }
 
 .profile-summary-label {
   color: var(--profile-label);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
+  font-size: var(--type-caption-sm);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
 }
 
 .profile-summary-value {
   font-family: var(--profile-font-ui);
   font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  font-size: clamp(26px, 3.2vw, 32px);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  font-weight: var(--weight-bold);
+  font-size: var(--type-display-lg);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
 }
 
 .profile-summary-value.pos {
@@ -802,20 +794,20 @@
 .profile-summary-right {
   display: grid;
   grid-template-columns: repeat(4, auto);
-  gap: 10px 14px;
+  gap: var(--space-sm) var(--space-md);
   align-items: end;
 }
 
 .profile-summary-kv {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-xs);
   align-items: flex-end;
 }
 
 .profile-summary-k {
   color: var(--profile-label-soft);
-  font-size: 9px;
+  font-size: var(--type-meta);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -826,15 +818,15 @@
   font-variant-numeric: tabular-nums;
   color: var(--profile-ink);
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--type-card-header);
   letter-spacing: -0.02em;
 }
 
 .profile-trading-details {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 10px;
-  padding: 12px 12px;
+  gap: var(--space-xs) var(--space-sm);
+  padding: var(--space-sm) var(--space-sm);
   border-radius: 12px;
   border: 1px solid var(--profile-border-soft);
   background: rgba(0, 0, 0, 0.4);
@@ -845,13 +837,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-sm);
   min-width: 0;
 }
 
 .profile-detail-k {
   color: var(--profile-label);
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 500;
   letter-spacing: 0.02em;
   white-space: nowrap;
@@ -864,7 +856,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--profile-ink);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--type-card-header);
   letter-spacing: -0.015em;
   white-space: nowrap;
 }
@@ -878,54 +870,45 @@
 }
 
 .profile-last-trades {
-  padding: 16px;
+  padding: var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-sm);
   overflow: hidden;
 }
 
 .profile-side-panel {
-  padding: 16px;
+  padding: var(--space-md);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-sm);
   overflow: hidden;
 }
 
 .profile-section-title {
-  font-family: var(--profile-font-ui);
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  background: linear-gradient(135deg, #ffb088 0%, #ff8a80 42%, #ff5e62 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.35));
 }
 
 .profile-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+  gap: var(--space-sm);
 }
 
 .profile-metric {
   background: rgba(0, 0, 0, 0.38);
   border: 1px solid var(--profile-border-soft);
   border-radius: 12px;
-  padding: 10px 10px;
+  padding: var(--space-sm) var(--space-sm);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
   display: flex;
-  gap: 10px;
+  gap: var(--space-sm);
   align-items: center;
 }
 
 .profile-metric-icon {
-  width: 30px;
-  height: 30px;
+  width: var(--icon-btn-sm);
+  height: var(--icon-btn-sm);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -947,56 +930,56 @@
   font-variant-numeric: tabular-nums;
   color: var(--profile-ink);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--type-card-header);
   letter-spacing: -0.015em;
 }
 
 .profile-metric-label {
   color: var(--profile-label);
   font-weight: 600;
-  font-size: 10px;
-  margin-top: 4px;
+  font-size: var(--type-meta);
+  margin-top: var(--space-2xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 @media (min-width: 901px) {
   .profile-summary-value {
-    font-size: clamp(21px, 2.5vw, 26px);
+    font-size: var(--type-hero);
   }
 
   .profile-summary-v {
-    font-size: 10px;
+    font-size: var(--type-meta);
   }
 
   .profile-detail-k {
-    font-size: 9px;
+    font-size: var(--type-meta);
   }
 
   .profile-detail-v {
-    font-size: 10px;
+    font-size: var(--type-meta);
   }
 
   .profile-section-title {
-    font-size: 10px;
+    font-size: var(--type-card-header);
   }
 
   .profile-card-name {
-    font-size: 11px;
+    font-size: var(--type-body);
   }
 
   .profile-trader-badge {
-    font-size: 8px;
+    font-size: var(--type-meta);
     padding: 2px 6px;
   }
 
   .profile-level,
   .profile-social-label {
-    font-size: 9px;
+    font-size: var(--type-meta);
   }
 
   .profile-social-value {
-    font-size: 10px;
+    font-size: var(--type-meta);
   }
 }
 
@@ -1034,7 +1017,7 @@
     width: 100%;
     align-items: stretch;
     justify-content: flex-start;
-    padding: 12px;
+    padding: var(--space-sm);
     overflow: hidden;
   }
 
@@ -1045,9 +1028,9 @@
   .profile-mobile-nav {
     display: flex;
     flex-shrink: 0;
-    gap: 4px;
+    gap: var(--space-2xs);
     padding: 3px;
-    margin-bottom: 10px;
+    margin-bottom: var(--space-sm);
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.05);
@@ -1061,11 +1044,11 @@
     background: transparent;
     color: rgba(255, 255, 255, 0.55);
     font-family: var(--profile-font-ui);
-    font-size: 12px;
+    font-size: var(--type-card-header);
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    padding: 8px 10px;
+    padding: var(--space-xs) var(--space-sm);
     cursor: pointer;
     transition: background 0.15s ease, color 0.15s ease;
   }
@@ -1092,7 +1075,7 @@
   .profile-mobile-section {
     display: none;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-sm);
     width: 100%;
     min-height: 0;
     overflow-y: auto;
@@ -1125,7 +1108,7 @@
   .profile-mobile-section .profile-summary-right {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     width: 100%;
-    gap: 10px 12px;
+    gap: var(--space-sm) var(--space-sm);
   }
 
   .profile-mobile-section .profile-summary-kv {
@@ -1145,7 +1128,7 @@
     flex: 1 1 0;
     width: auto;
     min-width: 0;
-    max-width: 112px;
+    max-width: var(--size-112);
   }
 
   .profile-mobile-section .profile-card {
@@ -1154,7 +1137,7 @@
   }
 
   .profile-mobile-section .profile-avatar {
-    max-width: 140px;
+    max-width: var(--size-140);
   }
 
   .profile-mobile-section .profile-lootboxes-panel,

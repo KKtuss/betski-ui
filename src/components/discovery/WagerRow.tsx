@@ -155,6 +155,7 @@ const WagerRow = ({
           amountUsd={quickBuyUsd}
           marketId={wager.id}
           marketName={wager.name}
+          thumbnailUrls={wager.previews.map((p) => p.thumbnailUrl).filter(Boolean)}
           onExecuteTrade={onExecuteTrade}
         />
       </div>

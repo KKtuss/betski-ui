@@ -26,10 +26,10 @@ export const buildShareMarket = (params: {
     chart,
     timeLeftLabel: selectedMarket.timeLeftLabel,
     thumbnailVideoUrl: selectedMarket.previews[0]?.videoUrl ?? selectedMarket.legacyVideoUrl,
-    thumbnailFallbackSrc: selectedMarket.previews[0]?.thumbnailUrl ?? '/Stems/betskuu.png',
+    thumbnailFallbackSrc: selectedMarket.previews[0]?.thumbnailUrl ?? '/Stems/BetskiPEFFPEE.png',
     thumbnailUrls: selectedMarket.previews
       .slice(0, 3)
-      .map((preview) => preview.thumbnailUrl ?? '/Stems/betskuu.png'),
+      .map((preview) => preview.thumbnailUrl ?? '/Stems/BetskiPEFFPEE.png'),
     volume24h: selectedMarket.volume24h,
     holders: selectedMarket.holders,
     winRate: batch?.top10WinRate ?? 76,

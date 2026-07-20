@@ -27,10 +27,20 @@ type ChartTooltipRowProps = {
   label: string
   value: string
   tone?: 'default' | 'profit' | 'loss' | 'muted'
+  swatchColor?: string
 }
 
-export const ChartTooltipRow = ({ label, value, tone = 'default' }: ChartTooltipRowProps) => (
-  <div className={`chart-tooltip-value chart-tooltip-value--${tone}`.trim()}>
-    {label}&nbsp;{value}
+export const ChartTooltipRow = ({
+  label,
+  value,
+  tone = 'default',
+  swatchColor
+}: ChartTooltipRowProps) => (
+  <div className="chart-tooltip-row">
+    <span className="chart-tooltip-row-label">
+      {swatchColor && <span className="chart-tooltip-swatch" style={{ background: swatchColor }} />}
+      {label}
+    </span>
+    <span className={`chart-tooltip-value chart-tooltip-value--${tone}`.trim()}>{value}</span>
   </div>
 )

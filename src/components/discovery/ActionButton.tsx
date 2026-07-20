@@ -1,40 +1,75 @@
-import { useState } from 'react'
+import { useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const ActionButton = ({ type, price, amountUsd, onTrade }: { type: 'yes' | 'no', price: number, amountUsd: number, onTrade: (type: 'yes' | 'no', price: number, amountUsd: number) => void }) => {
   const [ripples, setRipples] = useState<{ id: number }[]>([])
-  
-  const handleClick = () => {
-    setRipples(prev => [...prev, { id: Date.now() }])
+  const pointerStart = useRef<{ x: number; y: number } | null>(null)
+  const movedTooFar = useRef(false)
+
+  const handlePointerDown = (e: PointerEvent<HTMLButtonElement>) => {
+    pointerStart.current = { x: e.clientX, y: e.clientY }
+    movedTooFar.current = false
+  }
+
+  const handlePointerMove = (e: PointerEvent<HTMLButtonElement>) => {
+    if (!pointerStart.current || movedTooFar.current) return
+    const dx = e.clientX - pointerStart.current.x
+    const dy = e.clientY - pointerStart.current.y
+    if (dx * dx + dy * dy > 64) {
+      // ~8px — treat as scroll/drag, not a tap
+      movedTooFar.current = true
+    }
+  }
+
+  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    if (movedTooFar.current) {
+      movedTooFar.current = false
+      pointerStart.current = null
+      return
+    }
+    pointerStart.current = null
+    setRipples((prev) => [...prev, { id: Date.now() }])
     onTrade(type, price, amountUsd)
+    // Drop sticky :hover/:focus on touch so the pill doesn't look "selected".
+    e.currentTarget.blur()
   }
 
   return (
-    <motion.button 
-      className={`discovery-action-btn ${type}`} 
+    <motion.button
+      type="button"
+      className={`discovery-action-btn ${type}`}
       title={`${type === 'yes' ? 'Long (Yes)' : 'Short (No)'} • $${amountUsd}`}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerCancel={() => {
+        movedTooFar.current = true
+      }}
       onClick={handleClick}
-      whileTap={{ scale: 0.9 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      style={{ position: 'relative', overflow: 'visible' }}
+      whileTap={{ scale: 0.94 }}
+      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+      style={{ position: 'relative', overflow: 'hidden' }}
     >
       <AnimatePresence>
-        {ripples.map(ripple => (
+        {ripples.map((ripple) => (
           <motion.div
             key={ripple.id}
             initial={{ scale: 1, opacity: 0.6 }}
             animate={{ scale: 1.5, opacity: 0 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
             style={{
               position: 'absolute',
-              top: 0, left: 0, right: 0, bottom: 0,
-              borderRadius: '4px',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              borderRadius: 'inherit',
               border: `2px solid ${type === 'yes' ? '#2DD56E' : '#FF4D4D'}`,
               pointerEvents: 'none',
               zIndex: 0
             }}
-            onAnimationComplete={() => setRipples(prev => prev.filter(r => r.id !== ripple.id))}
+            onAnimationComplete={() => setRipples((prev) => prev.filter((r) => r.id !== ripple.id))}
           />
         ))}
       </AnimatePresence>

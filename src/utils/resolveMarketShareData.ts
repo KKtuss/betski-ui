@@ -34,10 +34,10 @@ export const resolveMarketShareData = (marketId: string): ResolvedMarketShare | 
     priceChange: batch?.priceChange ?? 0,
     timeLeftLabel: market.timeLeftLabel,
     thumbnailVideoUrl: market.previews[0]?.videoUrl,
-    thumbnailFallbackSrc: market.previews[0]?.thumbnailUrl ?? '/Stems/betskuu.png',
+    thumbnailFallbackSrc: market.previews[0]?.thumbnailUrl ?? '/Stems/BetskiPEFFPEE.png',
     thumbnailUrls: market.previews
       .slice(0, 3)
-      .map((preview) => preview.thumbnailUrl ?? '/Stems/betskuu.png'),
+      .map((preview) => preview.thumbnailUrl ?? '/Stems/BetskiPEFFPEE.png'),
     volume24h: market.volume24h,
     holders: market.holders,
     winRate: batch?.top10WinRate ?? 76

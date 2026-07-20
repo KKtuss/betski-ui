@@ -24,10 +24,10 @@
   --video-top-control-size: clamp(36px, min(7.4cqw, 5cqh), 46px);
   --video-edge-offset: clamp(10px, min(3.2cqw, 2.1cqh), 18px);
   --video-bottom-offset: clamp(10px, min(2.8cqw, 1.9cqh), 18px);
-  --video-overlay-title-font: clamp(15px, min(3.5cqw, 2.3cqh), 18px);
-  --video-overlay-meta-font: clamp(12px, min(2.65cqw, 1.75cqh), 14px);
-  --video-overlay-handle-font: clamp(14px, min(3.1cqw, 2.05cqh), 17px);
-  --video-overlay-avatar-size: clamp(38px, min(8.2cqw, 5.5cqh), 50px);
+  --video-overlay-title-font: clamp(15px, min(3.6cqw, 2.4cqh), 18px);
+  --video-overlay-meta-font: clamp(12px, min(2.8cqw, 1.9cqh), 14px);
+  --video-overlay-handle-font: clamp(14px, min(3.2cqw, 2.15cqh), 16px);
+  --video-overlay-avatar-size: clamp(44px, min(10cqw, 6.5cqh), 56px);
   --video-overlay-icon-size: clamp(22px, min(5cqw, 3.4cqh), 30px);
 }
 
@@ -39,12 +39,42 @@
   min-height: 0;
 }
 
+
 .video-main-stage {
   position: relative;
   width: 100%;
   height: 100%;
   container-type: size;
   min-width: 0;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+/* Single-page vertical transition — real content only, no peek thumbnails. */
+.video-feed-page {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+/* Offscreen player warm — boots TikTok/YouTube JS before the next market mounts. */
+.video-embed-warmup {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  left: -9999px;
+  top: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video-embed-warmup iframe {
+  width: 1px;
+  height: 1px;
+  border: 0;
 }
 
 .video-scroller {
@@ -74,21 +104,42 @@
   height: 100%;
   width: max-content;
   align-items: center;
-  justify-content: center;
-  padding-left: 8px;
+  justify-content: flex-start;
+  /* Edge padding is set in JS (syncScrollEdgePadding) so first/last cards can center */
+  padding-left: 0;
+  padding-right: 0;
   box-sizing: border-box;
   gap: 0;
 }
 
 .video-overlay-info {
   position: absolute;
-  /* Anchor to the visible 9:16 card, not the wider outer panel. */
-  left: calc(((100cqw - var(--video-visible-card-width)) / 2) + var(--video-card-edge-inset) - var(--video-card-left-bias));
+  /* Pin to the measured active card (JS --overlay-sync-*). Fallback calc
+     keeps a reasonable position before the first sync tick. */
+  left: var(
+    --overlay-sync-left,
+    calc(((100cqw - var(--video-visible-card-width)) / 2) + var(--video-card-edge-inset))
+  );
   right: auto;
-  bottom: calc(var(--video-gutter, 0px) + var(--video-card-bottom-inset));
+  bottom: var(
+    --overlay-sync-bottom,
+    calc(var(--video-gutter, 0px) + var(--video-card-bottom-inset))
+  );
   z-index: 50;
-  width: calc(var(--video-visible-card-width) - var(--video-action-gutter) - (var(--video-card-edge-inset) * 2) - clamp(20px, min(4cqw, 2.5cqh), 32px));
-  max-width: calc(var(--video-visible-card-width) - var(--video-action-gutter) - (var(--video-card-edge-inset) * 2) - clamp(20px, min(4cqw, 2.5cqh), 32px));
+  width: var(
+    --overlay-sync-width,
+    calc(
+      var(--video-visible-card-width) - var(--video-action-gutter) -
+        (var(--video-card-edge-inset) * 2) - clamp(20px, min(4cqw, 2.5cqh), 32px)
+    )
+  );
+  max-width: var(
+    --overlay-sync-width,
+    calc(
+      var(--video-visible-card-width) - var(--video-action-gutter) -
+        (var(--video-card-edge-inset) * 2) - clamp(20px, min(4cqw, 2.5cqh), 32px)
+    )
+  );
   min-width: 0;
   pointer-events: none;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
@@ -145,11 +196,11 @@
 .creator-name {
   color: #ffffff;
   font-size: var(--video-overlay-handle-font);
-  font-weight: 800;
+  font-weight: var(--weight-bold);
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-xs);
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
@@ -175,12 +226,15 @@
   -webkit-box-orient: vertical;
 }
 
-.creator-details .market-description + .market-description {
+.creator-details .market-description + .market-description,
+.market-description--meta {
   font-size: var(--video-overlay-meta-font) !important;
   margin-top: clamp(2px, min(0.8cqw, 0.5cqh), 4px) !important;
   line-height: 1.25;
   white-space: nowrap;
   display: block;
+  opacity: 0.78;
+  font-weight: 600;
 }
 
 .container-controls-anchor {
@@ -265,10 +319,10 @@
   background: transparent;
   border: none;
   color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 14px;
+  font-family: var(--font-ui);
+  font-size: var(--type-body);
   outline: none;
-  padding-right: 12px;
+  padding-right: var(--space-sm);
   min-width: 0;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -304,10 +358,10 @@
 }
 
 .position-amount {
-  font-size: clamp(13px, min(3.1cqw, 2cqh), 18px);
-  font-weight: 900;
+  font-size: var(--type-stat-lg);
+  font-weight: var(--weight-bold);
   color: #fff;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-ui);
   line-height: 1;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
   padding: 0;
@@ -324,7 +378,7 @@
   align-items: center;
   justify-content: center;
   gap: clamp(2px, min(0.7cqw, 0.45cqh), 4px);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-ui);
   font-variant-numeric: tabular-nums;
 }
 
@@ -451,7 +505,7 @@
   transition: opacity 0.15s ease, color 0.15s ease, filter 0.15s ease;
   opacity: 1;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.65));
-  margin-top: 8px;
+  margin-top: var(--space-xs);
 }
 
 .sound-toggle-button:hover {
@@ -487,7 +541,8 @@
     flex-direction: column;
     overflow: hidden;
     --video-mobile-rail: clamp(60px, 15vw, 68px);
-    --video-card-max-width: calc(100cqw - var(--video-mobile-rail) - 2px);
+    --video-mobile-left-inset: 6px;
+    --video-card-max-width: calc(100cqw - var(--video-mobile-rail) - var(--video-mobile-left-inset));
     --video-action-gutter: 6px;
     --video-card-overlap: clamp(12px, 3.5cqw, 28px);
     --video-overlay-engagement-gutter: 52px;
@@ -497,37 +552,51 @@
     position: relative;
     top: auto;
     right: auto;
-    width: 100%;
-    height: 44px;
+    left: auto;
+    width: auto;
+    max-width: none;
+    height: var(--control-5xl);
     flex-shrink: 0;
-    margin-bottom: 8px;
-    border-radius: 12px;
-    overflow: visible;
+    /* Inset from the viewport so rounded corners aren't clipped */
+    margin: 0 4px 8px;
+    border-radius: 10px;
+    overflow: hidden;
     background: rgba(255, 255, 255, 0.12);
   }
 
   .layout--mobile-main .video-search-bar:focus-within,
   .layout--mobile-main .video-search-bar:hover {
-    width: 100%;
+    width: auto;
+    max-width: none;
     background: rgba(0, 0, 0, 0.55);
   }
 
   .layout--mobile-main .video-search-bar .search-form {
     width: 100%;
+    max-width: none;
   }
 
   .layout--mobile-main .video-search-bar .search-input {
     opacity: 1;
   }
 
-  /* Full-width scroller; controls float on a transparent rail so next-card peeks show through. */
+
   .layout--mobile-main .video-stage-row {
-    container-type: size;
+    container: video-stage / size;
+    /* Both axes are JS-driven: X = bundle swipe, Y = next/prev market. */
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+
+  .layout--mobile-main .video-container-wrapper {
+    overflow-x: hidden;
+    overscroll-behavior-x: none;
   }
 
   .layout--mobile-main .video-main-stage {
     width: 100%;
     height: 100%;
+    overflow: hidden;
   }
 
   .layout--mobile-main .video-scroller {
@@ -537,11 +606,27 @@
     width: 100%;
     height: 100%;
     scroll-behavior: auto;
-    touch-action: pan-x pan-y;
+    /* Horizontal paging is JS-driven from the stage row */
+    touch-action: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: none;
+    padding-block: 0;
   }
 
   .layout--mobile-main .video-card {
     scroll-snap-align: none;
+  }
+
+  .layout--mobile-main .media-card--tiktok .media-embed {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    transform: none;
+    /* Embeds eat touch events; swipes must hit our stage handlers instead */
+    pointer-events: none;
   }
 
   .layout--mobile-main .video-overlay-info {
@@ -550,16 +635,34 @@
     width: var(--overlay-sync-width, calc(100% - 72px));
     max-width: var(--overlay-sync-width, calc(100% - 72px));
     right: auto;
+    z-index: 60;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Full-stage containing block so --mobile-controls-left (stage-row coords) is correct.
+     Desktop anchor is a tiny right-edge box; using that as the absolute parent shoved
+     YES/NO off-screen and overflow:hidden clipped them. */
+  .layout--mobile-main .container-controls-anchor {
+    inset: 0;
+    right: auto;
+    top: auto;
+    transform: none;
+    width: 100%;
+    height: 100%;
   }
 
   .layout--mobile-main .container-controls {
     position: absolute;
     left: var(--mobile-controls-left, auto);
     right: auto;
-    top: 42%;
-    transform: translateY(-50%);
+    /* Center on the card via auto margins ? framer-motion owns the inline
+       transform, so translateY(-50%) would get clobbered. */
+    top: 0;
+    bottom: 0;
+    margin-block: auto;
     align-self: auto;
-    height: auto;
+    height: fit-content;
     flex-shrink: 0;
     width: var(--video-mobile-rail);
     justify-content: center;
@@ -579,27 +682,47 @@
     left: auto;
     margin-left: 0;
     transform: none;
-    margin-top: 4px;
+    /* Even rhythm: rely on the rail's flex gap instead of an extra offset */
+    margin-top: 0;
   }
 
+  /* Never crop the media frame: cards keep full stage height and clamp their
+     width to the space left of the action rail. TikTok letterboxes internally,
+     so its own chrome stays visible even when the box is slimmer than 9:16
+     (square phones such as iPhone 8). */
   .layout--mobile-main .video-card {
-    max-width: calc(100cqw - var(--video-mobile-rail, 68px) - 2px);
+    width: auto;
+    height: calc((100% - (2 * var(--video-gutter, 0px))) * var(--video-card-scale, 1));
+    max-height: 100%;
+    max-width: var(--video-card-max-width);
+    aspect-ratio: 9 / 16;
   }
 
   .layout--mobile-main .video-scroll-wrapper {
-    padding-left: 6px;
+    padding-left: 0;
+    padding-right: 0;
+    align-items: center;
   }
 
   .layout--mobile-main .video-card:first-child {
-    margin-left: 6px;
+    margin-left: 0;
   }
 
   .layout--mobile-main .video-card:last-child {
-    margin-right: 2px;
+    margin-right: 0;
   }
 
   .layout--mobile-main .creator-profile {
     max-width: 100%;
+  }
+
+  /* Squarer phones (iPhone 8-class, viewport wider than ~0.54:1): claw back
+     vertical space for the video by tightening the search bar. */
+  @media (min-aspect-ratio: 13/24) {
+    .layout--mobile-main .video-search-bar {
+      height: var(--control-xl);
+      margin: 0 4px 4px;
+    }
   }
 
   .layout--mobile-main .creator-details .market-description:first-of-type {
@@ -623,10 +746,10 @@
     --video-top-control-size: clamp(34px, min(8cqw, 5.4cqh), 40px);
     --video-edge-offset: clamp(8px, min(2.5cqw, 1.7cqh), 12px);
     --video-bottom-offset: clamp(8px, min(2.4cqw, 1.6cqh), 12px);
-    --video-overlay-title-font: clamp(14px, min(3.5cqw, 2.3cqh), 16px);
-    --video-overlay-meta-font: clamp(11px, min(2.65cqw, 1.75cqh), 13px);
-    --video-overlay-handle-font: clamp(13px, min(3.1cqw, 2.05cqh), 15px);
-    --video-overlay-avatar-size: clamp(36px, min(8.4cqw, 5.6cqh), 42px);
+    --video-overlay-title-font: clamp(15px, min(4.2cqw, 2.6cqh), 17px);
+    --video-overlay-meta-font: clamp(12px, min(3.2cqw, 2cqh), 13px);
+    --video-overlay-handle-font: clamp(14px, min(3.8cqw, 2.35cqh), 16px);
+    --video-overlay-avatar-size: clamp(46px, min(11cqw, 7cqh), 54px);
     --video-overlay-icon-size: clamp(20px, min(5.2cqw, 3.5cqh), 26px);
   }
 }
@@ -643,10 +766,10 @@
     --video-card-bottom-inset: clamp(16px, min(2.8cqw, 1.9cqh), 26px);
     --video-action-gutter: clamp(54px, min(9cqw, 6cqh), 72px);
     --video-top-control-size: clamp(42px, min(6.8cqw, 4.6cqh), 50px);
-    --video-overlay-title-font: clamp(15px, min(2.65cqw, 1.8cqh), 18px);
-    --video-overlay-meta-font: clamp(12px, min(2.15cqw, 1.45cqh), 14px);
-    --video-overlay-handle-font: clamp(14px, min(2.35cqw, 1.6cqh), 17px);
-    --video-overlay-avatar-size: clamp(38px, min(6.3cqw, 4.25cqh), 50px);
+    --video-overlay-title-font: clamp(16px, min(2.8cqw, 2cqh), 19px);
+    --video-overlay-meta-font: clamp(12px, min(2.2cqw, 1.6cqh), 14px);
+    --video-overlay-handle-font: clamp(14px, min(2.5cqw, 1.8cqh), 17px);
+    --video-overlay-avatar-size: clamp(48px, min(7.5cqw, 5.2cqh), 58px);
     --video-overlay-icon-size: clamp(24px, min(4.5cqw, 3cqh), 32px);
   }
 }

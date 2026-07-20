@@ -1,9 +1,14 @@
 const PROXY_HOST_PATTERNS = [
   'tiktokcdn',
   'tiktokv.com',
+  'ttlivecdn',
+  'muscdn',
+  'byteoversea',
+  'ibyteimg',
   'cdninstagram',
   'fbcdn.net',
-  'instagram.com'
+  'instagram.com',
+  'googleusercontent.com'
 ]
 
 function needsThumbnailProxy(url: string): boolean {
@@ -21,7 +26,7 @@ function needsThumbnailProxy(url: string): boolean {
 }
 
 export function proxiedThumbnailUrl(url: string): string {
-  if (!url) return '/Stems/betskuu.png'
+  if (!url) return '/Stems/BetskiPEFFPEE.png'
   if (url.startsWith('/cache/thumbnails/')) return url
   if (url.startsWith('data:')) return url
   if (url.startsWith('/api/thumbnail-proxy')) return url

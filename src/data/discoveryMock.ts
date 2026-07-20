@@ -15,8 +15,8 @@ const FRIENDS: { handle: string; avatar: string }[] = [
   { handle: 'moggorrr',   avatar: '/Stems/moggorrr transparent.png' },
   { handle: 'epstein',    avatar: '/Stems/epstein transparent.png' },
   { handle: 'MarkDiTob',  avatar: '/Stems/moggorrr transparent.png' },
-  { handle: 'DeskWhale',  avatar: '/Stems/betskuu.png' },
-  { handle: 'ClipQueen',  avatar: '/Stems/betskuu.png' }
+  { handle: 'DeskWhale',  avatar: '/Stems/BetskiPEFFPEE.png' },
+  { handle: 'ClipQueen',  avatar: '/Stems/benbetski transparent.png' }
 ]
 
 export const buildFriendBuys = (
@@ -211,7 +211,7 @@ export const formatTimeLeftFromTimestamp = (resolutionTimestamp: number, now: nu
 
 const WAGER_CREATOR_HANDLES = [
   'BenBetski', 'moggorrr', 'epstein', 'MarkDiTob', 'DeskWhale', 'ClipQueen',
-  'fadeking', 'tapeMaster', 'rugpullRick'
+  'CryptoKiwi', 'NovaTape', 'ViralVince'
 ]
 
 const WAGER_SPECS: {

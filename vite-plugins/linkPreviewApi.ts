@@ -8,7 +8,7 @@ import {
   readCachedThumbnail,
   writeCachedThumbnail
 } from './thumbnailCache'
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, renameSync } from 'fs'
 import { join } from 'path'
 import {
   fetchThumbnailBuffer,
@@ -40,14 +40,41 @@ function loadDiscoveryCatalog(): string | null {
   return null
 }
 
-function saveDiscoveryCatalog(data: string): void {
+// The catalog is POSTed many times per second; a raw writeFileSync on every
+// request collides with Vite's file watcher (and itself) on Windows and throws
+// UNKNOWN/EBUSY. Coalesce rapid saves into a single debounced, atomic write.
+let pendingCatalog: string | null = null
+let catalogWriteTimer: ReturnType<typeof setTimeout> | null = null
+
+function writeCatalogAtomic(data: string, attempt = 0): void {
+  const tmp = `${DISCOVERY_STORAGE_FILE}.tmp`
   try {
-    console.log('Writing to file:', DISCOVERY_STORAGE_FILE)
-    writeFileSync(DISCOVERY_STORAGE_FILE, data, 'utf-8')
-    console.log('File written successfully')
+    // Write to a temp file then atomically swap — the watcher never sees a
+    // half-written file, and the target is only ever briefly renamed onto.
+    writeFileSync(tmp, data, 'utf-8')
+    renameSync(tmp, DISCOVERY_STORAGE_FILE)
   } catch (error) {
+    if (attempt < 4) {
+      setTimeout(() => writeCatalogAtomic(data, attempt + 1), 120)
+      return
+    }
     console.error('Failed to save discovery catalog:', error)
   }
+}
+
+function flushDiscoveryCatalog(): void {
+  catalogWriteTimer = null
+  if (pendingCatalog === null) return
+  const data = pendingCatalog
+  pendingCatalog = null
+  writeCatalogAtomic(data)
+}
+
+function saveDiscoveryCatalog(data: string): void {
+  // Keep only the latest snapshot; flush once the writes go quiet.
+  pendingCatalog = data
+  if (catalogWriteTimer) return
+  catalogWriteTimer = setTimeout(flushDiscoveryCatalog, 250)
 }
 
 const linkPreviewMiddleware: Connect.NextHandleFunction = async (req, res, next) => {
@@ -78,8 +105,12 @@ const linkPreviewMiddleware: Connect.NextHandleFunction = async (req, res, next)
       views: data.views ?? null,
       likes: data.likes ?? null,
       shares: data.shares ?? null,
+      comments: data.comments ?? null,
       videoUrl: data.videoUrl ?? null,
-      embedUrl: data.embedUrl ?? null
+      embedUrl: data.embedUrl ?? null,
+      authorName: data.authorName ?? null,
+      authorHandle: data.authorHandle ?? null,
+      authorAvatarUrl: data.authorAvatarUrl ?? null
     }))
   } catch {
     res.statusCode = 500
@@ -177,18 +208,13 @@ const videoProxyMiddleware: Connect.NextHandleFunction = async (req, res, next) 
 const discoveryCatalogMiddleware: Connect.NextHandleFunction = async (req, res, next) => {
   if (!req.url?.startsWith('/api/discovery-catalog')) return next()
 
-  console.log('Discovery catalog API called:', req.method, req.url)
-
   if (req.method === 'GET') {
-    console.log('Loading discovery catalog from file...')
     const data = loadDiscoveryCatalog()
     if (data) {
-      console.log('Catalog loaded successfully, size:', data.length)
       res.statusCode = 200
       res.setHeader('Content-Type', 'application/json')
       res.end(data)
     } else {
-      console.log('Catalog not found in file')
       res.statusCode = 404
       res.setHeader('Content-Type', 'application/json')
       res.end(JSON.stringify({ error: 'Catalog not found' }))
@@ -198,9 +224,7 @@ const discoveryCatalogMiddleware: Connect.NextHandleFunction = async (req, res, 
       let body = ''
       req.on('data', chunk => { body += chunk.toString() })
       req.on('end', () => {
-        console.log('Saving discovery catalog to file, size:', body.length)
         saveDiscoveryCatalog(body)
-        console.log('Catalog saved successfully')
         res.statusCode = 200
         res.setHeader('Content-Type', 'application/json')
         res.end(JSON.stringify({ success: true }))

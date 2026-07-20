@@ -2,14 +2,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-sm);
   flex-wrap: wrap;
 }
 
 .profile-tape-tabs {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-2xs);
   padding: 3px;
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.28);
@@ -21,10 +21,10 @@
   border: none;
   background: transparent;
   color: rgba(255, 255, 255, 0.5);
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 600;
   font-family: var(--profile-font-ui);
-  padding: 6px 12px;
+  padding: var(--space-xs) var(--space-sm);
   border-radius: 6px;
   cursor: pointer;
   letter-spacing: 0.06em;
@@ -55,11 +55,11 @@
 
 .profile-trade-row {
   display: grid;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-sm);
   font-family: var(--profile-font-ui);
   font-variant-numeric: tabular-nums;
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 500;
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.045);
@@ -127,7 +127,7 @@
 
 /* Discovery-style phone thumb (9:16, Picsum 360×640) */
 .profile-trade-thumb-spacer {
-  height: 40px;
+  height: var(--control-3xl);
   width: auto;
   aspect-ratio: 9 / 16;
   justify-self: start;
@@ -137,7 +137,7 @@
 }
 
 .profile-trade-thumb-wrap {
-  height: 40px;
+  height: var(--control-3xl);
   width: auto;
   aspect-ratio: 9 / 16;
   justify-self: start;
@@ -160,7 +160,7 @@
 
 .profile-trade-type-col {
   font-weight: 700;
-  font-size: 10px;
+  font-size: var(--type-meta);
   letter-spacing: 0.06em;
   text-align: right;
 }
@@ -175,7 +175,7 @@
 
 .profile-trade-outcome {
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--type-meta);
   text-align: center;
 }
 
@@ -192,7 +192,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: var(--space-2xs);
   padding-top: 1px;
 }
 
@@ -202,7 +202,7 @@
 
 .profile-trade-market-side {
   font-weight: 600;
-  font-size: 10px;
+  font-size: var(--type-meta);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0;
@@ -233,7 +233,7 @@
   color: rgba(255, 255, 255, 0.42);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-size: 9px;
+  font-size: var(--type-meta);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
@@ -261,7 +261,7 @@
   color: rgba(255, 255, 255, 0.94);
   font-family: var(--profile-font-ui);
   font-weight: 600;
-  font-size: 12px;
+  font-size: var(--type-card-header);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -307,9 +307,9 @@
 
   .profile-trade-row--activity {
     grid-template-columns: 48px minmax(0, 1fr) 42px 42px 34px;
-    gap: 6px;
-    padding: 8px;
-    font-size: 10px;
+    gap: var(--space-xs);
+    padding: var(--space-xs);
+    font-size: var(--type-meta);
   }
 
   .profile-trade-row--activity .profile-trade-thumb-spacer,
@@ -319,7 +319,7 @@
 
   .profile-trade-row--activity .profile-trade-market,
   .profile-trade-row--activity .profile-trade-market--feed {
-    font-size: 10px;
+    font-size: var(--type-meta);
     line-height: 1.25;
     white-space: normal;
     display: -webkit-box;
@@ -329,18 +329,18 @@
   }
 
   .profile-trade-row--activity .profile-trade-market-side {
-    font-size: 9px;
+    font-size: var(--type-meta);
   }
 
   .profile-trade-row--activity .profile-trade-type-col {
-    font-size: 9px;
+    font-size: var(--type-meta);
   }
 
   .profile-trade-row--history {
     grid-template-columns: minmax(0, 1fr) 36px 44px 44px 52px 24px;
-    gap: 6px;
-    padding: 8px;
-    font-size: 10px;
+    gap: var(--space-xs);
+    padding: var(--space-xs);
+    font-size: var(--type-meta);
   }
 
   .profile-trade-row--history .profile-trade-thumb-spacer,
@@ -349,7 +349,7 @@
   }
 
   .profile-trade-row--history .profile-trade-market {
-    font-size: 10px;
+    font-size: var(--type-meta);
     white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -364,7 +364,7 @@
   }
 
   .profile-panel .profile-tape-tab {
-    font-size: 9px;
+    font-size: var(--type-meta);
     padding: 5px 9px;
     border-radius: 5px;
   }
@@ -374,9 +374,9 @@
   }
 
   .profile-panel .profile-trade-row {
-    padding: 8px 10px;
-    gap: 8px;
-    font-size: 9px;
+    padding: var(--space-xs) var(--space-sm);
+    gap: var(--space-xs);
+    font-size: var(--type-meta);
   }
 
   .profile-panel .profile-trade-row--activity {
@@ -385,25 +385,25 @@
 
   .profile-panel .profile-trade-thumb-spacer,
   .profile-panel .profile-trade-thumb-wrap {
-    height: 32px;
+    height: var(--control-md);
     border-radius: 5px;
   }
 
   .profile-panel .profile-trade-type-col {
-    font-size: 8px;
+    font-size: var(--type-meta);
   }
 
   .profile-panel .profile-trade-outcome {
-    font-size: 9px;
+    font-size: var(--type-meta);
   }
 
   .profile-panel .profile-trade-market,
   .profile-panel .profile-trade-market--feed {
-    font-size: 9px;
+    font-size: var(--type-meta);
   }
 
   .profile-panel .profile-trade-market-side {
-    font-size: 8px;
+    font-size: var(--type-meta);
   }
 
   .profile-panel .profile-trade-share-btn {

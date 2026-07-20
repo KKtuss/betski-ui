@@ -120,8 +120,8 @@ const NotificationCenterPanel = ({
     >
       <div className="panel-header notification-center-header">
         {!isPopover && (
-          <button type="button" className="notification-back-btn" onClick={onBack} aria-label="Back">
-            <ArrowLeft size={20} strokeWidth={2.25} />
+          <button type="button" className="betski-back notification-back-btn" onClick={onBack} aria-label="Back">
+            <ArrowLeft size={20} strokeWidth={2} />
           </button>
         )}
         <div className="notification-center-title">

@@ -72,11 +72,11 @@
 }
 
 .profile-lootboxes-panel--half .profile-lootboxes-row {
-  --lootbox-size: 72px;
+  --lootbox-size: var(--size-72);
   position: relative;
   inset: auto;
   height: auto;
-  min-height: 72px;
+  min-height: var(--size-72);
   align-items: center;
 }
 
@@ -89,7 +89,7 @@
 }
 
 .profile-lootboxes-row {
-  --lootbox-size: 72px;
+  --lootbox-size: var(--size-72);
   display: flex;
   gap: 10px;
   width: 100%;
@@ -250,8 +250,8 @@
 
 @media (max-width: 1050px) {
   .profile-lootboxes-panel--half .profile-lootboxes-row {
-    --lootbox-size: 60px;
-    min-height: 68px;
+    --lootbox-size: var(--size-60);
+    min-height: var(--size-68);
   }
 
   .profile-lootboxes-panel--half .lootbox-chip {
@@ -263,10 +263,10 @@
 
 @media (max-width: 900px) {
   .profile-mobile-section .profile-lootboxes-panel--half .profile-lootboxes-row {
-    --lootbox-size: 60px;
+    --lootbox-size: var(--size-60);
     flex: 0 0 auto;
     height: auto;
-    min-height: 72px;
+    min-height: var(--size-72);
     padding: 8px 13px 10px;
   }
 

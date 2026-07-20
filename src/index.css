@@ -4,6 +4,8 @@
   box-sizing: border-box;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+  /* Kill the default mobile blue/grey tap flash on every pressable element */
+  -webkit-tap-highlight-color: transparent;
 }
 
 *::-webkit-scrollbar {
@@ -13,12 +15,12 @@
 
 *::-webkit-scrollbar-track {
   background: transparent;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 *::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 *::-webkit-scrollbar-thumb:hover {
@@ -50,8 +52,144 @@ body {
 }
 
 :root {
-  font-size: clamp(12.6px, 0.765vw, 14.4px);
-  --app-shell-max-width: 1728px;
+  font-size: 14px;
+  /* Fluid desktop shell — no longer a fixed 1728px canvas.
+     At 1920 (@100%): 90vw == 1728px, so the reference layout is preserved exactly.
+     Above 1920 the shell progressively expands (2560 → 2304px ≈ +33% usable width;
+     3440 → capped 3200px) so charts/orderbooks/tables/feeds keep growing while
+     side whitespace stays a balanced ~5vw gutter per edge. */
+  --app-shell-max-width: clamp(1728px, 90vw, 3200px);
+
+  /* ── Semantic spacing scale (1920×1080 baseline) ──
+     Rebased from legacy 2560-canvas literals. Tune density here only.
+     --space-2xs  compact gaps inside controls / hairline rhythm
+     --space-xs    tight gaps between related inline elements
+     --space-sm    form fields, button padding, inner card spacing
+     --space-md    card padding, panel section insets
+     --space-lg    section separation, stacked card gaps
+     --space-xl    page-level / major block separation */
+  --space-2xs: 3px;
+  --space-xs: 6px;
+  --space-sm: 10px;
+  --space-md: 14px;
+  --space-lg: 20px;
+  --space-xl: 28px;
+
+  /* Legacy numeric aliases → semantic scale */
+  --space-1: var(--space-2xs);
+  --space-2: var(--space-xs);
+  --space-3: var(--space-sm);
+  --space-4: var(--space-md);
+  --space-5: var(--space-lg);
+  --space-6: var(--space-xl);
+
+  /* ── Radius tokens ── */
+  --radius-pill: 999px;
+
+  /* ── LAYOUT primitives (1:1 — do NOT density-scale) ──
+     Reserved for structural dimensions that must track the layout
+     grid: panel/card widths, popovers, media/chart blocks, thumbnail
+     stacks. UI *chrome* (controls, icons, avatars, rows, nav) uses the
+     semantic tokens further below, which carry the ~0.9 density. */
+  --size-26: 26px;
+  --size-28: 28px;
+  --size-30: 30px;
+  --size-32: 32px;
+  --size-34: 34px;
+  --size-36: 36px;
+  --size-38: 38px;
+  --size-40: 40px;
+  --size-42: 42px;
+  --size-44: 44px;
+  --size-48: 48px;
+  --size-52: 52px;
+  --size-56: 56px;
+  --size-60: 60px;
+  --size-62: 62px;
+  --size-64: 64px;
+  --size-68: 68px;
+  --size-70: 70px;
+  --size-72: 72px;
+  --size-78: 78px;
+  --size-94: 80px;
+  --size-96: 96px;
+  --size-110: 96px;
+  --size-112: 112px;
+  --size-120: 104px;
+  --size-140: 140px;
+  --size-148: 128px;
+  --size-220: 220px;
+  --size-420: 420px;
+
+  /* ══════════════════════════════════════════════════════════════════
+     SEMANTIC DENSITY TOKENS — canonical baseline: 1920×1080 @ 100% zoom
+     ──────────────────────────────────────────────────────────────────
+     UI chrome (nav, icons, avatars, controls, rows, thumbnails, panel
+     chrome) is tuned to ~0.9 of the legacy 2560-canvas sizing so the app
+     reads at a professional desktop density without browser zoom.
+     Layout dimensions (panel/shell/grid widths, chart & media areas)
+     deliberately stay on the --size-* primitives above (1:1).
+     The --control-* scale is the single source of truth; every other
+     category aliases into it, so density is tunable from one place. ── */
+
+  /* Control / button size scale (primitive density scale) */
+  --control-2xs: 24px;   /* legacy 26 */
+  --control-xs: 25px;    /* legacy 28 */
+  --control-sm: 27px;    /* legacy 30 */
+  --control-md: 29px;    /* legacy 32 */
+  --control-lg: 31px;    /* legacy 34 */
+  --control-xl: 32px;    /* legacy 36 */
+  --control-2xl: 34px;   /* legacy 38 */
+  --control-3xl: 36px;   /* legacy 40 */
+  --control-4xl: 38px;   /* legacy 42 */
+  --control-5xl: 40px;   /* legacy 44 */
+  --control-6xl: 43px;   /* legacy 48 */
+  --control-7xl: 47px;   /* legacy 52 */
+  --control-8xl: 50px;   /* legacy 56 */
+  --control-9xl: 56px;   /* legacy 62 */
+  --control-10xl: 58px;  /* legacy 64 */
+  --control-11xl: 61px;  /* legacy 68 */
+  --control-12xl: 63px;  /* legacy 70 */
+
+  /* Navigation (bottom bar) */
+  --nav-height: 52px;
+  --nav-logo: var(--control-8xl);      /* 56 → 50 */
+  --nav-logo-lg: var(--control-9xl);   /* 62 → 56 */
+  --nav-icon: var(--control-3xl);      /* 36 — closer optical weight to center logo */
+  --nav-item-min: var(--control-6xl);  /* 48 → 43 */
+
+  /* Icon buttons */
+  --icon-btn-xs: var(--control-xs);    /* 28 → 25 */
+  --icon-btn-sm: var(--control-sm);    /* 30 → 27 */
+  --icon-btn-md: var(--control-md);    /* 32 → 29 */
+  --icon-btn-lg: var(--control-xl);    /* 36 → 32 */
+  --icon-btn-xl: var(--control-3xl);   /* 40 → 36 */
+
+  /* Avatars */
+  --avatar-2xs: var(--control-2xs);    /* 26 → 24 */
+  --avatar-xs: var(--control-xs);      /* 28 → 25 */
+  --avatar-sm: var(--control-md);      /* 32 → 29 */
+  --avatar-md: var(--control-xl);      /* 36 → 32 */
+  --avatar-lg: var(--control-4xl);     /* 42 → 38 */
+
+  /* Table / list rows */
+  --row-sm: var(--control-md);         /* 32 → 29 */
+  --row-md: var(--control-5xl);        /* 44 → 40 */
+  --row-lg: var(--control-6xl);        /* 48 → 43 */
+
+  /* Thumbnails (chrome imagery — not media containers) */
+  --thumb-xs: var(--control-xs);       /* 28 → 25 */
+  --thumb-sm: var(--control-sm);       /* 30 → 27 */
+  --thumb-md: var(--control-lg);       /* 34 → 31 */
+  --thumb-lg: var(--control-2xl);      /* 38 → 34 */
+  --thumb-xl: var(--control-4xl);      /* 42 → 38 */
+  --thumb-2xl: var(--control-8xl);     /* 56 → 50 */
+  --thumb-3xl: var(--control-10xl);    /* 64 → 58 */
+
+  /* Panel chrome */
+  --panel-header-h: var(--control-6xl);    /* 48 → 43 */
+  --panel-header-h-lg: var(--control-7xl); /* 52 → 47 */
+
   --color-green: #2DD56E;
   --color-red: #FF4D4D;
   --color-orange: #ff9966;
@@ -92,4 +230,41 @@ body {
   --bg-subtle: rgba(255, 255, 255, 0.04);
   --bg-medium: rgba(255, 255, 255, 0.06);
   --bg-strong: rgba(255, 255, 255, 0.08);
+}
+
+/* Shared panel back control — source of truth: Discovery header */
+.betski-back,
+.discovery-back {
+  width: var(--icon-btn-md);
+  height: var(--icon-btn-md);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--betski-orange);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  appearance: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.betski-back:hover,
+.discovery-back:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.betski-back svg,
+.discovery-back svg {
+  color: var(--betski-orange);
+  stroke: var(--betski-orange);
+}
+
+/* Phone: denser root rem so rem-based UI tracks the smaller type scale. */
+@media (max-width: 900px) {
+  :root {
+    font-size: 12px;
+  }
 }

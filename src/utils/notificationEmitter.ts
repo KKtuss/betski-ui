@@ -21,6 +21,7 @@ export const emitMessageNotification = (params: {
 }
 
 export const emitTrackedTradeNotification = (params: {
+  id?: string
   handle: string
   marketName: string
   side: 'YES' | 'NO'
@@ -33,6 +34,7 @@ export const emitTrackedTradeNotification = (params: {
   const sizeLabel =
     params.usdAmount >= 1000 ? `$${(params.usdAmount / 1000).toFixed(1)}K` : `$${Math.round(params.usdAmount)}`
   addNotification({
+    id: params.id,
     category: 'tracked_trades',
     title: `${params.handle} bought ${params.side}`,
     body: `${params.marketName} — ${sizeLabel} @ ${priceLabel}`,
@@ -119,14 +121,18 @@ export const emitNewsNotification = (params: { title: string; body: string; mark
   })
 }
 
-/** Check batches for newly passed resolution timestamps. */
+/** Check batches for newly passed resolution timestamps (after last-seen watermark). */
 export const scanMarketResolutions = (
   batches: Batch[],
   positions: Record<string, { marketId: string; marketName: string; side: 'long' | 'short'; shares: number; avgEntry: number }>,
-  now = Date.now()
+  options?: { now?: number; sinceMs?: number }
 ): void => {
+  const now = options?.now ?? Date.now()
+  const sinceMs = options?.sinceMs ?? 0
   for (const batch of batches) {
     if (batch.resolutionTimestamp > now) continue
+    // Already resolved before the user was last caught up — skip historical noise
+    if (batch.resolutionTimestamp <= sinceMs) continue
     if (hasMarketBeenResolved(batch.id)) continue
     const pos = positions[batch.id]
     if (!pos) continue

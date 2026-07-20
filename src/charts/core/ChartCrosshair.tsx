@@ -24,6 +24,13 @@ export const ChartCrosshair = ({
       strokeWidth="1"
       strokeDasharray="4 3"
     />
-    <circle cx={x} cy={y} r="4.5" fill="#141414" stroke={color} strokeWidth="2.5" />
+    <circle
+      cx={x}
+      cy={y}
+      r="4.5"
+      fill="var(--chart-surface, #080809)"
+      stroke={color}
+      strokeWidth="2.5"
+    />
   </g>
 )

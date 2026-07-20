@@ -1,6 +1,6 @@
 .trade-share-card {
   width: 100%;
-  max-width: 420px;
+  max-width: var(--size-420);
   min-width: 0;
   box-sizing: border-box;
   border-radius: 12px;
@@ -15,8 +15,8 @@
 .trade-share-head {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  padding: 10px 12px 8px;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-sm) var(--space-xs);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -33,19 +33,19 @@
 .trade-share-title {
   flex: 1;
   min-width: 0;
-  font-weight: 800;
-  font-size: 12px;
+  font-weight: 700;
+  font-size: 13px;
   line-height: 1.35;
   color: rgba(255, 255, 255, 0.92);
 }
 
 .trade-share-side-badge {
   flex-shrink: 0;
-  font-size: 9px;
-  font-weight: 900;
+  font-size: 11px;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.08em;
-  padding: 4px 8px;
-  border-radius: 999px;
+  padding: var(--space-2xs) var(--space-xs);
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.06);
 }
@@ -65,24 +65,24 @@
 .trade-share-main {
   display: grid;
   grid-template-columns: 78px minmax(0, 1fr);
-  gap: 18px;
-  padding: 10px 10px 12px 14px;
+  gap: var(--space-lg);
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) var(--space-md);
   align-items: stretch;
 }
 
 .trade-share-thumbs {
   position: relative;
-  width: 78px;
-  min-height: 110px;
+  width: var(--size-78);
+  min-height: var(--size-110);
   align-self: stretch;
   flex-shrink: 0;
-  padding-right: 6px;
+  padding-right: var(--space-xs);
 }
 
 .trade-share-thumb-item {
   position: absolute;
   top: 50%;
-  width: 38px;
+  width: var(--thumb-lg);
   aspect-ratio: 9 / 16;
   border-radius: 6px;
   object-fit: cover;
@@ -100,7 +100,7 @@
 
 .trade-share-thumb-item--2 {
   left: 50%;
-  width: 44px;
+  width: var(--control-5xl);
   transform: translate(-50%, -50%);
   z-index: 3;
 }
@@ -144,15 +144,15 @@
 }
 
 .trade-share-edge-label {
-  font-size: 9px;
-  font-weight: 900;
+  font-size: 11px;
+  font-weight: var(--weight-bold);
   letter-spacing: 0.08em;
   color: rgba(255, 255, 255, 0.42);
 }
 
 .trade-share-edge-price {
   font-size: 14px;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
   line-height: 1.1;
   color: rgba(255, 255, 255, 0.88);
@@ -165,7 +165,7 @@
   align-items: flex-start;
   justify-content: space-between;
   width: 100%;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .trade-share-stat {
@@ -191,8 +191,8 @@
 }
 
 .trade-share-stat-label {
-  font-size: 9px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.38);
@@ -200,7 +200,7 @@
 
 .trade-share-stat-value {
   font-size: 11px;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
   color: rgba(255, 255, 255, 0.88);
   font-variant-numeric: tabular-nums;
 }
@@ -221,7 +221,7 @@
 
   .trade-share-head {
     padding: 7px 9px 6px;
-    gap: 6px;
+    gap: var(--space-xs);
   }
 
   .trade-share-head-icon {
@@ -230,34 +230,34 @@
   }
 
   .trade-share-title {
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.3;
   }
 
   .trade-share-side-badge {
-    font-size: 8px;
+    font-size: 11px;
     padding: 3px 7px;
   }
 
   .trade-share-main {
     grid-template-columns: 68px minmax(0, 1fr);
-    gap: 12px;
-    padding: 8px 10px 10px;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm) var(--space-sm);
   }
 
   .trade-share-thumbs {
-    width: 68px;
-    min-height: 94px;
-    padding-right: 4px;
+    width: var(--control-11xl);
+    min-height: var(--size-94);
+    padding-right: var(--space-2xs);
   }
 
   .trade-share-thumb-item {
-    width: 28px;
+    width: var(--thumb-xs);
     border-radius: 5px;
   }
 
   .trade-share-thumb-item--2 {
-    width: 36px;
+    width: var(--control-xl);
   }
 
   .trade-share-chart-band {
@@ -268,16 +268,16 @@
   .trade-share-chart {
     width: calc(100% - 12px);
     max-width: calc(100% - 12px);
-    height: 40px;
+    height: var(--size-40);
     border-radius: 6px;
   }
 
   .trade-share-chart .discovery-sparkline {
-    height: 34px;
+    height: var(--size-34);
   }
 
   .trade-share-edge-label {
-    font-size: 8px;
+    font-size: 11px;
   }
 
   .trade-share-edge-price {
@@ -285,10 +285,10 @@
   }
 
   .trade-share-stat-label {
-    font-size: 8px;
+    font-size: 11px;
   }
 
   .trade-share-stat-value {
-    font-size: 10px;
+    font-size: 11px;
   }
 }

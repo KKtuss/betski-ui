@@ -8,6 +8,7 @@ import { buildMarketCatalog, type Market } from '../data/marketCatalog'
 import type { MarketId } from '../data/appStore'
 import type { ProfileTrade } from '../data/profileMock'
 import { tradeRecordsToProfileTrades } from '../utils/tradeHistory'
+import { onAvatarError, resolveProfileAvatar } from '../utils/avatarUrl'
 import {
   PROFILE_GAMIFICATION,
   PROFILE_TIME_WINDOWS,
@@ -64,7 +65,7 @@ const ProfilePanel = ({
     ? appState.users[CURRENT_USER_HANDLE]
     : appState.users[viewingHandle] ?? appState.users[CURRENT_USER_HANDLE]
 
-  const rawPfpSrc = profileUser?.avatar ?? '/Stems/BetskiPEFFPEE.png'
+  const rawPfpSrc = resolveProfileAvatar(profileUser?.handle ?? '', profileUser?.avatar)
   const displayName = profileUser?.displayName ?? CURRENT_USER_HANDLE
   const [profileTimeWindow, setProfileTimeWindow] = useState<ProfileTimeWindow>('30d')
   const [tapeView, setTapeView] = useState<'activity' | 'history'>('activity')
@@ -266,7 +267,7 @@ const ProfilePanel = ({
       )}
 
       <div className="profile-avatar">
-        <img className="profile-avatar-img" src={rawPfpSrc} alt="Profile" />
+        <img className="profile-avatar-img" src={rawPfpSrc} alt="Profile" onError={onAvatarError} />
       </div>
 
       <div className="profile-identity-name-row">
@@ -424,8 +425,8 @@ const ProfilePanel = ({
       <div className="panel-header profile-header">
         <div className="profile-header-left">
           {!isSelf && onBackToSelfProfile && (
-            <button type="button" className="profile-back-btn" onClick={onBackToSelfProfile} aria-label="Back to your profile">
-              <ArrowLeft size={18} />
+            <button type="button" className="betski-back profile-back-btn" onClick={onBackToSelfProfile} aria-label="Back to your profile">
+              <ArrowLeft size={20} strokeWidth={2} />
             </button>
           )}
           <div

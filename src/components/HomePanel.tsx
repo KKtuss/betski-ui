@@ -7,6 +7,7 @@ import { useAppStore } from '../hooks/useAppStore'
 import { useNotifications } from '../hooks/useNotifications'
 import { getUnreadCount } from '../data/notificationStore'
 import { CURRENT_USER_HANDLE, type MarketId } from '../data/appStore'
+import { onAvatarError, resolveProfileAvatar } from '../utils/avatarUrl'
 import type { AppNotification } from '../types/notifications'
 import NotificationCenterPanel from './NotificationCenterPanel'
 import './Panel.css'
@@ -262,7 +263,8 @@ const HomePanel = ({
             aria-label="View profile"
           >
             <img
-              src={selfUser?.avatar ?? '/Stems/betskuu.png'}
+              src={resolveProfileAvatar(CURRENT_USER_HANDLE, selfUser?.avatar)}
+              onError={onAvatarError}
               alt=""
               className="home-profile-icon"
             />
@@ -313,7 +315,7 @@ const HomePanel = ({
                   aria-label={`View ${w.handle}`}
                 >
                   <span className="home-wallet-rank">{rank + 1}</span>
-                  <img src={w.avatar} alt="" className="home-wallet-avatar" />
+                  <img src={w.avatar} alt="" className="home-wallet-avatar" onError={onAvatarError} />
                   <span className="home-wallet-name">{w.handle}</span>
                   <span className="home-wallet-wagers">{w.markets} wagers</span>
                   <span className={`home-wallet-pnl ${w.pnl >= 0 ? 'pos' : 'neg'}`}>
@@ -352,7 +354,7 @@ const HomePanel = ({
                     aria-label={`Open ${m.name}`}
                   >
                     <img
-                      src={m.previews[0]?.thumbnailUrl ?? '/Stems/betskuu.png'}
+                      src={m.previews[0]?.thumbnailUrl ?? '/Stems/BetskiPEFFPEE.png'}
                       alt=""
                       className="home-market-thumb"
                       loading="lazy"
@@ -401,7 +403,7 @@ const HomePanel = ({
                   onClick={() => a.marketId && onOpenMarket?.(a.marketId)}
                 >
                   <img
-                    src={a.thumbnailUrl ?? '/Stems/betskuu.png'}
+                    src={a.thumbnailUrl ?? '/Stems/BetskiPEFFPEE.png'}
                     alt=""
                     className="home-article-bg"
                     loading="lazy"
@@ -430,7 +432,7 @@ const HomePanel = ({
                     onClick={() => onViewProfile?.(item.handle)}
                     aria-label={`View ${item.handle}`}
                   >
-                    <img src={item.avatar} alt="" className="home-activity-avatar" />
+                    <img src={item.avatar} alt="" className="home-activity-avatar" onError={onAvatarError} />
                   </button>
                   <button
                     type="button"

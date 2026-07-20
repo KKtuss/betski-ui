@@ -57,7 +57,7 @@ const TradeShareCard = ({
       (thumbnailSrc ? [thumbnailSrc] : [])
 
     const fallback =
-      live?.thumbnailFallbackSrc ?? thumbnailFallbackSrc ?? thumbnailSrc ?? '/Stems/betskuu.png'
+      live?.thumbnailFallbackSrc ?? thumbnailFallbackSrc ?? thumbnailSrc ?? '/Stems/BetskiPEFFPEE.png'
     const picked = rawUrls.length > 0 ? rawUrls.slice(0, 3) : [fallback]
     while (picked.length < 3) {
       picked.push(picked[picked.length - 1] ?? fallback)
@@ -95,7 +95,7 @@ const TradeShareCard = ({
               decoding="async"
               referrerPolicy="no-referrer"
               onError={(e) => {
-                e.currentTarget.src = '/Stems/betskuu.png'
+                e.currentTarget.src = '/Stems/BetskiPEFFPEE.png'
               }}
             />
           ))}

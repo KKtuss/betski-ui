@@ -6,18 +6,33 @@ export type LinkPreviewResult = {
   views?: number
   likes?: number
   shares?: number
+  comments?: number
   videoUrl?: string
   embedUrl?: string
+  authorName?: string
+  authorHandle?: string
+  authorAvatarUrl?: string
 }
 
 type OembedResponse = {
   thumbnail_url?: string
   title?: string
+  author_name?: string
+  author_url?: string
+}
+
+type TikTokAuthor = {
+  nickname?: string
+  uniqueId?: string
+  avatarMedium?: string
+  avatarLarger?: string
+  avatarThumb?: string
 }
 
 type TikTokStruct = {
   desc?: string
   id?: string
+  author?: TikTokAuthor
   video?: {
     cover?: string
     originCover?: string
@@ -38,25 +53,46 @@ function parseStatValue(v: unknown): number | undefined {
 function extractTikTokStats(
   struct: TikTokStruct,
   html?: string
-): { playCount?: number; diggCount?: number; shareCount?: number } | undefined {
+): { playCount?: number; diggCount?: number; shareCount?: number; commentCount?: number } | undefined {
   const raw = struct.stats ?? struct.statsV2
   if (raw) {
     const playCount = parseStatValue(raw.playCount)
     const diggCount = parseStatValue(raw.diggCount)
     const shareCount = parseStatValue(raw.shareCount)
-    if (playCount != null || diggCount != null || shareCount != null) {
-      return { playCount, diggCount, shareCount }
+    const commentCount = parseStatValue(raw.commentCount)
+    if (playCount != null || diggCount != null || shareCount != null || commentCount != null) {
+      return { playCount, diggCount, shareCount, commentCount }
     }
   }
-
   if (!html) return undefined
   const playCount = parseStatValue(html.match(/"playCount"\s*:\s*"?(\d+)"?/)?.[1])
   const diggCount = parseStatValue(html.match(/"diggCount"\s*:\s*"?(\d+)"?/)?.[1])
   const shareCount = parseStatValue(html.match(/"shareCount"\s*:\s*"?(\d+)"?/)?.[1])
-  if (playCount != null || diggCount != null || shareCount != null) {
-    return { playCount, diggCount, shareCount }
+  const commentCount = parseStatValue(html.match(/"commentCount"\s*:\s*"?(\d+)"?/)?.[1])
+  if (playCount != null || diggCount != null || shareCount != null || commentCount != null) {
+    return { playCount, diggCount, shareCount, commentCount }
   }
   return undefined
+}
+
+function extractHandleFromUrl(url?: string): string | undefined {
+  if (!url) return undefined
+  const match = url.match(/tiktok\.com\/@([^/?#]+)/i)
+  return match?.[1] ? decodeURIComponent(match[1]) : undefined
+}
+
+function extractTikTokAuthor(struct: TikTokStruct): {
+  authorName?: string
+  authorHandle?: string
+  authorAvatarUrl?: string
+} {
+  const author = struct.author
+  if (!author) return {}
+  return {
+    authorName: author.nickname || undefined,
+    authorHandle: author.uniqueId || undefined,
+    authorAvatarUrl: author.avatarMedium || author.avatarLarger || author.avatarThumb || undefined
+  }
 }
 
 const BROWSER_UA =
@@ -172,6 +208,7 @@ async function resolveTikTokCanonicalUrl(url: string): Promise<string> {
 function extractTikTokFromPage(html: string): {
   thumb: OembedResponse
   stats?: ReturnType<typeof extractTikTokStats>
+  author?: ReturnType<typeof extractTikTokAuthor>
   videoUrl?: string
   videoId?: string
 } | null {
@@ -191,6 +228,7 @@ function extractTikTokFromPage(html: string): {
           return {
             thumb: { thumbnail_url: cover, title: struct.desc },
             stats: extractTikTokStats(struct, html),
+            author: extractTikTokAuthor(struct),
             videoUrl: videoUrl || undefined,
             videoId: struct.id
           }
@@ -213,6 +251,7 @@ function extractTikTokFromPage(html: string): {
           return {
             thumb: { thumbnail_url: cover, title: item.desc },
             stats: extractTikTokStats(item, html),
+            author: extractTikTokAuthor(item),
             videoUrl: item.video.playAddr ?? item.video.downloadAddr,
             videoId: item.id
           }
@@ -265,6 +304,7 @@ function withProxiedMedia(result: LinkPreviewResult): LinkPreviewResult {
   return {
     ...result,
     thumbnailUrl: proxiedThumbnailUrl(result.thumbnailUrl),
+    authorAvatarUrl: result.authorAvatarUrl ? proxiedThumbnailUrl(result.authorAvatarUrl) : undefined,
     videoUrl: result.videoUrl ? proxiedVideoUrl(result.videoUrl) : undefined
   }
 }
@@ -294,17 +334,20 @@ export async function resolveLinkPreview(targetUrl: string): Promise<LinkPreview
     const tiktokId =
       extractTikTokVideoId(canonicalUrl) ?? extractTikTokVideoId(targetUrl)
 
-    const html = await fetchPageHtml(canonicalUrl)
+    const htmlPromise = fetchPageHtml(canonicalUrl)
+    const oembedPromise = fetchOembed(
+      `https://www.tiktok.com/oembed?url=${encodeURIComponent(canonicalUrl)}`
+    )
+    const [html, tiktokOembed] = await Promise.all([htmlPromise, oembedPromise])
     const parsed = html ? extractTikTokFromPage(html) : null
-
-    const tiktokOembed =
-      !parsed?.thumb.thumbnail_url
-        ? await fetchOembed(`https://www.tiktok.com/oembed?url=${encodeURIComponent(canonicalUrl)}`)
-        : null
 
     const thumbUrl = parsed?.thumb.thumbnail_url ?? tiktokOembed?.thumbnail_url
     const og = html && !thumbUrl ? extractOgMeta(html) : null
     const s = parsed?.stats ?? (html ? extractTikTokStats({}, html) : undefined)
+    const handle =
+      parsed?.author?.authorHandle ||
+      extractHandleFromUrl(tiktokOembed?.author_url) ||
+      extractHandleFromUrl(canonicalUrl)
 
     if (thumbUrl || og?.thumbnail_url || tiktokId) {
       return withProxiedMedia({
@@ -313,6 +356,10 @@ export async function resolveLinkPreview(targetUrl: string): Promise<LinkPreview
         views: s?.playCount,
         likes: s?.diggCount,
         shares: s?.shareCount,
+        comments: s?.commentCount,
+        authorName: parsed?.author?.authorName || tiktokOembed?.author_name || undefined,
+        authorHandle: handle,
+        authorAvatarUrl: parsed?.author?.authorAvatarUrl,
         videoUrl: parsed?.videoUrl,
         embedUrl: tiktokId ? getTikTokEmbedUrl(tiktokId) : undefined
       })

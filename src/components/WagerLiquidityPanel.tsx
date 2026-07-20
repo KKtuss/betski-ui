@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ShieldCheck } from 'lucide-react'
 import type { OpenBet, Wager, WagerFill } from '../types/discovery'
+import { PROFILE_AVATARS } from '../data/profileRegistry'
 import { getSelectedLineFills } from '../utils/wagerFills'
 import './WagerLiquidityPanel.css'
 import './Panel.css'
@@ -37,14 +38,8 @@ type WagerOpponent = {
   partialFillAllowed: boolean
 }
 
-const FILL_AVATARS: Record<string, string> = {
-  BenBetski: '/Stems/BetskiPEFFPEE.png',
-  moggorrr: '/Stems/moggorrr transparent.png',
-  epstein: '/Stems/epstein transparent.png',
-  MarkDiTob: '/Stems/moggorrr transparent.png',
-  DeskWhale: '/Stems/betskuu.png',
-  ClipQueen: '/Stems/betskuu.png'
-}
+const resolveFillAvatar = (handle: string) =>
+  PROFILE_AVATARS[handle] ?? '/Stems/BetskiPEFFPEE.png'
 
 const formatWagerAmount = (value: number) =>
   value >= 1000 ? `${(value / 1000).toFixed(value >= 10000 ? 1 : 2)}K` : Math.round(value).toLocaleString()
@@ -116,7 +111,7 @@ const WagerLiquidityPanel = ({
         id: fill.id,
         side: fill.side,
         username: fill.counterpartyName,
-        avatar: FILL_AVATARS[fill.counterpartyName] || '/Stems/BetskiPEFFPEE.png',
+        avatar: resolveFillAvatar(fill.counterpartyName),
         wagered: fill.availableSize,
         filledAmount,
         partialFillAllowed: fill.partialFillAllowed

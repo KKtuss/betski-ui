@@ -1,6 +1,7 @@
 import { PROFILE_AVATARS } from '../data/profileRegistry'
 import { simulateInboundMessage } from '../data/socialStore'
 import {
+  emitMessageNotification,
   emitNewsNotification,
   emitTrackedTradeNotification,
   emitWatchlistNotification,
@@ -9,21 +10,27 @@ import {
 
 const pick = <T,>(items: T[]): T => items[Math.floor(Math.random() * items.length)]
 
+/** Live demo events — notifications/toasts only; do not auto-append social chat messages. */
 const demoScenarios = [
   () =>
-    simulateInboundMessage({
+    emitMessageNotification({
       chatId: 'dm-1',
+      chatTitle: 'MarkDiTob',
+      preview: 'You seeing this YES move on Triple T?',
       senderHandle: 'MarkDiTob',
-      text: 'You seeing this YES move on Triple T?'
+      avatarUrl: PROFILE_AVATARS.MarkDiTob
     }),
   () =>
-    simulateInboundMessage({
+    emitMessageNotification({
       chatId: 'group-1',
+      chatTitle: 'Betskiing',
+      preview: 'Adding size before resolution — who else is in?',
       senderHandle: 'NovaTape',
-      text: 'Adding size before resolution — who else is in?'
+      avatarUrl: PROFILE_AVATARS.NovaTape
     }),
   () =>
     emitTrackedTradeNotification({
+      id: `demo-tracked-mark-${Date.now()}`,
       handle: 'MarkDiTob',
       marketName: 'Triple T going 10x virality before EOM ?',
       side: 'YES',
@@ -33,6 +40,7 @@ const demoScenarios = [
     }),
   () =>
     emitTrackedTradeNotification({
+      id: `demo-tracked-desk-${Date.now()}`,
       handle: 'DeskWhale',
       marketName: "D4vd's story having a 3x regain in virality over 2 weeks ?",
       side: 'NO',

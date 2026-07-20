@@ -22,7 +22,7 @@
 .socials-body {
   flex: 1;
   display: grid;
-  grid-template-columns: clamp(240px, 24vw, 340px) minmax(0, 1fr);
+  grid-template-columns: clamp(280px, 26vw, 380px) minmax(0, 1fr);
   min-height: 0;
 }
 
@@ -38,22 +38,22 @@
 .socials-left-head {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px 6px;
+  gap: var(--space-xs);
+  padding: 12px 12px 8px;
 }
 
 .socials-sidebar-title {
   flex: 1;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.14em;
+  font-size: var(--type-title);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
   background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.socials-back,
 .socials-header-btn,
 .socials-icon-btn,
 .socials-compose-add,
@@ -68,15 +68,18 @@
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
-.socials-back,
 .socials-header-btn {
-  width: 30px;
-  height: 30px;
+  width: var(--icon-btn-sm);
+  height: var(--icon-btn-sm);
   border-radius: 8px;
   flex-shrink: 0;
 }
 
-.socials-back:hover,
+/* Keep Discovery back-button chrome; only reserve layout slot here */
+.socials-back {
+  flex-shrink: 0;
+}
+
 .socials-header-btn:hover,
 .socials-icon-btn:hover,
 .socials-compose-add:hover,
@@ -89,13 +92,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 10px 8px;
-  padding: 0 10px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.45);
+  margin: 0 12px 10px;
+  padding: 0 14px;
+  height: var(--control-3xl);
+  border-radius: var(--radius-pill);
+  border: none;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .socials-search input {
@@ -104,9 +107,9 @@
   outline: none;
   background: transparent;
   color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: var(--type-body-sm);
+  font-weight: var(--weight-medium);
+  font-family: var(--font-ui);
 }
 
 .socials-search input::placeholder {
@@ -116,86 +119,101 @@
 .socials-filters {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 0 10px 8px;
+  gap: 6px;
+  /* Top padding keeps the filter badge from being clipped by overflow-x */
+  padding: 4px 12px 10px;
   overflow-x: auto;
 }
 
 .socials-filter {
   position: relative;
   flex: 0 0 auto;
-  height: 26px;
-  padding: 0 10px;
+  height: var(--control-sm);
+  padding: 0 12px;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: transparent;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 11px;
-  font-weight: 800;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-semibold);
   cursor: pointer;
   white-space: nowrap;
 }
 
 .socials-filter.is-active {
   color: #fff;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 153, 102, 0.22);
 }
 
 .socials-filter-badge {
   position: absolute;
-  top: -4px;
-  right: -2px;
-  min-width: 14px;
-  height: 14px;
+  top: -5px;
+  right: -4px;
+  z-index: 1;
+  min-width: 16px;
+  height: 16px;
   padding: 0 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: #ff4d4d;
   color: #fff;
-  font-size: 9px;
-  font-weight: 900;
+  font-size: var(--type-micro);
+  font-weight: var(--weight-bold);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
+  box-shadow: 0 0 0 2px #080809;
 }
 
 .socials-chats {
   flex: 1;
   overflow: auto;
-  padding: 0 8px;
+  padding: 0;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
 }
 
 .socials-chat {
   width: 100%;
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr) auto;
-  gap: 10px;
+  grid-template-columns: var(--control-8xl) minmax(0, 1fr) auto;
+  column-gap: 12px;
   align-items: center;
-  padding: 9px 8px;
-  border-radius: 10px;
-  border: 1px solid transparent;
+  padding: 10px 12px;
+  border-radius: 0;
+  border: none;
   background: transparent;
   cursor: pointer;
   color: #fff;
   text-align: left;
 }
 
+.socials-chat-trailing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 5px;
+  align-self: stretch;
+  flex-shrink: 0;
+  min-width: 2.75em;
+  padding-top: 2px;
+}
+
 .socials-chat:hover {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .socials-chat.active {
-  background: rgba(255, 153, 102, 0.08);
-  border-color: rgba(255, 153, 102, 0.22);
+  background: rgba(255, 153, 102, 0.1);
 }
 
 .socials-chat-avatar {
   position: relative;
-  width: 42px;
-  height: 42px;
+  width: var(--control-8xl);
+  height: var(--control-8xl);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -203,7 +221,8 @@
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #cfcfcf;
-  font-weight: 900;
+  font-weight: var(--weight-bold);
+  font-size: var(--type-meta);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -228,16 +247,16 @@
   position: absolute;
   right: 1px;
   bottom: 1px;
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: #2dd56e;
   border: 2px solid #080809;
 }
 
 .socials-system-icon {
-  width: 42px;
-  height: 42px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -263,8 +282,8 @@
 }
 
 .presentoir-img {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   object-fit: cover;
   position: absolute;
@@ -279,8 +298,8 @@
 }
 
 .presentoir-img:nth-child(2) {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   left: 50%;
   z-index: 3;
 }
@@ -293,20 +312,22 @@
 .socials-chat-meta {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  justify-content: center;
+  gap: 4px;
   min-width: 0;
+  padding-right: 4px;
 }
 
 .socials-chat-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  min-width: 0;
 }
 
 .socials-chat-title {
-  font-size: 13px;
-  font-weight: 800;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -314,56 +335,60 @@
 
 .socials-chat-time {
   flex-shrink: 0;
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.38);
+  text-align: right;
+  font-size: var(--type-label);
+  font-weight: var(--weight-medium);
+  color: rgba(255, 255, 255, 0.45);
   font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
 }
 
 .socials-chat-subtitle {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-medium);
   color: rgba(255, 255, 255, 0.45);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: var(--leading-snug);
 }
 
 .socials-chat-unread {
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
   background: #ff4d4d;
   color: #fff;
-  font-size: 10px;
-  font-weight: 900;
-  display: flex;
+  font-size: var(--type-label);
+  font-weight: var(--weight-bold);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
 }
 
 .socials-snapshot {
   flex-shrink: 0;
-  margin: 8px;
-  padding: 10px;
+  margin: 6px 12px 8px;
+  padding: var(--space-sm);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   background: rgba(255, 255, 255, 0.025);
 }
 
 .socials-snapshot-title {
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+  font-size: var(--type-micro);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-widest);
   color: #ff9966;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
 }
 
 .socials-snapshot-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  gap: var(--space-xs);
 }
 
 .socials-snapshot-item {
@@ -374,24 +399,25 @@
 }
 
 .socials-snapshot-label {
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  font-size: var(--type-nano);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.38);
-  line-height: 1.2;
+  color: var(--text-dim);
+  line-height: var(--leading-snug);
 }
 
 .socials-snapshot-value {
-  font-size: 12px;
-  font-weight: 900;
+  font-size: var(--type-body-sm);
+  font-weight: var(--weight-bold);
   color: #fff;
   font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
 }
 
 .socials-snapshot-delta {
-  font-size: 9px;
-  font-weight: 800;
+  font-size: var(--type-micro);
+  font-weight: var(--weight-semibold);
   color: #2dd56e;
 }
 
@@ -406,8 +432,8 @@
 .socials-chat-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-sm);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   background: rgba(0, 0, 0, 0.2);
 }
@@ -417,7 +443,7 @@
   min-width: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-sm);
   padding: 0;
   border: none;
   background: transparent;
@@ -435,8 +461,8 @@
 }
 
 .socials-chat-header-avatar {
-  width: 36px;
-  height: 36px;
+  width: var(--avatar-md);
+  height: var(--avatar-md);
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -448,8 +474,8 @@
 
 .socials-chat-header-avatar .socials-avatar-presentoir,
 .socials-chat-header-avatar .socials-system-icon {
-  width: 36px;
-  height: 36px;
+  width: var(--avatar-md);
+  height: var(--avatar-md);
 }
 
 .socials-chat-header-copy {
@@ -463,9 +489,10 @@
 }
 
 .socials-chat-header-title {
-  font-size: 14px;
-  font-weight: 900;
-  color: #fff;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  line-height: var(--leading-snug);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -478,21 +505,22 @@
 
 .socials-chat-header-subtitle {
   margin-top: 2px;
-  font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: var(--type-caption);
+  font-weight: var(--weight-medium);
+  color: var(--text-dim);
+  line-height: var(--leading-normal);
 }
 
 .socials-chat-header-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-xs);
   flex-shrink: 0;
 }
 
 .socials-icon-btn {
-  width: 32px;
-  height: 32px;
+  width: var(--icon-btn-md);
+  height: var(--icon-btn-md);
   border-radius: 8px;
 }
 
@@ -523,7 +551,7 @@
 .socials-catchup:not(.is-open) {
   width: auto;
   max-width: min(320px, calc(100% - 24px));
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 .socials-catchup.is-open {
@@ -562,8 +590,8 @@
 }
 
 .socials-catchup-toggle-label {
-  font-size: 10px;
-  font-weight: 900;
+  font-size: var(--type-caption-sm);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #ff9966;
@@ -571,13 +599,13 @@
 }
 
 .socials-catchup-toggle-summary {
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.52);
+  font-size: var(--type-caption-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 140px;
+  max-width: var(--size-140);
 }
 
 .socials-catchup-chevron {
@@ -597,16 +625,16 @@
 }
 
 .socials-catchup-section + .socials-catchup-section {
-  margin-top: 8px;
+  margin-top: var(--space-xs);
 }
 
 .socials-catchup-section-title {
   margin: 10px 0 6px;
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
+  font-size: var(--type-label);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--text-dim);
 }
 
 .socials-catchup-list {
@@ -615,7 +643,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-xs);
 }
 
 .socials-catchup-item {
@@ -623,7 +651,7 @@
   flex-direction: column;
   gap: 3px;
   width: 100%;
-  padding: 8px 10px;
+  padding: var(--space-xs) var(--space-sm);
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
@@ -647,32 +675,33 @@
 }
 
 .socials-catchup-item-title {
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1.35;
-  color: #fff;
+  font-size: var(--type-caption);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-body);
+  color: var(--text-primary);
 }
 
 .socials-catchup-item-meta {
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: var(--type-caption-sm);
+  font-weight: var(--weight-medium);
+  color: var(--text-dim);
+  line-height: var(--leading-normal);
 }
 
 .socials-catchup-empty {
   margin: 10px 0 0;
-  font-size: 11px;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.45);
+  font-size: var(--type-caption);
+  line-height: var(--leading-body);
+  color: var(--text-dim);
 }
 
 .socials-messages {
   flex: 1;
   overflow: auto;
-  padding: 14px 12px 12px;
+  padding: var(--space-md) var(--space-sm) var(--space-sm);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 2px;
   min-height: 0;
   position: relative;
   z-index: 1;
@@ -681,8 +710,13 @@
 .socials-message {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
+  gap: var(--space-xs);
   width: 100%;
+}
+
+/* Separate consecutive sender groups (Telegram-style grouping). */
+.socials-message.is-group-start:not(:first-child) {
+  margin-top: var(--space-sm);
 }
 
 .socials-message.me {
@@ -691,16 +725,21 @@
 
 .socials-message.other {
   justify-content: flex-start;
-  align-items: flex-start;
 }
 
 .socials-msg-avatar {
-  width: 28px;
-  height: 28px;
+  width: var(--avatar-xs);
+  height: var(--avatar-xs);
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Keeps grouped bubbles aligned when the avatar is hidden. */
+.socials-msg-avatar-spacer {
+  width: var(--avatar-xs);
+  flex-shrink: 0;
 }
 
 .socials-message-stack {
@@ -716,26 +755,69 @@
 }
 
 .socials-author {
-  font-size: 10px;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.55);
-  margin: 0 4px 4px;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-semibold);
+  color: var(--text-secondary);
+  margin: 0 2px 3px;
+  line-height: var(--leading-snug);
 }
 
 .socials-bubble {
-  padding: 9px 12px;
-  border-radius: 14px;
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 1.4;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  padding: 7px 11px;
+  border-radius: 16px;
+  font-size: var(--type-body);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-body);
   color: #fff;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.socials-bubble-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.socials-bubble-time {
+  flex: 0 0 auto;
+  margin-left: auto;
+  transform: translateY(3px);
+  font-size: var(--type-label);
+  line-height: 1;
+  font-weight: var(--weight-medium);
+  color: rgba(255, 255, 255, 0.42);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+  user-select: none;
+}
+
+/* Grouped-corner shaping: flatten the corners adjacent to same-sender neighbours. */
+.socials-message.other:not(.is-group-start) .socials-bubble {
+  border-top-left-radius: 6px;
+}
+
+.socials-message.other:not(.is-group-end) .socials-bubble {
+  border-bottom-left-radius: 6px;
+}
+
+.socials-message.me:not(.is-group-start) .socials-bubble {
+  border-top-right-radius: 6px;
+}
+
+.socials-message.me:not(.is-group-end) .socials-bubble {
+  border-bottom-right-radius: 6px;
 }
 
 .socials-message.me .socials-bubble {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(135deg, rgba(255, 153, 102, 0.18) 0%, rgba(255, 94, 98, 0.16) 100%);
+  border-color: rgba(255, 140, 110, 0.28);
+}
+
+.socials-message.me .socials-bubble-time {
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .socials-inline-pill {
@@ -743,9 +825,9 @@
   align-items: center;
   padding: 1px 7px;
   margin: 0 2px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 900;
+  border-radius: var(--radius-pill);
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
   vertical-align: baseline;
 }
 
@@ -761,24 +843,35 @@
   border: 1px solid rgba(255, 77, 77, 0.28);
 }
 
-.socials-embed {
+.socials-message-stack:has(.socials-embed) {
   width: 100%;
   max-width: min(460px, 100%);
+}
+
+.socials-embed {
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
+  align-self: stretch;
+}
+
+.socials-embed :is(.market-share-card, .trade-share-card) {
+  width: 100%;
+  max-width: 100%;
 }
 
 .socials-compose {
-  padding: 10px 12px;
+  padding: var(--space-sm) var(--space-sm);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xs);
   background: rgba(0, 0, 0, 0.22);
 }
 
 .socials-compose-add {
-  width: 36px;
-  height: 36px;
+  width: var(--icon-btn-lg);
+  height: var(--icon-btn-lg);
   border-radius: 10px;
   flex-shrink: 0;
 }
@@ -786,16 +879,16 @@
 .socials-compose input {
   flex: 1;
   min-width: 0;
-  height: 38px;
+  height: var(--control-2xl);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   color: #fff;
   padding: 0 12px;
   outline: none;
-  font-size: 12px;
-  font-weight: 600;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: var(--type-body-sm);
+  font-weight: var(--weight-medium);
+  font-family: var(--font-ui);
 }
 
 .socials-compose input::placeholder {
@@ -803,8 +896,8 @@
 }
 
 .socials-send {
-  width: 36px;
-  height: 36px;
+  width: var(--icon-btn-lg);
+  height: var(--icon-btn-lg);
   border-radius: 10px;
   flex-shrink: 0;
   color: #ff9966;
@@ -824,9 +917,6 @@
 .socials-chat-back {
   display: none;
   flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
 }
 
 /* ── Modal ── */
@@ -839,7 +929,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: var(--space-lg);
 }
 
 .socials-modal {
@@ -855,18 +945,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
+  padding: var(--space-sm);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .socials-modal-title {
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.92);
+  font-size: var(--type-heading-section);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-snug);
+  color: var(--text-secondary);
 }
 
 .socials-modal-close {
-  width: 34px;
-  height: 34px;
+  width: var(--control-lg);
+  height: var(--control-lg);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(0, 0, 0, 0.2);
@@ -878,15 +970,15 @@
 }
 
 .socials-modal-body {
-  padding: 12px;
+  padding: var(--space-sm);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--space-sm);
 }
 
 .socials-modal-row input {
   width: 100%;
-  height: 40px;
+  height: var(--control-3xl);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(0, 0, 0, 0.28);
@@ -899,17 +991,17 @@
 .socials-modal-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
+  gap: var(--space-sm);
 }
 
 .socials-modal-btn {
-  height: 36px;
+  height: var(--control-xl);
   padding: 0 12px;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.92);
-  font-weight: 800;
+  font-weight: var(--weight-semibold);
   cursor: pointer;
 }
 
@@ -933,13 +1025,13 @@
   }
 
   .socials-shell--empty {
-    padding: 12px;
+    padding: var(--space-sm);
   }
 
   .socials-empty-copy {
     margin: auto;
     color: rgba(255, 255, 255, 0.5);
-    font-size: 13px;
+    font-size: var(--type-card-header);
   }
 
   .socials-body {
@@ -1004,7 +1096,7 @@
   }
 
   .socials-messages {
-    padding-top: 8px;
+    padding-top: var(--space-xs);
   }
 
   .socials-compose input {
@@ -1013,14 +1105,14 @@
 
   .socials-snapshot-grid {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: var(--space-xs);
   }
 
   .socials-snapshot-item {
     flex-direction: row;
     align-items: baseline;
     justify-content: space-between;
-    gap: 8px;
+    gap: var(--space-xs);
   }
 
   .socials-message-stack {

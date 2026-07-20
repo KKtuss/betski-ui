@@ -9,14 +9,14 @@
 
 .liquidity-strip-container--large .liquidity-strip {
   flex: 1;
-  min-height: 120px;
+  min-height: var(--size-120);
   height: auto;
 }
 
 .liquidity-strip {
   position: relative;
   width: 100%;
-  height: 52px;
+  height: var(--size-52);
   border-radius: 8px;
   overflow: hidden;
   cursor: crosshair;
@@ -24,7 +24,7 @@
 }
 
 .liquidity-strip--large {
-  min-height: 120px;
+  min-height: var(--size-120);
   border-radius: 12px;
 }
 
@@ -100,8 +100,8 @@
 .liquidity-strip-scale {
   display: flex;
   justify-content: space-between;
-  margin-top: 4px;
-  font-size: 8px;
+  margin-top: var(--space-2xs);
+  font-size: var(--type-meta);
   font-weight: 700;
   color: rgba(255, 255, 255, 0.35);
   letter-spacing: 0.04em;
@@ -109,8 +109,8 @@
 }
 
 .liquidity-strip-container--large .liquidity-strip-scale {
-  margin-top: 8px;
-  font-size: 9px;
+  margin-top: var(--space-xs);
+  font-size: var(--type-meta);
 }
 
 .liquidity-strip-tooltip {
@@ -131,19 +131,19 @@
 }
 
 .liquidity-tooltip-odds {
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--type-meta);
+  font-weight: 700;
   color: #fff;
 }
 
 .liquidity-tooltip-vol {
-  font-size: 9px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: #ff9966;
 }
 
 .liquidity-tooltip-nearby {
-  font-size: 8px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: rgba(255, 255, 255, 0.6);
 }
@@ -155,7 +155,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 8px;
+  padding: var(--space-xs);
   border-radius: 10px;
   background: var(--chart-tooltip-bg);
   backdrop-filter: blur(14px);
@@ -166,8 +166,8 @@
 }
 
 .liquidity-fill-title {
-  font-size: 9px;
-  font-weight: 900;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.5);
@@ -178,8 +178,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-xs);
   border-radius: 6px;
   border: 1px solid var(--chart-grid);
   background: rgba(255, 255, 255, 0.04);
@@ -197,12 +197,12 @@
 }
 
 .liquidity-fill-odds {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--type-meta);
+  font-weight: 700;
 }
 
 .liquidity-fill-vol {
-  font-size: 9px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: #ff9966;
 }
@@ -222,8 +222,8 @@
 .liquidity-strip-container--mobile.liquidity-strip-container--large .liquidity-strip,
 .liquidity-strip-container--mobile .liquidity-strip--large {
   flex: 0 0 auto;
-  min-height: 56px;
-  height: 56px;
+  min-height: var(--size-56);
+  height: var(--size-56);
 }
 
 .liquidity-strip-container--mobile .liquidity-strip-scale {
@@ -243,9 +243,9 @@
 .liquidity-odds-slider-wrap {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 8px 10px 10px;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm) var(--space-sm);
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
@@ -256,20 +256,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .liquidity-odds-slider-label {
-  font-size: 9px;
-  font-weight: 900;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.45);
 }
 
 .liquidity-odds-slider-value {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--type-meta);
+  font-weight: 700;
   color: #fff;
   font-variant-numeric: tabular-nums;
 }
@@ -277,7 +277,7 @@
 .liquidity-odds-slider {
   width: 100%;
   margin: 0;
-  height: 28px;
+  height: var(--control-xs);
   appearance: none;
   background: transparent;
   cursor: pointer;
@@ -296,7 +296,7 @@
 
 .liquidity-odds-slider::-webkit-slider-runnable-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: linear-gradient(
     to right,
     rgba(255, 77, 77, 0.35) 0%,
@@ -319,7 +319,7 @@
 
 .liquidity-odds-slider::-moz-range-track {
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: linear-gradient(
     to right,
     rgba(255, 77, 77, 0.35) 0%,
@@ -339,7 +339,7 @@
 }
 
 .liquidity-odds-slider-hint {
-  font-size: 9px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: rgba(255, 255, 255, 0.5);
   text-align: center;
@@ -347,12 +347,12 @@
 
 /* Discovery phone: keep heatmap strip, thin slider only (no labels/hints). */
 .liquidity-strip-container--minimal-slider .liquidity-strip {
-  height: 32px;
+  height: var(--size-32);
 }
 
 .liquidity-strip-container--minimal-slider .liquidity-strip-scale {
   margin-top: 1px;
-  font-size: 7px;
+  font-size: var(--type-meta);
   letter-spacing: 0.02em;
 }
 
@@ -393,7 +393,7 @@
 .liquidity-fill-choice--mobile {
   position: static;
   transform: none;
-  margin-top: 8px;
+  margin-top: var(--space-xs);
   min-width: 0;
   width: 100%;
   box-sizing: border-box;

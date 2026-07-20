@@ -5,19 +5,19 @@
   z-index: 1200;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-xs);
   width: min(360px, calc(100vw - 24px));
   pointer-events: none;
 }
 
 .notif-toast {
   display: grid;
-  grid-template-columns: 36px 1fr auto;
-  gap: 10px;
+  grid-template-columns: 32px 1fr auto;
+  gap: var(--space-xs);
   align-items: start;
   width: 100%;
-  padding: 12px;
-  border-radius: 14px;
+  padding: var(--space-sm);
+  border-radius: 12px;
   border: 1px solid var(--notif-warning-border);
   background:
     linear-gradient(135deg, var(--notif-warning-soft) 0%, transparent 42%),
@@ -43,8 +43,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: var(--icon-btn-lg);
+  height: var(--icon-btn-lg);
   border-radius: 10px;
   background: var(--notif-warning-soft);
   border: 1px solid var(--notif-warning-border);
@@ -67,23 +67,23 @@
 }
 
 .notif-toast-kicker {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.07em;
+  font-size: var(--type-caption-sm);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--notif-warning);
 }
 
 .notif-toast-title {
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.25;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-snug);
   color: var(--notif-text-primary);
 }
 
 .notif-toast-body {
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: var(--type-body-sm);
+  line-height: var(--leading-body);
   color: var(--notif-text-secondary);
   display: -webkit-box;
   -webkit-line-clamp: 2;

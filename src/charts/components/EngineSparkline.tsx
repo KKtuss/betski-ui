@@ -66,9 +66,10 @@ export const EngineSparkline = ({
                 d={paths.linePath}
                 fill="none"
                 stroke={paths.color}
-                strokeWidth="2"
+                strokeWidth="1.75"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
               />
             )}
           </svg>

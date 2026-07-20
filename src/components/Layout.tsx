@@ -8,6 +8,7 @@ import type { Trade } from '../types/trading'
 import WagerHeatmapPanel from './WagerHeatmapPanel'
 import WagerLiquidityPanel from './WagerLiquidityPanel'
 import BottomBar from './BottomBar'
+import CollectionFlyOverlay from './CollectionFlyOverlay'
 import MobileTradeSheet from './MobileTradeSheet'
 import SocialsPanel from './SocialsPanel'
 import DiscoveryPanel from './DiscoveryPanel'
@@ -35,6 +36,7 @@ import {
 import { addWager, advanceBatchMarketTick, applyWagerLiquidityBuy, ensureDiscoveryThumbnails } from '../data/discoveryStore'
 import {
   buildMarketCatalog,
+  getAdjacentMarketId,
   getMarketById
 } from '../data/marketCatalog'
 import { buildMarketViewData } from '../utils/buildMarketViewData'
@@ -109,6 +111,14 @@ const Layout = () => {
       navigate({ type: 'main', marketId })
     },
     [navigate]
+  )
+
+  const openAdjacentMarket = useCallback(
+    (delta: -1 | 1) => {
+      const nextId = getAdjacentMarketId(selectedMarketId, delta)
+      if (nextId) openMarket(nextId)
+    },
+    [selectedMarketId, openMarket]
   )
 
   const openProfile = useCallback(
@@ -194,6 +204,10 @@ const Layout = () => {
   const handleChatRead = useCallback((chatId: string) => {
     markChatRead(chatId)
   }, [])
+
+  const handlePendingShareHandled = useCallback(() => setPendingShare(null), [])
+  const handlePendingShareTextHandled = useCallback(() => setPendingShareText(null), [])
+  const handlePendingShareTradeHandled = useCallback(() => setPendingShareTrade(null), [])
 
   const hasUnreadMessagesFlag = hasUnreadMessages()
 
@@ -400,6 +414,7 @@ const Layout = () => {
             setTradeMarketId(null)
             if (homeMobileLayout) setMobileSheetOpen(true)
           }}
+          onNavigateMarket={openAdjacentMarket}
           requestedIndex={requestedPreviewIndex}
           onRequestedIndexHandled={() => setRequestedPreviewIndex(null)}
         />
@@ -511,11 +526,11 @@ const Layout = () => {
       shareMarket={shareMarketPayload}
       initialActiveChatId={socialsInitialChatId ?? undefined}
       pendingShare={pendingShare ?? undefined}
-      onPendingShareHandled={() => setPendingShare(null)}
+      onPendingShareHandled={handlePendingShareHandled}
       pendingShareText={pendingShareText ?? undefined}
-      onPendingShareTextHandled={() => setPendingShareText(null)}
+      onPendingShareTextHandled={handlePendingShareTextHandled}
       pendingShareTrade={pendingShareTrade ?? undefined}
-      onPendingShareTradeHandled={() => setPendingShareTrade(null)}
+      onPendingShareTradeHandled={handlePendingShareTradeHandled}
       onAddFriend={(handle) => addFriendChat(handle)}
       onOpenMarket={openMarket}
       onViewProfile={(handle) => openProfile(handle)}
@@ -695,7 +710,9 @@ const Layout = () => {
       <BottomBar
         currentTab={
           activeTab === 'main'
-            ? 'center'
+            ? homeFeedOpen
+              ? 'tab1'
+              : 'center'
             : activeTab === 'discovery'
               ? 'tab2'
               : activeTab === 'socials'
@@ -712,6 +729,14 @@ const Layout = () => {
             return
           }
           if (tabId === 'center') {
+            // Phone Home is its own panel — Betski from Home (or other tabs) returns to main.
+            // Already on main (desktop or phone): Betski opens wager creation.
+            if (homeMobileLayout && (homeFeedOpen || activeTab !== 'main')) {
+              setActiveTab('main')
+              setHomeFeedOpen(false)
+              navigate({ type: 'main', marketId: selectedMarketId })
+              return
+            }
             if (activeTab === 'main') {
               setCreateWagerOpen(true)
               return
@@ -753,6 +778,8 @@ const Layout = () => {
       />
 
       <NotificationToastStack onOpenNotification={handleOpenNotification} />
+
+      <CollectionFlyOverlay />
 
       <AnimatePresence>
         {createWagerOpen && (

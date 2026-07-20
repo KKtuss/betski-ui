@@ -9,20 +9,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-sm);
   flex-shrink: 0;
 }
 
 .wager-heatmap-title {
-  font-size: 11px;
-  font-weight: 900;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.12em;
   color: rgba(255, 255, 255, 0.85);
 }
 
 .wager-heatmap-consensus {
-  font-size: 11px;
-  font-weight: 800;
+  font-size: var(--type-meta);
+  font-weight: 700;
   color: #ff9966;
   font-variant-numeric: tabular-nums;
 }
@@ -31,7 +31,7 @@
   display: flex;
   flex-direction: column;
   gap: 9px;
-  padding: 10px 12px 12px;
+  padding: var(--space-sm) var(--space-sm) var(--space-sm);
   flex: 1;
   min-height: 0;
   align-items: stretch !important;
@@ -42,7 +42,7 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-xs);
   flex-wrap: wrap;
   flex-shrink: 0;
 }
@@ -55,8 +55,8 @@
 }
 
 .wager-heatmap-pool-main {
-  font-size: 15px;
-  font-weight: 800;
+  font-size: var(--type-stat-lg);
+  font-weight: 700;
   color: #fff;
 }
 
@@ -66,13 +66,13 @@
 }
 
 .wager-heatmap-pool-goal {
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: rgba(255, 255, 255, 0.55);
 }
 
 .wager-heatmap-pool-label {
-  font-size: 10px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: rgba(255, 255, 255, 0.45);
 }
@@ -110,7 +110,7 @@
 
 .wager-heatmap-strip-wrap {
   flex: 1;
-  min-height: 120px;
+  min-height: var(--size-120);
   display: flex;
   flex-direction: column;
 }
@@ -141,25 +141,25 @@
 }
 
 .wager-heatmap-buyers-inner--idle {
-  padding: 10px 12px;
+  padding: var(--space-sm) var(--space-sm);
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .wager-heatmap-buyers-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
   border-bottom: 1px solid var(--chart-grid);
   flex-shrink: 0;
 }
 
 .wager-heatmap-buyers-label {
   display: block;
-  font-size: 8px;
-  font-weight: 900;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.45);
@@ -167,14 +167,14 @@
 
 .wager-heatmap-buyers-odds {
   display: block;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: var(--type-card-header);
+  font-weight: 700;
   color: #fff;
   margin-top: 1px;
 }
 
 .wager-heatmap-buyers-vol {
-  font-size: 10px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: #ff9966;
   white-space: nowrap;
@@ -190,7 +190,7 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
-  padding: 8px 12px 10px;
+  padding: var(--space-xs) var(--space-sm) var(--space-sm);
   min-height: 0;
 }
 
@@ -210,8 +210,8 @@
 
 .wager-line-liquidity-label {
   display: block;
-  font-size: 8px;
-  font-weight: 900;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.42);
@@ -220,8 +220,8 @@
 .wager-line-liquidity-value {
   display: block;
   margin-top: 2px;
-  font-size: 13px;
-  font-weight: 900;
+  font-size: var(--type-card-header);
+  font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
   color: #fff;
 }
@@ -240,7 +240,7 @@
   grid-template-columns: 1fr 1fr;
   align-items: center;
   height: 15px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   overflow: hidden;
   background: rgba(255, 255, 255, 0.055);
   border: 1px solid var(--chart-grid);
@@ -250,7 +250,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--space-xs);
   padding: 5px 6px;
   border-radius: 7px;
   border: 1px solid var(--chart-grid);
@@ -258,8 +258,8 @@
 }
 
 .wager-line-amount-picker > span {
-  font-size: 8px;
-  font-weight: 900;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.42);
@@ -267,7 +267,7 @@
 
 .wager-line-amount-picker > div {
   display: flex;
-  gap: 4px;
+  gap: var(--space-2xs);
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -279,8 +279,8 @@
   background: rgba(255, 255, 255, 0.035);
   color: rgba(255, 255, 255, 0.72);
   padding: 3px 7px;
-  font-size: 10px;
-  font-weight: 850;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   cursor: pointer;
 }
 
@@ -292,13 +292,13 @@
 }
 
 .wager-line-custom-input {
-  width: 70px;
+  width: var(--control-12xl);
   padding: 3px 7px;
   border-radius: 5px;
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.1);
   color: white;
-  font-size: 10px;
+  font-size: var(--type-meta);
   font-family: inherit;
 }
 
@@ -333,7 +333,7 @@
   left: 50%;
   width: 2px;
   transform: translateX(-50%);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.26);
 }
@@ -347,9 +347,9 @@
 .wager-line-fill-btn {
   appearance: none;
   border-radius: 7px;
-  padding: 6px 8px;
-  font-size: 10px;
-  font-weight: 900;
+  padding: var(--space-xs) var(--space-xs);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #fff;
@@ -372,15 +372,15 @@
 
 .wager-line-note {
   min-height: 12px;
-  font-size: 9px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: rgba(255, 255, 255, 0.42);
   line-height: 1.35;
 }
 
 .wager-heatmap-buyers-empty {
-  padding: 16px 12px;
-  font-size: 10px;
+  padding: var(--space-md) var(--space-sm);
+  font-size: var(--type-meta);
   color: rgba(255, 255, 255, 0.4);
   text-align: center;
 }
@@ -388,9 +388,9 @@
 .wager-heatmap-buyer-row {
   display: grid;
   grid-template-columns: 1fr auto auto;
-  gap: 8px;
+  gap: var(--space-xs);
   align-items: center;
-  padding: 6px 12px;
+  padding: var(--space-xs) var(--space-sm);
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
@@ -401,7 +401,7 @@
 .wager-heatmap-buyer-trader {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-xs);
   min-width: 0;
 }
 
@@ -414,7 +414,7 @@
 }
 
 .wager-heatmap-buyer-handle {
-  font-size: 10px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
@@ -423,13 +423,13 @@
 }
 
 .wager-heatmap-buyer-time {
-  font-size: 9px;
+  font-size: var(--type-meta);
   color: rgba(255, 255, 255, 0.4);
   font-variant-numeric: tabular-nums;
 }
 
 .wager-heatmap-buyer-size {
-  font-size: 10px;
+  font-size: var(--type-meta);
   font-weight: 700;
   color: #ff9966;
   font-variant-numeric: tabular-nums;
@@ -440,35 +440,35 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 8px 10px;
+  padding: var(--space-xs) var(--space-sm);
   border-radius: 8px;
   border: 1px solid rgba(255, 153, 102, 0.25);
   background: rgba(255, 153, 102, 0.06);
 }
 
 .wager-heatmap-selection-label {
-  font-size: 8px;
-  font-weight: 900;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.45);
 }
 
 .wager-heatmap-selection-odds {
-  font-size: 13px;
-  font-weight: 800;
+  font-size: var(--type-card-header);
+  font-weight: 700;
   color: #fff;
 }
 
 .wager-heatmap-selection-fill {
-  font-size: 10px;
+  font-size: var(--type-meta);
   font-weight: 600;
   color: #ff9966;
 }
 
 .wager-heatmap-hint {
   margin: 0;
-  font-size: 11px;
+  font-size: var(--type-meta);
   line-height: 1.45;
   color: rgba(255, 255, 255, 0.4);
 }

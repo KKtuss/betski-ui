@@ -95,7 +95,7 @@ const ChartPanel = ({
     : timeLeftLabel
 
   const volumeLabel = useMemo(() => {
-    if (volume24h == null || volume24h <= 0) return '—'
+    if (volume24h == null || volume24h <= 0) return 'â€”'
     const windowScale: Record<ChartTimeWindow, number> = {
       '1H': 0.06,
       '1D': 0.25,
@@ -130,37 +130,40 @@ const ChartPanel = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
       whileHover={{ scale: 1, boxShadow: '0 12px 32px rgba(0, 0, 0, 0.5)' }}
-      style={{ display: 'flex', flexDirection: 'column', padding: '16px' }}
     >
-      {headerStats && (
-        <div className="chart-header">
-          <motion.div
-            className="chart-title-block"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.5 }}
-          >
-            <span className="chart-eyebrow">MARKET OVERVIEW</span>
-          </motion.div>
-          <div className="chart-price-cluster">
+      <motion.div
+        className="chart-header"
+        initial={hasMountedRef.current ? false : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.35 }}
+      >
+        <div className="chart-header-top">
+          <span className="chart-eyebrow">MARKET OVERVIEW</span>
+          {countdownLabel && (
+            <div className="chart-resolution-pill">
+              <span className="chart-pill-dot" aria-hidden />
+              <span>{countdownLabel}</span>
+            </div>
+          )}
+        </div>
+        <div className="chart-header-main">
+          {headerStats && (
             <div className="chart-price-row">
               <span className="chart-main-value" style={{ color: headerStats.color }}>
                 {Math.round(headerStats.lastPoint.value)}%
               </span>
-              <span className="chart-change-value" style={{ color: headerStats.color }}>
-                {headerStats.isPositive ? '▲' : '▼'} {Math.abs(headerStats.change).toFixed(1)}%
+              <span className="chart-change-chip" style={{ color: headerStats.color }}>
+                {headerStats.isPositive ? 'â–²' : 'â–¼'} {Math.abs(headerStats.change).toFixed(1)}%
               </span>
             </div>
-          </div>
-        </div>
-      )}
-
-      <div className="chart-frame">
-        <div className="chart-frame-tabs">
-          <div className="time-selector">
+          )}
+          <div className="time-selector chart-time-selector" role="tablist" aria-label="Chart time window">
             {(['1H', '1D', '1W', '1M', 'MAX'] as const).map((tw) => (
               <button
                 key={tw}
+                type="button"
+                role="tab"
+                aria-selected={timeWindow === tw}
                 onClick={() => setTimeWindow(tw)}
                 className={`time-btn ${timeWindow === tw ? 'active' : ''}`}
               >
@@ -168,13 +171,10 @@ const ChartPanel = ({
               </button>
             ))}
           </div>
-          {countdownLabel && (
-            <div className="chart-resolution-pill">
-              <span>{countdownLabel}</span>
-            </div>
-          )}
         </div>
+      </motion.div>
 
+      <div className="chart-frame">
         <div className="panel-content chart-content" style={{ width: '100%', flex: 1, minHeight: 0 }}>
           <ChartStateView state={chartState} emptyLabel="No chart data">
             {({ series: chartSeries }) => (
@@ -186,22 +186,20 @@ const ChartPanel = ({
                   const color = trendFromValues(firstPoint.value, lastPoint.value)
                   const gradientId = `chartGradient-${gradientUid}-${timeWindow}`
                   const glowId = `chartGlow-${gradientUid}-${timeWindow}`
-                  const xTicks = Array.from(
-                    { length: getXAxisTickCount(timeWindow, viewport.plotWidth) },
-                    (_, i) => {
-                      const tickCount = getXAxisTickCount(timeWindow, viewport.plotWidth)
-                      const ratio = i / Math.max(1, tickCount - 1)
-                      const timestamp =
-                        firstPoint.timestamp + (lastPoint.timestamp - firstPoint.timestamp) * ratio
-                      return {
-                        key: `${timeWindow}-${i}-${Math.round(timestamp)}`,
-                        label: formatXAxisTick(timestamp, timeWindow),
-                        x: viewport.paddingLeft + ratio * viewport.plotWidth,
-                        textAnchor:
-                          i === 0 ? ('start' as const) : i === tickCount - 1 ? ('end' as const) : ('middle' as const)
-                      }
+                  const isCompact = viewport.plotWidth < 420
+                  const tickCount = getXAxisTickCount(timeWindow, viewport.plotWidth)
+                  const xTicks = Array.from({ length: tickCount }, (_, i) => {
+                    const ratio = i / Math.max(1, tickCount - 1)
+                    const timestamp =
+                      firstPoint.timestamp + (lastPoint.timestamp - firstPoint.timestamp) * ratio
+                    return {
+                      key: `${timeWindow}-${i}-${Math.round(timestamp)}`,
+                      label: formatXAxisTick(timestamp, timeWindow),
+                      x: viewport.paddingLeft + ratio * viewport.plotWidth,
+                      textAnchor:
+                        i === 0 ? ('start' as const) : i === tickCount - 1 ? ('end' as const) : ('middle' as const)
                     }
-                  )
+                  })
                   const hoverPoint =
                     hoveredIndex != null && paths.points[hoveredIndex]
                       ? {
@@ -234,7 +232,7 @@ const ChartPanel = ({
                         </defs>
 
                         <ChartGrid viewport={viewport} />
-                        <ChartAxis xTicks={xTicks} height={viewport.height} />
+                        <ChartAxis xTicks={xTicks} height={viewport.height} fontSize={isCompact ? 10 : 11} />
 
                         {paths.areaPath && (
                           <motion.path
@@ -267,6 +265,7 @@ const ChartPanel = ({
                         {paths.points.length > 0 && (
                           <g>
                             <circle
+                              className="chart-endpoint-pulse"
                               cx={paths.points[paths.points.length - 1].x}
                               cy={paths.points[paths.points.length - 1].y}
                               r="6"
@@ -282,18 +281,26 @@ const ChartPanel = ({
                           </g>
                         )}
 
+                        {/* touch-action pan-y keeps vertical sheet scrolling while horizontal drags scrub */}
                         <rect
                           x={viewport.paddingLeft}
                           y={viewport.paddingTop}
                           width={viewport.plotWidth}
                           height={viewport.plotHeight}
                           fill="transparent"
-                          onMouseMove={(e) => {
+                          style={{ touchAction: 'pan-y' }}
+                          onPointerMove={(e) => {
                             const rect = e.currentTarget.getBoundingClientRect()
-                            const mouseX = e.clientX - rect.left + viewport.paddingLeft
-                            setHoveredIndex(nearestPointIndex(mouseX, viewport, chartSeries.length))
+                            const pointerX = e.clientX - rect.left + viewport.paddingLeft
+                            setHoveredIndex(nearestPointIndex(pointerX, viewport, chartSeries.length))
                           }}
-                          onMouseLeave={() => setHoveredIndex(null)}
+                          onPointerDown={(e) => {
+                            const rect = e.currentTarget.getBoundingClientRect()
+                            const pointerX = e.clientX - rect.left + viewport.paddingLeft
+                            setHoveredIndex(nearestPointIndex(pointerX, viewport, chartSeries.length))
+                          }}
+                          onPointerLeave={() => setHoveredIndex(null)}
+                          onPointerCancel={() => setHoveredIndex(null)}
                         />
 
                         {hoverPoint && (
@@ -301,11 +308,16 @@ const ChartPanel = ({
                         )}
                       </ChartSvg>
 
+                      {/* Tooltip flips to the far side of the crosshair so it never covers the hovered point */}
                       {hoverPoint && (
                         <ChartTooltip
-                          left={`${Math.min(Math.max((hoverPoint.x / viewport.width) * 100, 5), 85)}%`}
+                          left={`${(hoverPoint.x / viewport.width) * 100}%`}
                           top="8px"
-                          transform="translateX(-50%)"
+                          transform={
+                            hoverPoint.x / viewport.width > 0.55
+                              ? 'translateX(calc(-100% - 10px))'
+                              : 'translateX(10px)'
+                          }
                         >
                           <div className="chart-tooltip-label">{hoverPoint.time}</div>
                           <div className="chart-tooltip-value">{hoverPoint.value.toFixed(1)}%</div>

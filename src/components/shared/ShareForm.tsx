@@ -13,12 +13,15 @@ const ShareForm = ({ onBack, shareTargets, onShareToChat }: { onBack: () => void
     <div style={{ width: '100%', height: '100%', padding: '16px', display: 'flex', flexDirection: 'column', gap: '14px', boxSizing: 'border-box' }}>
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '12px' }}>
         <button
+          type="button"
+          className="betski-back"
           onClick={onBack}
-          style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#d0d0d0', cursor: 'pointer', padding: '4px', display: 'flex' }}
+          aria-label="Back"
+          style={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)' }}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={20} strokeWidth={2} />
         </button>
-        <div style={{ fontWeight: 900, fontSize: '16px', letterSpacing: '0.5px', color: '#fff' }}>
+        <div style={{ fontWeight: 700, fontSize: '15px', letterSpacing: '0.5px', color: '#fff' }}>
           Share Market
         </div>
       </div>
@@ -71,7 +74,7 @@ const ShareForm = ({ onBack, shareTargets, onShareToChat }: { onBack: () => void
                   )}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', overflow: 'hidden' }}>
-                  <div style={{ fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ fontSize: '15px', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {t.title}
                   </div>
                   <div style={{ fontSize: '11px', color: '#888', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -117,7 +120,7 @@ const ShareForm = ({ onBack, shareTargets, onShareToChat }: { onBack: () => void
             border: 'none',
             background: '#fff',
             color: '#000',
-            fontWeight: 800,
+            fontWeight: 700,
             cursor: !selectedChatId ? 'not-allowed' : 'pointer',
             opacity: !selectedChatId ? 0.5 : 1,
             fontFamily: 'Roboto Mono, monospace',

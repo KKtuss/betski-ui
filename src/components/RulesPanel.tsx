@@ -152,8 +152,8 @@ const RulesPanel = ({
                   border: 'none',
                   borderRadius: '8px',
                   color: outcomeSide === 'no' ? '#fff' : '#777',
-                  fontSize: '12px',
-                  fontWeight: '900',
+                  fontSize: '11px',
+                  fontWeight: '700',
                   padding: '6px 10px',
                   cursor: 'pointer',
                   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
@@ -169,8 +169,8 @@ const RulesPanel = ({
                   border: 'none',
                   borderRadius: '8px',
                   color: outcomeSide === 'yes' ? '#fff' : '#777',
-                  fontSize: '12px',
-                  fontWeight: '900',
+                  fontSize: '11px',
+                  fontWeight: '700',
                   padding: '6px 10px',
                   cursor: 'pointer',
                   fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
@@ -290,7 +290,7 @@ const RulesPanel = ({
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  style={{ fontSize: '12px' }}
+                  style={{ fontSize: '13px' }}
                 >
                   <span style={{ flex: 1, fontFamily: 'Roboto Mono, monospace', color: '#a0a0a0' }}>
                     {holder.address}
@@ -336,7 +336,7 @@ const RulesPanel = ({
                   initial={{ opacity: 0, x: 10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  style={{ fontSize: '12px' }}
+                  style={{ fontSize: '13px' }}
                 >
                   <span style={{ flex: 1, fontFamily: 'Roboto Mono, monospace', color: '#a0a0a0' }}>
                     {lp.address}

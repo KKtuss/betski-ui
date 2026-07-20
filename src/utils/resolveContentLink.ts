@@ -12,6 +12,10 @@ export type ResolvedContentLink = {
   views?: number
   likes?: number
   shares?: number
+  comments?: number
+  authorName?: string
+  authorHandle?: string
+  authorAvatarUrl?: string
 }
 
 const FALLBACK_THUMB = (seed: number) =>
@@ -41,10 +45,17 @@ export function extractTikTokVideoId(url: string): string | null {
   return null
 }
 
-export function getTikTokEmbedUrl(videoId: string, options?: { muted?: boolean }): string {
+export function getTikTokEmbedUrl(
+  videoId: string,
+  options?: { muted?: boolean; autoplay?: boolean }
+): string {
   const muted = options?.muted === true
+  // Must stay on by default: iframe has pointer-events:none (for swipes), so a
+  // paused player with autoplay=0 can't be started by tap — only by postMessage,
+  // which mobile browsers often block without a prior autoplay grant.
+  const autoplay = options?.autoplay === false ? '0' : '1'
   const params = new URLSearchParams({
-    autoplay: '1',
+    autoplay,
     loop: '1',
     muted: muted ? '1' : '0',
     music_info: '0',
@@ -52,7 +63,9 @@ export function getTikTokEmbedUrl(videoId: string, options?: { muted?: boolean }
     controls: '0',
     progress_bar: '0',
     play_button: '0',
-    volume_control: '1',
+    // Keep TikTok chrome off — Betski owns mute; volume_control=1 was flashing
+    // their volume/settings cluster on mute postMessages.
+    volume_control: '0',
     fullscreen_button: '0',
     timestamp: '0',
     rel: '0',
@@ -62,10 +75,14 @@ export function getTikTokEmbedUrl(videoId: string, options?: { muted?: boolean }
   return `https://www.tiktok.com/player/v1/${videoId}?${params.toString()}`
 }
 
-export function getYoutubeEmbedUrl(videoId: string, options?: { muted?: boolean }): string {
+export function getYoutubeEmbedUrl(
+  videoId: string,
+  options?: { muted?: boolean; autoplay?: boolean }
+): string {
   const muted = options?.muted === true ? '1' : '0'
+  const autoplay = options?.autoplay === false ? '0' : '1'
   const params = new URLSearchParams({
-    autoplay: '1',
+    autoplay,
     mute: muted,
     loop: '1',
     playlist: videoId,
@@ -115,8 +132,12 @@ type LinkPreviewPayload = {
   views?: number | null
   likes?: number | null
   shares?: number | null
+  comments?: number | null
   videoUrl?: string | null
   embedUrl?: string | null
+  authorName?: string | null
+  authorHandle?: string | null
+  authorAvatarUrl?: string | null
   error?: string
 }
 
@@ -144,15 +165,35 @@ function toResolved(url: string, platform: ContentPlatform, data: LinkPreviewPay
     title: data.title ?? undefined,
     views: data.views ?? undefined,
     likes: data.likes ?? undefined,
-    shares: data.shares ?? undefined
+    shares: data.shares ?? undefined,
+    comments: data.comments ?? undefined,
+    authorName: data.authorName ?? undefined,
+    authorHandle: data.authorHandle ?? undefined,
+    authorAvatarUrl: data.authorAvatarUrl
+      ? proxiedThumbnailUrl(data.authorAvatarUrl)
+      : undefined
   }
 }
 
-/**
- * Resolve a social video URL to thumbnail + engagement stats.
- * All resolution goes through /api/link-preview (dev/preview server).
- */
-export async function resolveContentLink(url: string): Promise<ResolvedContentLink> {
+/** Instant client-side embed URL when the platform id is already in the source link. */
+export function getInstantEmbedUrl(url: string | undefined): string | undefined {
+  if (!url) return undefined
+  const platform = detectContentPlatform(url)
+  if (platform === 'tiktok') {
+    const id = extractTikTokVideoId(url)
+    return id ? getTikTokEmbedUrl(id) : undefined
+  }
+  if (platform === 'youtube') {
+    const id = extractYoutubeVideoId(url)
+    return id ? getYoutubeEmbedUrl(id) : undefined
+  }
+  return undefined
+}
+
+const resolveResultCache = new Map<string, ResolvedContentLink>()
+const resolveInflight = new Map<string, Promise<ResolvedContentLink>>()
+
+async function resolveContentLinkUncached(url: string): Promise<ResolvedContentLink> {
   const platform = detectContentPlatform(url)
   const preview = await fetchLinkPreview(url)
 
@@ -196,4 +237,29 @@ export async function resolveContentLink(url: string): Promise<ResolvedContentLi
     platform,
     thumbnailUrl: FALLBACK_THUMB(url.split('').reduce((h, c) => h + c.charCodeAt(0), 0))
   }
+}
+
+/**
+ * Resolve a social video URL to thumbnail + engagement stats.
+ * All resolution goes through /api/link-preview (dev/preview server).
+ * Results are memoized and concurrent calls for the same URL share one request.
+ */
+export async function resolveContentLink(url: string): Promise<ResolvedContentLink> {
+  const cached = resolveResultCache.get(url)
+  if (cached) return cached
+
+  const inflight = resolveInflight.get(url)
+  if (inflight) return inflight
+
+  const pending = resolveContentLinkUncached(url)
+    .then((result) => {
+      resolveResultCache.set(url, result)
+      return result
+    })
+    .finally(() => {
+      resolveInflight.delete(url)
+    })
+
+  resolveInflight.set(url, pending)
+  return pending
 }

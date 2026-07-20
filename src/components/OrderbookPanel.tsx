@@ -80,7 +80,7 @@ const OrderbookPanel = ({
             transition={{ duration: 0.2, delay: 0.1 }}
             style={compact ? { padding: '8px 12px' } : undefined}
           >
-            <span className="orderbook-title" style={compact ? { fontSize: '11px' } : undefined}>RECENT TRADES</span>
+            <span className="orderbook-title">RECENT TRADES</span>
           </motion.div>
           <div className="panel-content orderbook-content" style={{ padding: 0, width: '100%' }}>
             <motion.div
@@ -96,7 +96,7 @@ const OrderbookPanel = ({
                 style={{
                   padding: compact ? '4px 8px' : '8px 12px',
                   color: '#666',
-                  fontSize: compact ? '9px' : '11px',
+                  fontSize: '11px',
                   fontWeight: '600',
                   borderBottom: '1px solid rgba(255,255,255,0.05)',
                   marginBottom: compact ? '2px' : '4px',
@@ -147,7 +147,7 @@ const OrderbookPanel = ({
                         gridTemplateColumns: '1fr 1fr 1fr',
                         padding: compact ? '2px 8px' : '4px 12px',
                         alignItems: 'center',
-                        fontSize: compact ? '10px' : undefined
+                        fontSize: compact ? '11px' : '13px'
                       }}
                     >
                       <span className="trade-time" style={{ textAlign: 'left' }}>

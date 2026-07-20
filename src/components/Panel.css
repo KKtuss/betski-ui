@@ -5,7 +5,7 @@
   min-height: 0;
   box-sizing: border-box;
   background-color: #0B0B0C;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -20,38 +20,40 @@
 
 .panel-header {
   background-color: transparent;
-  padding: 14px 18px;
-  font-weight: 800;
-  font-size: 14px;
+  padding: var(--space-sm) var(--space-md);
+  font-weight: var(--weight-bold);
+  font-size: var(--type-title);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #fff;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-ui);
+  line-height: var(--leading-snug);
 }
 
 .panel-tabs {
   display: flex;
-  gap: 16px;
+  gap: var(--space-md);
 }
 
 .panel-tab {
   background: transparent;
   border: none;
   color: #808080;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--tracking-wide);
   cursor: pointer;
   padding: 0;
   transition: color 0.2s ease;
   position: relative;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-ui);
+  line-height: var(--leading-snug);
 }
 
 .panel-tab:hover {
@@ -63,7 +65,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 800;
+  font-weight: var(--weight-bold);
 }
 
 .panel-tab.active::after {
@@ -84,8 +86,8 @@
 }
 
 .orderbook-header--trades-only {
-  padding: 16px 18px;
-  min-height: 52px;
+  padding: var(--space-md) var(--space-md);
+  min-height: var(--panel-header-h-lg);
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -95,15 +97,7 @@
 }
 
 .orderbook-title {
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  width: fit-content;
 }
 
 .orderbook-tabs {
@@ -113,19 +107,19 @@
 
 .orderbook-tab {
   flex: 1;
-  padding: 12px 16px;
+  padding: var(--space-sm) var(--space-md);
   background-color: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   color: #a0a0a0;
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-ui);
 }
 
 /* Custom Scrollbar */
@@ -170,7 +164,7 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 800;
+  font-weight: var(--weight-bold);
   border-bottom-color: #FF5E62;
   background-color: rgba(255, 94, 98, 0.05);
 }
@@ -188,9 +182,12 @@
   box-sizing: border-box;
 }
 
-/* Chart Panel */
+/* ── Chart Panel — quiet sibling to Rules / Trades / Profile ── */
 .chart-panel {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -205,73 +202,82 @@
 
 .chart-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 8px;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-.chart-title-block {
+.chart-header-top {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+
+.chart-header-main {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 12px;
   min-width: 0;
 }
 
 .chart-eyebrow {
   width: fit-content;
-  font-size: 12px;
-  font-weight: 850;
-  background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 0.72px;
   line-height: 1;
-  text-transform: uppercase;
-}
-
-.chart-price-cluster {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 3px;
-  margin-top: -4px;
 }
 
 .chart-price-row {
   display: flex;
   align-items: baseline;
   gap: 10px;
+  min-width: 0;
+}
+
+.chart-header-main .time-selector {
+  margin-left: auto;
 }
 
 .chart-main-value {
-  font-family: 'Inter', sans-serif;
-  font-size: 30px;
-  font-weight: 900;
-  letter-spacing: -1.2px;
-  line-height: 0.95;
+  font-family: var(--font-ui);
+  font-size: var(--type-hero);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  font-variant-numeric: tabular-nums;
+  transition: color 0.25s ease;
 }
 
-.chart-change-value {
-  display: flex;
+.chart-change-chip {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 12px;
-  font-weight: 850;
-  line-height: 1;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: color 0.25s ease;
 }
 
 .chart-outcome-label {
   color: rgba(255, 255, 255, 0.38);
-  font-family: 'Inter', sans-serif;
-  font-size: 10px;
-  font-weight: 800;
+  font-family: var(--font-ui);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   letter-spacing: 0.75px;
   line-height: 1;
   text-transform: uppercase;
 }
 
+/* Simple inset frame — same language as other panel surfaces */
 .chart-frame {
   display: flex;
   flex: 1;
@@ -281,48 +287,47 @@
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), rgba(255, 255, 255, 0.004)),
-    rgba(0, 0, 0, 0.22);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.025),
-    inset 0 0 28px rgba(0, 0, 0, 0.42);
-}
-
-.chart-frame-tabs {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 8px 10px 4px;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.014), rgba(255, 255, 255, 0.002)),
+    rgba(0, 0, 0, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 
 .chart-resolution-pill {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  border: 1px solid rgba(255, 255, 255, 0.075);
-  border-radius: 999px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012)),
-    rgba(0, 0, 0, 0.22);
-  color: rgba(255, 255, 255, 0.58);
-  font-family: 'Roboto Mono', monospace;
-  font-size: 10px;
-  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.52);
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.35px;
   line-height: 1;
-  padding: 6px 10px;
+  padding: 5px 10px;
   text-align: right;
   text-transform: uppercase;
   white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.chart-pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
 
 .chart-content {
-  padding: 4px 6px 6px !important;
+  padding: 8px 6px 4px !important;
   height: 100%;
   display: flex;
   align-items: flex-start;
@@ -354,16 +359,38 @@
   box-sizing: border-box;
 }
 
+.chart-endpoint-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: chart-endpoint-pulse 2.6s ease-out infinite;
+}
+
+@keyframes chart-endpoint-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  70%,
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-endpoint-pulse {
+    animation: none;
+  }
+}
+
 .chart-stat-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 8px;
+  margin-top: 10px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 10px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0.006)),
-    rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.22);
 }
 
 .chart-stat {
@@ -374,7 +401,7 @@
   gap: 3px;
   min-width: 0;
   padding: 8px 8px;
-  border-right: 1px solid rgba(255, 255, 255, 0.07);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .chart-stat:last-child {
@@ -383,18 +410,20 @@
 
 .chart-stat-value {
   color: #f5f5f5;
-  font-family: 'Inter', sans-serif;
-  font-size: 15px;
-  font-weight: 850;
+  font-family: var(--font-ui);
+  font-size: var(--type-stat-lg);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
   line-height: 1.05;
   white-space: nowrap;
 }
 
 .chart-stat-label {
-  color: rgba(255, 255, 255, 0.48);
-  font-size: 10px;
-  font-weight: 650;
-  letter-spacing: 0.2px;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: var(--type-label);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
   line-height: 1;
 }
 
@@ -412,7 +441,7 @@
   border: none;
   border-radius: 4px;
   color: #808080;
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 500;
   padding: 4px 10px;
   cursor: pointer;
@@ -431,35 +460,70 @@
   box-shadow: none;
 }
 
-.chart-frame-tabs .time-selector {
-  gap: 4px;
-  background: transparent;
-  border: none;
+/* Contained segmented control — same family as profile time selector */
+.chart-time-selector {
+  gap: 2px;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
 }
 
-.chart-frame-tabs .time-btn {
+.chart-time-selector .time-btn {
   border: 1px solid transparent;
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 12px;
-  font-weight: 750;
-  padding: 6px 11px;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
+  padding: 5px 10px;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease;
 }
 
-.chart-frame-tabs .time-btn:hover {
+.chart-time-selector .time-btn:hover {
   color: rgba(255, 255, 255, 0.82);
   background: rgba(255, 255, 255, 0.04);
 }
 
-.chart-frame-tabs .time-btn.active {
-  background: linear-gradient(180deg, rgba(255, 112, 67, 0.24), rgba(255, 94, 98, 0.08));
-  border-color: rgba(255, 112, 67, 0.28);
+.chart-time-selector .time-btn:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.25);
+  outline-offset: 1px;
+}
+
+.chart-time-selector .time-btn.active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.08);
   color: #fff;
-  font-weight: 850;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 14px rgba(255, 112, 67, 0.12);
+  font-weight: var(--weight-bold);
+  box-shadow: none;
+}
+
+@media (max-width: 640px) {
+  .chart-header {
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .chart-header-main .time-selector {
+    margin-left: 0;
+    flex: 1 1 100%;
+    display: flex;
+  }
+
+  .chart-time-selector .time-btn {
+    flex: 1;
+    padding: 7px 0;
+    text-align: center;
+  }
+
+  .chart-stat {
+    padding: 8px 4px;
+  }
+
+  .chart-stat-value {
+    font-size: var(--type-body);
+  }
 }
 
 .video-panel {
@@ -479,7 +543,7 @@
   justify-content: center;
   padding: 0;
   background-color: #0B0B0C;
-  border-radius: 12px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -508,7 +572,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-xs);
   flex: 0 0 auto;
 }
 
@@ -527,9 +591,9 @@
 .wager-pool-table-row {
   display: grid;
   grid-template-columns: 1fr 1fr 0.6fr;
-  gap: 8px;
+  gap: var(--space-xs);
   padding: 8px 0;
-  font-size: 12px;
+  font-size: var(--type-card-header);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -547,11 +611,11 @@
 .rule-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xs);
   min-width: 0;
   padding: 4px 0;
   color: #d0d0d0;
-  font-size: 11px;
+  font-size: var(--type-meta);
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
 }
 
@@ -617,7 +681,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: 9px;
   min-height: 0;
   gap: 2px;
   width: 100%;
@@ -644,10 +708,10 @@
 .order-row {
   display: flex;
   justify-content: space-between;
-  padding: 4px 16px;
+  padding: var(--space-2xs) var(--space-md);
   position: relative;
-  font-family: 'Roboto Mono', monospace;
-  font-size: 11px;
+  font-family: var(--font-mono);
+  font-size: var(--type-meta);
   height: 24px;
   align-items: center;
 }
@@ -686,12 +750,12 @@
 .order-quantity {
   position: absolute;
   z-index: 2;
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 600;
   white-space: nowrap;
   color: #fff;
   pointer-events: none;
-  font-family: 'Roboto Mono', monospace;
+  font-family: var(--font-mono);
 }
 
 .buy-row .order-price {
@@ -735,7 +799,7 @@
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: 9px;
 }
 
 .recent-trades-list {
@@ -750,9 +814,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 6px 12px;
-  font-size: 11px;
-  font-family: 'Roboto Mono', monospace;
+  padding: var(--space-2xs) var(--space-sm);
+  font-size: var(--type-meta);
+  font-family: var(--font-mono);
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
   width: 100%;
   box-sizing: border-box;
@@ -769,7 +833,7 @@
   color: #666;
   font-weight: 700;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 4px;
+  margin-bottom: var(--space-2xs);
   background-color: transparent !important;
 }
 
@@ -783,7 +847,7 @@
 
 .trade-time {
   color: #888;
-  font-weight: 400;
+  font-weight: 500;
   flex: 0 0 70px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -819,16 +883,16 @@
 .wager-pool-table-row {
   display: grid;
   grid-template-columns: 1fr 1fr 0.6fr;
-  gap: 8px;
+  gap: var(--space-xs);
   padding: 8px 0;
-  font-size: 12px;
+  font-size: var(--type-card-header);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .wager-pool-table-head {
   color: #888;
   font-weight: 700;
-  font-size: 11px;
+  font-size: var(--type-meta);
   text-transform: uppercase;
 }
 
@@ -848,10 +912,10 @@
 .wager-rules-fill-row {
   display: grid;
   grid-template-columns: 1fr auto auto auto;
-  gap: 10px;
+  gap: var(--space-sm);
   align-items: center;
   padding: 8px 0;
-  font-size: 12px;
+  font-size: var(--type-card-header);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -862,13 +926,13 @@
 
 .wager-fills-empty {
   color: #666;
-  font-size: 12px;
+  font-size: var(--type-card-header);
   padding: 12px 0;
 }
 
 .wager-fill-side {
-  font-size: 10px;
-  font-weight: 800;
+  font-size: var(--type-meta);
+  font-weight: var(--weight-bold);
   padding: 2px 6px;
   border-radius: 4px;
 }

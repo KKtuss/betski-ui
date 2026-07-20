@@ -28,7 +28,7 @@
 
 .mts-handle-zone {
   flex: 0 0 auto;
-  padding: 6px 12px 4px;
+  padding: var(--space-xs) var(--space-sm) var(--space-2xs);
   cursor: grab;
   touch-action: none;
 }
@@ -38,10 +38,10 @@
 }
 
 .mts-grab {
-  width: 40px;
+  width: var(--control-3xl);
   height: 4px;
   margin: 0 auto 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.22);
 }
 
@@ -49,23 +49,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--space-xs);
   padding: 3px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .mts-tab {
   flex: 1 1 0;
-  height: 28px;
+  height: var(--control-xs);
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: transparent;
   color: rgba(255, 255, 255, 0.6);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 11px;
-  font-weight: 800;
+  font-family: var(--font-ui);
+  font-size: var(--type-meta);
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
@@ -98,7 +98,7 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--space-xs);
   padding: 2px 10px 8px;
   overflow: hidden;
   touch-action: pan-x;
@@ -133,7 +133,7 @@
 .mts-page > .chart-panel .panel-header,
 .mts-page > .wager-heatmap-panel .panel-header,
 .mts-page > .rules-panel .panel-header {
-  padding: 8px 12px;
+  padding: var(--space-xs) var(--space-sm);
 }
 
 .mts-page > .chart-panel .panel-content,
@@ -144,47 +144,71 @@
   overflow: hidden;
 }
 
-.mts-page > .chart-panel .chart-title-block {
-  margin-bottom: 2px;
+.mts-page > .chart-panel .chart-header {
+  gap: 5px;
+  margin-bottom: 6px;
 }
 
 .mts-page > .chart-panel .chart-resolution-pill {
-  font-size: 10px;
+  font-size: var(--type-label);
+  padding: 4px 8px;
 }
 
-.mts-page > .chart-panel .chart-price-row {
-  font-size: 16px;
+.mts-page > .chart-panel .chart-main-value {
+  font-size: var(--type-title);
+}
+
+.mts-page > .chart-panel .chart-change-chip {
+  font-size: var(--type-label);
+  padding: 2px 7px;
+}
+
+.mts-page > .chart-panel .chart-time-selector .time-btn {
+  padding: 5px 0;
+}
+
+.mts-page > .chart-panel .chart-content {
+  padding: 6px 6px 4px !important;
+}
+
+.mts-page > .chart-panel .chart-stat-strip {
+  margin-top: 6px;
+}
+
+.mts-page > .chart-panel .chart-stat {
+  padding: 5px 4px;
+  gap: 2px;
 }
 
 .mts-page > .rules-panel .panel-tabs {
-  gap: 8px;
+  gap: var(--space-xs);
 }
 
 .mts-page > .rules-panel .panel-tab {
-  font-size: 10px;
+  font-size: var(--type-meta);
 }
 
 .mts-page > .rules-panel .rules-list {
-  gap: 4px;
+  gap: var(--space-2xs);
 }
 
 .mts-page > .rules-panel .rule-item {
   padding: 5px 8px;
-  font-size: 11px;
+  font-size: var(--type-meta);
 }
 
 /* Wager matching: prioritize strip + slider; line fill UI lives on Trade tab. */
 .mts-page > .wager-heatmap-panel .panel-header {
-  padding: 6px 12px;
+  padding: var(--space-xs) var(--space-sm);
 }
 
 .mts-page > .wager-heatmap-panel .wager-heatmap-content {
-  gap: 6px;
-  padding: 6px 10px 8px;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm) var(--space-xs);
 }
 
 .mts-page > .wager-heatmap-panel .wager-heatmap-pool-main {
-  font-size: 13px;
+  font-size: var(--type-card-header);
 }
 
 .mts-page > .wager-heatmap-panel .wager-heatmap-interactive {
@@ -208,12 +232,12 @@
 }
 
 .mts-page > .panel.orderbook-panel--compact .recent-trades-section {
-  padding: 4px 6px;
+  padding: var(--space-2xs) var(--space-xs);
   overflow: hidden;
 }
 
 .mts-page > .panel.wager-liquidity-panel {
-  font-size: 12px;
+  font-size: var(--type-card-header);
 }
 
 .mts-page > .panel.wager-liquidity-panel .wager-ref-book-rows {

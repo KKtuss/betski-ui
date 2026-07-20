@@ -24,6 +24,10 @@ export type NotificationState = {
   pushPermissionRequested: boolean
   resolvedMarketIds: string[]
   demoAlertsEnabled: boolean
+  /** Only watcher events after this ms are eligible to notify. 0 = not initialized. */
+  watcherCaughtUpAt: number
+  /** Last watchlist batch-id signature we already alerted for. */
+  lastWatchlistKey: string
 }
 
 type Listener = () => void
@@ -75,7 +79,9 @@ export const seedNotificationState = (): NotificationState => ({
   notifications: seedNotifications(),
   pushPermissionRequested: false,
   resolvedMarketIds: [],
-  demoAlertsEnabled: true
+  demoAlertsEnabled: true,
+  watcherCaughtUpAt: 0,
+  lastWatchlistKey: ''
 })
 
 const hydrateFromStorage = (): NotificationState => {
@@ -87,7 +93,7 @@ const hydrateFromStorage = (): NotificationState => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
       return state
     }
-    const parsed = JSON.parse(raw) as NotificationState
+    const parsed = JSON.parse(raw) as Partial<NotificationState>
     if (parsed?.version !== 1) return seedNotificationState()
     return {
       ...seedNotificationState(),
@@ -95,7 +101,9 @@ const hydrateFromStorage = (): NotificationState => {
       notifications: parsed.notifications ?? seedNotifications(),
       customProfiles: parsed.customProfiles ?? [],
       resolvedMarketIds: parsed.resolvedMarketIds ?? [],
-      demoAlertsEnabled: parsed.demoAlertsEnabled ?? true
+      demoAlertsEnabled: parsed.demoAlertsEnabled ?? true,
+      watcherCaughtUpAt: parsed.watcherCaughtUpAt ?? 0,
+      lastWatchlistKey: parsed.lastWatchlistKey ?? ''
     }
   } catch {
     return seedNotificationState()
@@ -126,6 +134,43 @@ export const updateNotificationState = (
   saveNotificationState(next)
   return next
 }
+
+/** True when this page load performed the quiet first-time catch-up. */
+let bootstrappedWatcherThisSession = false
+
+/**
+ * Ensure a last-seen watermark exists. First call with unset watermark seeds it to
+ * `now` and suppresses watcher emits for the rest of this session (quiet catch-up).
+ */
+export const bootstrapWatcherWatermark = (now = Date.now()): {
+  watermark: number
+  quietCatchUp: boolean
+} => {
+  const state = loadNotificationState()
+  if (state.watcherCaughtUpAt > 0) {
+    return { watermark: state.watcherCaughtUpAt, quietCatchUp: bootstrappedWatcherThisSession }
+  }
+  updateNotificationState((s) => ({ ...s, watcherCaughtUpAt: now }))
+  bootstrappedWatcherThisSession = true
+  return { watermark: now, quietCatchUp: true }
+}
+
+export const getWatcherWatermark = (): number => loadNotificationState().watcherCaughtUpAt
+
+export const advanceWatcherWatermark = (toMs = Date.now()): void => {
+  updateNotificationState((s) => {
+    if (toMs <= s.watcherCaughtUpAt) return s
+    return { ...s, watcherCaughtUpAt: toMs }
+  })
+}
+
+export const getLastWatchlistKey = (): string => loadNotificationState().lastWatchlistKey
+
+export const setLastWatchlistKey = (key: string): void => {
+  updateNotificationState((s) => (s.lastWatchlistKey === key ? s : { ...s, lastWatchlistKey: key }))
+}
+
+export const isWatcherQuietCatchUp = (): boolean => bootstrappedWatcherThisSession
 
 export const getAllProfiles = (): NotificationProfile[] => [
   ...BUILTIN_NOTIFICATION_PROFILES,

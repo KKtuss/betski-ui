@@ -1,113 +1,85 @@
 .discovery-actions {
+  position: relative;
   display: flex;
-  gap: 3px;
+  align-items: center;
+  justify-content: flex-end;
+  width: 54px;
+  height: 28px;
+  flex-shrink: 0;
 }
 
 .discovery-actions-buttons {
+  position: absolute;
+  inset: 0;
   display: flex;
-  gap: 3px;
-}
-
-.discovery-trade-feedback {
-  pointer-events: none;
-}
-
-.feedback-pill {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
   gap: 0;
-  background: rgba(20, 20, 20, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 2px 6px;
-  border-radius: 999px;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.36);
-  min-width: 58px;
+  width: 100%;
+  height: 100%;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  overflow: hidden;
 }
 
-.feedback-action {
-  font-size: 9px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 0.7px;
-  line-height: 1;
-  margin-bottom: 1px;
-}
-
-.feedback-details {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-
-.feedback-side {
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.discovery-trade-feedback.yes .feedback-side { color: var(--color-green); }
-.discovery-trade-feedback.no .feedback-side { color: var(--color-red); }
-
-.feedback-price {
-  font-size: 12px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.92);
-  font-variant-numeric: tabular-nums;
+.discovery-actions-divider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .discovery-action-btn {
-  width: var(--discovery-action-size, 26px);
-  height: var(--discovery-action-size, 26px);
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex: 1 1 50%;
+  width: 50%;
+  height: 100%;
+  border-radius: 0 !important;
+  background: transparent;
+  border: none !important;
+  box-shadow: none !important;
   color: #fff;
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.discovery-action-btn.yes {
-  background: rgba(255, 255, 255, 0.035);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: none;
+.discovery-action-btn:focus {
+  outline: none;
 }
 
-.discovery-action-btn.no {
-  background: rgba(255, 255, 255, 0.035);
-  border-color: rgba(255, 255, 255, 0.12);
-  box-shadow: none;
+.discovery-action-btn:focus-visible {
+  outline: 2px solid rgba(255, 153, 102, 0.55);
+  outline-offset: -2px;
 }
 
-.discovery-action-btn:hover {
-  border-color: rgba(255, 255, 255, 0.24);
-}
+/* Hover only on fine pointers — touch sticky-hover was leaving Y/N "selected". */
+@media (hover: hover) and (pointer: fine) {
+  .discovery-action-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+  }
 
-.discovery-action-btn.yes:hover {
-  color: var(--color-green);
-  border-color: var(--color-green);
-  background: rgba(45, 213, 110, 0.08);
-  box-shadow: 0 0 8px rgba(45, 213, 110, 0.18);
-}
+  .discovery-action-btn.yes:hover {
+    background: rgba(45, 213, 110, 0.1);
+  }
 
-.discovery-action-btn.no:hover {
-  color: var(--color-red);
-  border-color: var(--color-red);
-  background: rgba(255, 77, 77, 0.08);
-  box-shadow: 0 0 8px rgba(255, 77, 77, 0.18);
+  .discovery-action-btn.no:hover {
+    background: rgba(255, 77, 77, 0.1);
+  }
 }
 
 .discovery-action-letter {
-  font-size: 12px;
-  font-weight: 900;
+  font-size: var(--type-label);
+  font-weight: var(--weight-bold);
   line-height: 1;
   letter-spacing: 0.02em;
 }
@@ -118,4 +90,168 @@
 
 .discovery-action-btn.no .discovery-action-letter {
   color: var(--color-red);
+}
+
+/* Row-aligned confirmation toast — slips in from the right like a fill ticket. */
+.discovery-trade-toast {
+  position: fixed;
+  right: 0;
+  z-index: 1200;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: 8px 0 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: none;
+  background: #0c0d0e;
+  box-shadow: -10px 0 24px rgba(0, 0, 0, 0.5);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.discovery-trade-toast-rail {
+  width: 4px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.discovery-trade-toast.yes .discovery-trade-toast-rail {
+  background: var(--color-green);
+  box-shadow: 4px 0 16px rgba(45, 213, 110, 0.25);
+}
+
+.discovery-trade-toast.no .discovery-trade-toast-rail {
+  background: var(--color-red);
+  box-shadow: 4px 0 16px rgba(255, 77, 77, 0.25);
+}
+
+.discovery-trade-toast-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 12px 6px 10px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 40%),
+    #0c0d0e;
+}
+
+.discovery-trade-toast-row {
+  display: grid;
+  grid-template-columns: 52px 10px minmax(0, 1fr);
+  align-items: baseline;
+  column-gap: 2px;
+  min-width: 0;
+}
+
+.discovery-trade-toast-label {
+  font-size: var(--type-meta);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  color: rgba(255, 255, 255, 0.48);
+  line-height: 1.15;
+}
+
+.discovery-trade-toast-sep {
+  font-size: var(--type-meta);
+  font-weight: var(--weight-medium);
+  color: rgba(255, 255, 255, 0.32);
+  line-height: 1.15;
+}
+
+.discovery-trade-toast-value {
+  font-size: var(--type-body);
+  font-weight: var(--weight-bold);
+  color: rgba(255, 255, 255, 0.94);
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.discovery-trade-toast-value--side {
+  letter-spacing: 0.06em;
+}
+
+.discovery-trade-toast.yes .discovery-trade-toast-value--side {
+  color: var(--color-green);
+}
+
+.discovery-trade-toast.no .discovery-trade-toast-value--side {
+  color: var(--color-red);
+}
+
+.discovery-trade-toast.yes {
+  border-color: rgba(45, 213, 110, 0.28);
+}
+
+.discovery-trade-toast.no {
+  border-color: rgba(255, 77, 77, 0.28);
+}
+
+@media (max-width: 900px) {
+  .discovery-actions {
+    width: 28px;
+    height: var(--discovery-thumb-stack-height, 60px);
+  }
+
+  .discovery-actions-buttons {
+    flex-direction: column;
+    border-radius: 8px;
+  }
+
+  .discovery-actions-divider {
+    top: 50%;
+    bottom: auto;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 1px;
+    transform: translateY(-50%);
+  }
+
+  .discovery-action-btn {
+    flex: 1 1 50%;
+    width: 100%;
+    height: 50%;
+    min-height: 0;
+  }
+
+  .discovery-action-letter {
+    font-size: 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .discovery-trade-toast {
+    border-radius: 7px 0 0 7px;
+  }
+
+  .discovery-trade-toast-rail {
+    width: 3px;
+  }
+
+  .discovery-trade-toast-body {
+    gap: 3px;
+    padding: 6px 12px 6px 10px;
+  }
+
+  .discovery-trade-toast-row {
+    grid-template-columns: 46px 8px minmax(0, 1fr);
+  }
+
+  .discovery-trade-toast-label,
+  .discovery-trade-toast-sep {
+    font-size: var(--type-meta);
+  }
+
+  .discovery-trade-toast-value {
+    font-size: var(--type-card-header);
+  }
 }

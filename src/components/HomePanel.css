@@ -30,7 +30,7 @@
 /* Override shared .panel-header / .panel-content defaults that break the feed layout */
 .home-panel .panel-header.home-header {
   flex-shrink: 0;
-  padding: 12px 14px 8px;
+  padding: var(--space-sm) var(--space-md) var(--space-xs);
   border-bottom: none;
   text-transform: none;
   letter-spacing: normal;
@@ -57,9 +57,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px 8px;
+  padding: var(--space-sm) var(--space-md) var(--space-xs);
   flex-shrink: 0;
-  gap: 8px;
+  gap: var(--space-xs);
   min-width: 0;
   max-width: 100%;
 }
@@ -67,7 +67,7 @@
 .home-header-left {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-xs);
   min-width: 0;
   flex: 1;
 }
@@ -81,10 +81,10 @@
 }
 
 .home-header-wordmark {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  line-height: 1;
+  font-size: var(--type-title);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
   background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -92,7 +92,7 @@
 }
 
 .home-header-sub {
-  font-size: 11px;
+  font-size: var(--type-caption);
   color: var(--hm-muted);
   display: flex;
   align-items: center;
@@ -105,8 +105,8 @@
 
 .home-notif-btn {
   position: relative;
-  width: 30px;
-  height: 30px;
+  width: var(--icon-btn-sm);
+  height: var(--icon-btn-sm);
   border-radius: 50%;
   border: 1px solid var(--hm-border);
   background: rgba(255, 255, 255, 0.04);
@@ -130,8 +130,8 @@
   border-radius: 8px;
   background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
   color: #fff;
-  font-size: 9px;
-  font-weight: 800;
+  font-size: var(--type-micro);
+  font-weight: var(--weight-bold);
   line-height: 1;
   flex-shrink: 0;
   border: 2px solid #0a0a0a;
@@ -143,7 +143,7 @@
 .home-header-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-xs);
   flex-shrink: 0;
   position: relative;
   z-index: 20;
@@ -170,8 +170,8 @@
 }
 
 .home-profile-btn {
-  width: 30px;
-  height: 30px;
+  width: var(--control-sm);
+  height: var(--control-sm);
   border-radius: 50%;
   border: 1px solid var(--hm-border);
   overflow: hidden;
@@ -197,8 +197,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: var(--control-xs);
+  height: var(--control-xs);
   border-radius: 6px;
   border: 1px solid var(--hm-border);
   color: var(--hm-muted);
@@ -229,7 +229,7 @@
   overscroll-behavior: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-bottom: 12px;
+  padding-bottom: var(--space-sm);
   min-width: 0;
   max-width: 100%;
   width: 100%;
@@ -243,7 +243,7 @@
 
 /* ─── Section common ─────────────────────────────────────────────────────────── */
 .home-sect {
-  padding: 12px 12px 0;
+  padding: var(--space-sm) var(--space-sm) 0;
   min-width: 0;
   max-width: 100%;
   overflow: hidden;
@@ -251,24 +251,19 @@
 }
 
 .home-sect:last-of-type {
-  padding-bottom: 4px;
+  padding-bottom: var(--space-2xs);
 }
 
 .home-sect-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
   min-width: 0;
 }
 
 .home-sect-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--hm-text);
-  text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -276,13 +271,13 @@
 }
 
 .home-view-all {
-  font-size: 11px;
-  font-weight: 500;
+  font-size: var(--type-caption);
+  font-weight: var(--weight-medium);
   color: var(--hm-text);
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
-  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  padding: var(--space-2xs) var(--space-sm);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   flex-shrink: 0;
@@ -296,7 +291,7 @@
 /* ─── TOP PERFORMING WALLETS ─────────────────────────────────────────────────── */
 .home-wallets-track {
   display: flex;
-  gap: 8px;
+  gap: var(--space-xs);
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -308,11 +303,11 @@
 
 .home-wallet-card {
   flex-shrink: 0;
-  width: 112px;
+  width: var(--size-112);
   background: var(--hm-card);
   border: 1px solid var(--hm-border);
   border-radius: 10px;
-  padding: 10px 8px 8px;
+  padding: var(--space-sm) var(--space-xs) var(--space-xs);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -337,8 +332,8 @@
   border-radius: 50%;
   background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
   color: #fff;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -346,18 +341,18 @@
 }
 
 .home-wallet-avatar {
-  width: 42px;
-  height: 42px;
+  width: var(--avatar-lg);
+  height: var(--avatar-lg);
   border-radius: 8px;
   object-fit: cover;
   border: 1px solid var(--hm-border);
   align-self: center;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-xs);
 }
 
 .home-wallet-name {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--type-body);
+  font-weight: var(--weight-semibold);
   color: var(--hm-text);
   width: 100%;
   overflow: hidden;
@@ -368,16 +363,16 @@
 }
 
 .home-wallet-wagers {
-  font-size: 11px;
+  font-size: var(--type-caption);
   color: var(--hm-muted);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-xs);
   line-height: 1;
 }
 
 .home-wallet-pnl {
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1;
+  font-size: var(--type-display-sm);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
   margin-bottom: 2px;
   max-width: 100%;
   overflow: hidden;
@@ -388,11 +383,11 @@
 .home-wallet-pnl.neg { color: var(--hm-red); }
 
 .home-wallet-pnl-label {
-  font-size: 8px;
+  font-size: var(--type-nano);
   color: var(--hm-dim);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 4px;
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: var(--space-2xs);
   line-height: 1;
 }
 
@@ -413,7 +408,7 @@
   display: grid;
   grid-template-columns: 38px minmax(0, 1fr) 52px min-content min-content;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-xs);
   padding: 10px 0;
   border-bottom: 1px solid var(--hm-border);
   background: none;
@@ -436,8 +431,8 @@
 }
 
 .home-market-thumb {
-  width: 38px;
-  height: 38px;
+  width: var(--thumb-lg);
+  height: var(--thumb-lg);
   border-radius: 10px;
   object-fit: cover;
   display: block;
@@ -450,8 +445,8 @@
 }
 
 .home-market-name {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--type-heading-card);
+  font-weight: var(--weight-semibold);
   color: var(--hm-text);
   line-height: 1.3;
   display: -webkit-box;
@@ -462,7 +457,7 @@
 }
 
 .home-market-subprice {
-  font-size: 10px;
+  font-size: var(--type-caption-sm);
   color: var(--hm-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -486,15 +481,15 @@
 }
 
 .home-market-vol-amt {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--type-heading-card);
+  font-weight: var(--weight-semibold);
   color: var(--hm-text);
   line-height: 1;
   white-space: nowrap;
 }
 
 .home-market-vol-label {
-  font-size: 9px;
+  font-size: var(--type-nano);
   color: var(--hm-dim);
   line-height: 1;
   margin-top: 2px;
@@ -502,7 +497,7 @@
 
 .home-market-pills {
   display: flex;
-  gap: 4px;
+  gap: var(--space-2xs);
   flex-shrink: 0;
 }
 
@@ -511,7 +506,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
+  min-width: var(--control-3xl);
   padding: 5px 6px;
   border-radius: 9px;
   border: 1px solid;
@@ -530,16 +525,16 @@
 }
 
 .home-price-pill-val {
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--type-caption);
+  font-weight: var(--weight-bold);
   color: var(--hm-text);
   font-variant-numeric: tabular-nums;
 }
 
 .home-price-pill-tag {
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.03em;
+  font-size: var(--type-micro);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-normal);
   margin-top: 1px;
 }
 
@@ -554,95 +549,95 @@
 /* Fullscreen: slightly roomier market rows */
 .home-panel--fullscreen .home-market-row {
   grid-template-columns: 42px minmax(0, 1fr) 58px min-content min-content;
-  gap: 10px;
+  gap: var(--space-sm);
   padding: 11px 0;
 }
 .home-panel--fullscreen .home-market-thumb {
-  width: 42px;
-  height: 42px;
+  width: var(--thumb-xl);
+  height: var(--thumb-xl);
 }
 .home-panel--fullscreen .home-market-name {
-  font-size: 13px;
+  font-size: var(--type-card-header);
 }
 .home-panel--fullscreen .home-price-pill {
-  min-width: 44px;
-  padding: 6px 8px;
+  min-width: var(--control-5xl);
+  padding: var(--space-xs) var(--space-xs);
 }
 
 /* Rail: compact but keep full horizontal layout (thumb → info → spark → vol → pills) */
 .home-panel--rail .home-market-row {
   grid-template-columns: 34px minmax(0, 1fr) 44px min-content min-content;
-  gap: 6px;
+  gap: var(--space-xs);
   padding: 8px 0;
 }
 
 .home-panel--rail .home-market-thumb {
-  width: 34px;
-  height: 34px;
+  width: var(--thumb-md);
+  height: var(--thumb-md);
   border-radius: 8px;
 }
 
 .home-panel--rail .home-market-name {
-  font-size: 11px;
+  font-size: var(--type-meta);
   -webkit-line-clamp: 2;
 }
 
 .home-panel--rail .home-market-subprice {
-  font-size: 9px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-market-vol-amt {
-  font-size: 11px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-price-pill {
-  min-width: 34px;
+  min-width: var(--control-lg);
   padding: 4px 5px;
   border-radius: 7px;
 }
 
 .home-panel--rail .home-price-pill-val {
-  font-size: 10px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-price-pill-tag {
-  font-size: 8px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-activity-row {
   grid-template-columns: 32px minmax(0, 1fr) auto auto;
-  gap: 6px 8px;
+  gap: var(--space-xs) var(--space-xs);
   padding: 8px 0;
 }
 
 .home-panel--rail .home-activity-avatar {
-  width: 32px;
-  height: 32px;
+  width: var(--avatar-sm);
+  height: var(--avatar-sm);
   border-radius: 8px;
 }
 
 .home-panel--rail .home-activity-handle {
-  font-size: 11px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-activity-action {
-  font-size: 9px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-activity-market {
-  font-size: 10px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-activity-outcome {
-  font-size: 10px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-activity-amount {
-  font-size: 10px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-activity-time {
-  font-size: 9px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--rail .home-wallet-card {
@@ -654,18 +649,14 @@
   height: 108px;
 }
 
-.home-panel--rail .home-sect-title {
-  font-size: 9px;
-}
-
 .home-panel--rail .home-explore-label {
-  font-size: 12px;
+  font-size: var(--type-card-header);
 }
 
 /* ─── TRENDING ARTICLES ──────────────────────────────────────────────────────── */
 .home-articles-track {
   display: flex;
-  gap: 8px;
+  gap: var(--space-xs);
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -720,7 +711,7 @@
   position: relative;
   z-index: 1;
   align-self: flex-start;
-  font-size: 9px;
+  font-size: var(--type-meta);
   font-weight: 700;
   letter-spacing: 0.07em;
   color: #fff;
@@ -734,7 +725,7 @@
 .home-article-title {
   position: relative;
   z-index: 1;
-  font-size: 12px;
+  font-size: var(--type-card-header);
   font-weight: 600;
   color: #fff;
   margin: 0 8px 3px;
@@ -748,7 +739,7 @@
 .home-article-time {
   position: relative;
   z-index: 1;
-  font-size: 10px;
+  font-size: var(--type-meta);
   color: rgba(255,255,255,0.5);
   margin: 0 8px 8px;
 }
@@ -765,7 +756,7 @@
   display: grid;
   grid-template-columns: 36px minmax(0, 1fr) auto auto;
   align-items: center;
-  gap: 8px 10px;
+  gap: var(--space-xs) var(--space-sm);
   padding: 10px 0;
   border-bottom: 1px solid var(--hm-border);
   min-width: 0;
@@ -786,8 +777,8 @@
 }
 
 .home-activity-avatar {
-  width: 36px;
-  height: 36px;
+  width: var(--avatar-md);
+  height: var(--avatar-md);
   border-radius: 9px;
   object-fit: cover;
   border: 1px solid var(--hm-border);
@@ -809,7 +800,7 @@
 }
 
 .home-activity-handle {
-  font-size: 12px;
+  font-size: var(--type-card-header);
   font-weight: 600;
   color: var(--hm-text);
   line-height: 1.2;
@@ -819,7 +810,7 @@
 }
 
 .home-activity-action {
-  font-size: 10px;
+  font-size: var(--type-meta);
   color: var(--hm-muted);
   line-height: 1.25;
   white-space: nowrap;
@@ -828,7 +819,7 @@
 }
 
 .home-activity-market {
-  font-size: 11px;
+  font-size: var(--type-meta);
   color: var(--hm-text);
   line-height: 1.25;
   white-space: nowrap;
@@ -837,7 +828,7 @@
 }
 
 .home-activity-outcome {
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 700;
   flex-shrink: 0;
   white-space: nowrap;
@@ -862,7 +853,7 @@
 }
 
 .home-activity-amount {
-  font-size: 11px;
+  font-size: var(--type-meta);
   font-weight: 600;
   color: var(--hm-text);
   line-height: 1.1;
@@ -871,7 +862,7 @@
 }
 
 .home-activity-time {
-  font-size: 10px;
+  font-size: var(--type-meta);
   color: var(--hm-dim);
   line-height: 1.1;
   white-space: nowrap;
@@ -879,39 +870,39 @@
 
 .home-panel--fullscreen .home-activity-row {
   grid-template-columns: 40px minmax(0, 1fr) auto auto;
-  gap: 10px 12px;
+  gap: var(--space-sm) var(--space-sm);
   padding: 11px 0;
 }
 
 .home-panel--fullscreen .home-activity-avatar {
-  width: 40px;
-  height: 40px;
+  width: var(--control-3xl);
+  height: var(--control-3xl);
   border-radius: 10px;
 }
 
 .home-panel--fullscreen .home-activity-handle {
-  font-size: 13px;
+  font-size: var(--type-card-header);
 }
 
 .home-panel--fullscreen .home-activity-action {
-  font-size: 11px;
+  font-size: var(--type-meta);
 }
 
 .home-panel--fullscreen .home-activity-market {
-  font-size: 12px;
+  font-size: var(--type-card-header);
 }
 
 .home-panel--fullscreen .home-activity-outcome {
-  font-size: 12px;
+  font-size: var(--type-card-header);
 }
 
 .home-panel--fullscreen .home-activity-amount {
-  font-size: 12px;
+  font-size: var(--type-card-header);
 }
 
 /* ─── Explore CTA ────────────────────────────────────────────────────────────── */
 .home-explore-wrap {
-  padding: 16px 12px 8px;
+  padding: var(--space-md) var(--space-sm) var(--space-xs);
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
@@ -921,10 +912,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-xs);
   width: 100%;
   max-width: 100%;
-  padding: 12px;
+  padding: var(--space-sm);
   background: rgba(255, 99, 82, 0.07);
   border: 1px solid rgba(255, 99, 82, 0.22);
   border-radius: 10px;
@@ -942,7 +933,7 @@
 }
 
 .home-explore-label {
-  font-size: 14px;
+  font-size: var(--type-body);
   font-weight: 600;
   background: linear-gradient(135deg, #FF9966 0%, #FF5E62 100%);
   -webkit-background-clip: text;
