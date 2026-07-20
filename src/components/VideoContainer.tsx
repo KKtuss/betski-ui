@@ -12,6 +12,7 @@ import {
   getTikTokEmbedUrl,
   getYoutubeEmbedUrl
 } from '../utils/resolveContentLink'
+import { RouletteStat } from './shared/RouletteStat'
 import './VideoContainer.css'
 
 interface VideoContainerProps {
@@ -29,6 +30,9 @@ interface VideoContainerProps {
   onMediaResolved?: (previewId: string, patch: Partial<MediaSlide>) => void
   /** Vertical feed: -1 previous market, +1 next market. */
   onNavigateMarket?: (delta: -1 | 1) => void
+  /** Bumped on vertical market hop — drives casino-style stat reels. */
+  statsShuffleKey?: number
+  statsSpinDir?: -1 | 1
 }
 
 const marketToSlides = (market: Market): MediaSlide[] => {
@@ -64,7 +68,9 @@ const VideoContainer = ({
   requestedIndex,
   onRequestedIndexHandled,
   onMediaResolved,
-  onNavigateMarket
+  onNavigateMarket,
+  statsShuffleKey,
+  statsSpinDir = 1
 }: VideoContainerProps) => {
   const slides = useMemo(() => marketToSlides(market), [market])
   const containerRef = useRef<HTMLDivElement>(null)
@@ -77,8 +83,7 @@ const VideoContainer = ({
   const [soundEnabled, setSoundEnabled] = useState(false)
   /** Vertical market transition offset (0 = resting). */
   const [feedY, setFeedY] = useState(0)
-  const [feedMotion, setFeedMotion] = useState<'idle' | 'exit' | 'enter' | 'reset'>('idle')
-  const [stageH, setStageH] = useState(0)
+  const [feedMotion, setFeedMotion] = useState<'idle' | 'exit' | 'enter'>('idle')
   const snapTimerRef = useRef<number | null>(null)
   const isSnappingRef = useRef(false)
   const desiredCenterXRef = useRef<number | null>(null)
@@ -139,8 +144,10 @@ const VideoContainer = ({
 
   /**
    * Shared vertical transition for arrows, wheel, and phone swipe.
-   * Exit current content off-screen, swap market, enter new content — no peek thumbs.
+   * Next (swipe up / ↓): current exits up, new enters from below.
+   * Prev (swipe down / ↑): current exits down, new enters from above.
    */
+  const enterFromRef = useRef(0)
   const requestMarketNavigate = useCallback((delta: -1 | 1) => {
     const nav = onNavigateMarketRef.current
     if (!nav || feedSettlingRef.current) return
@@ -156,30 +163,29 @@ const VideoContainer = ({
       return
     }
 
+    // Next: exit toward -y (up), enter from +y (below). Prev: opposite.
+    const exitTo = delta === 1 ? -h : h
+    const enterFrom = delta === 1 ? h : -h
+
     feedSettlingRef.current = true
     if (navAnimTimerRef.current != null) window.clearTimeout(navAnimTimerRef.current)
 
-    // 1) Slide current market away (dark stage underneath — no thumbnail).
     setFeedMotion('exit')
-    setFeedY(delta === 1 ? -h : h)
+    setFeedY(exitTo)
 
     navAnimTimerRef.current = window.setTimeout(() => {
+      // Park the incoming page on the opposite edge, then remount via market.id.
+      enterFromRef.current = enterFrom
+      setFeedMotion('enter')
+      setFeedY(0)
       nav(delta)
-      // 2) Hide during the off-screen teleport so the new market poster cannot flash.
-      setFeedMotion('reset')
-      setFeedY(delta === 1 ? h : -h)
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setFeedMotion('enter')
-          setFeedY(0)
-          navAnimTimerRef.current = window.setTimeout(() => {
-            feedSettlingRef.current = false
-            setFeedMotion('idle')
-            navAnimTimerRef.current = null
-            window.requestAnimationFrame(() => syncMobileCardLayout(0))
-          }, 260)
-        })
-      })
+      navAnimTimerRef.current = window.setTimeout(() => {
+        feedSettlingRef.current = false
+        setFeedMotion('idle')
+        enterFromRef.current = 0
+        navAnimTimerRef.current = null
+        window.requestAnimationFrame(() => syncMobileCardLayout(0))
+      }, 280)
     }, 240)
   }, [marketPeek.hasNext, marketPeek.hasPrev])
 
@@ -193,9 +199,7 @@ const VideoContainer = ({
     const el = mainStageRef.current
     if (!el) return
     const measure = () => {
-      const h = el.clientHeight
-      stageHRef.current = h
-      setStageH(h)
+      stageHRef.current = el.clientHeight
     }
     measure()
     const ro = new ResizeObserver(measure)
@@ -931,21 +935,16 @@ const VideoContainer = ({
       >
         <div className="video-main-stage" ref={mainStageRef}>
           <motion.div
+            key={market.id}
             className="video-feed-page"
-            animate={{
-              y: feedY,
-              // Hide during the reset teleport between exit and enter.
-              opacity: feedMotion === 'reset' ? 0 : 1
-            }}
+            initial={{ y: enterFromRef.current }}
+            animate={{ y: feedY }}
             transition={
-              feedMotion === 'reset' || feedMotion === 'idle'
+              feedMotion === 'idle'
                 ? { duration: 0 }
                 : {
-                    y: {
-                      duration: feedMotion === 'exit' ? 0.24 : 0.26,
-                      ease: [0.22, 1, 0.36, 1]
-                    },
-                    opacity: { duration: 0 }
+                    duration: feedMotion === 'exit' ? 0.24 : 0.28,
+                    ease: [0.22, 1, 0.36, 1]
                   }
             }
           >
@@ -984,9 +983,23 @@ const VideoContainer = ({
                 </div>
                 <div className="creator-details">
                   <p className="market-description">{description}</p>
-                  <p className="market-description market-description--meta">
-                    {livePrice.toFixed(1)}¢ YES · {market.timeLeftLabel} left
-                  </p>
+                    <p className="market-description market-description--meta">
+                      <RouletteStat
+                        value={livePrice}
+                        format={(v) => `${Number(v).toFixed(1)}¢`}
+                        shuffleKey={statsShuffleKey}
+                        spinDir={statsSpinDir}
+                        delayMs={30}
+                      />{' '}
+                      YES ·{' '}
+                      <RouletteStat
+                        value={market.timeLeftLabel}
+                        shuffleKey={statsShuffleKey}
+                        spinDir={statsSpinDir}
+                        delayMs={70}
+                      />{' '}
+                      left
+                    </p>
                 </div>
               </div>
             </div>
@@ -1033,7 +1046,16 @@ const VideoContainer = ({
                 transition={{ duration: 0.2 }}
               >
                 <span className="market-action-side">YES</span>
-                <span className="market-action-price">{livePrice.toFixed(2)}¢</span>
+                <span className="market-action-price">
+                  <RouletteStat
+                    value={livePrice}
+                    format={(v) => `${Number(v).toFixed(2)}¢`}
+                    shuffleKey={statsShuffleKey}
+                    spinDir={statsSpinDir}
+                    delayMs={0}
+                    spinMs={620}
+                  />
+                </span>
               </motion.span>
             )}
           </AnimatePresence>
@@ -1072,7 +1094,16 @@ const VideoContainer = ({
                 transition={{ duration: 0.2 }}
               >
                 <span className="market-action-side">NO</span>
-                <span className="market-action-price">{(100 - livePrice).toFixed(2)}¢</span>
+                <span className="market-action-price">
+                  <RouletteStat
+                    value={100 - livePrice}
+                    format={(v) => `${Number(v).toFixed(2)}¢`}
+                    shuffleKey={statsShuffleKey}
+                    spinDir={statsSpinDir}
+                    delayMs={55}
+                    spinMs={640}
+                  />
+                </span>
               </motion.span>
             )}
           </AnimatePresence>

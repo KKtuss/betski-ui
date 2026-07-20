@@ -18,6 +18,7 @@ import { createMarketChartProvider } from '../charts/data/providers/marketChartP
 import { trendFromValues } from '../charts/theme/chartTheme'
 import { formatTime } from '../utils/chartFormat'
 import { formatCompactUsd } from '../utils/formatCompact'
+import { RouletteStat } from './shared/RouletteStat'
 import './Panel.css'
 
 interface ChartPanelProps {
@@ -26,6 +27,8 @@ interface ChartPanelProps {
   timeLeftLabel?: string
   resolutionTimestamp?: number
   volume24h?: number
+  statsShuffleKey?: number
+  statsSpinDir?: -1 | 1
 }
 
 const formatCountdown = (targetTimestamp: number, now: number) => {
@@ -48,7 +51,9 @@ const ChartPanel = ({
   dataByWindow,
   timeLeftLabel,
   resolutionTimestamp,
-  volume24h
+  volume24h,
+  statsShuffleKey,
+  statsSpinDir = 1
 }: ChartPanelProps) => {
   const gradientUid = useId().replace(/[^a-zA-Z0-9_-]/g, '')
   const hasMountedRef = useRef(false)
@@ -150,10 +155,24 @@ const ChartPanel = ({
           {headerStats && (
             <div className="chart-price-row">
               <span className="chart-main-value" style={{ color: headerStats.color }}>
-                {Math.round(headerStats.lastPoint.value)}%
+                <RouletteStat
+                  value={Math.round(headerStats.lastPoint.value)}
+                  format={(v) => `${v}%`}
+                  shuffleKey={statsShuffleKey}
+                  spinDir={statsSpinDir}
+                  delayMs={20}
+                  spinMs={600}
+                />
               </span>
               <span className="chart-change-chip" style={{ color: headerStats.color }}>
-                {headerStats.isPositive ? 'â–²' : 'â–¼'} {Math.abs(headerStats.change).toFixed(1)}%
+                {headerStats.isPositive ? '▲' : '▼'}{' '}
+                <RouletteStat
+                  value={Math.abs(headerStats.change)}
+                  format={(v) => `${Number(v).toFixed(1)}%`}
+                  shuffleKey={statsShuffleKey}
+                  spinDir={statsSpinDir}
+                  delayMs={60}
+                />
               </span>
             </div>
           )}
@@ -335,22 +354,50 @@ const ChartPanel = ({
       {headerStats && (
         <div className="chart-stat-strip">
           <div className="chart-stat">
-            <span className="chart-stat-value">{volumeLabel}</span>
+            <span className="chart-stat-value">
+              <RouletteStat
+                value={volumeLabel}
+                shuffleKey={statsShuffleKey}
+                spinDir={statsSpinDir}
+                delayMs={40}
+              />
+            </span>
             <span className="chart-stat-label">Volume</span>
           </div>
           <div className="chart-stat">
             <span className="chart-stat-value" style={{ color: headerStats.color }}>
-              {headerStats.isPositive ? '+' : '-'}
-              {Math.abs(headerStats.change).toFixed(1)}%
+              <RouletteStat
+                value={Math.abs(headerStats.change)}
+                format={(v) => `${headerStats.isPositive ? '+' : '-'}${Number(v).toFixed(1)}%`}
+                shuffleKey={statsShuffleKey}
+                spinDir={statsSpinDir}
+                delayMs={80}
+              />
             </span>
             <span className="chart-stat-label">Change</span>
           </div>
           <div className="chart-stat">
-            <span className="chart-stat-value">{headerStats.buyTxs.toLocaleString()}</span>
+            <span className="chart-stat-value">
+              <RouletteStat
+                value={headerStats.buyTxs}
+                format={(v) => Number(v).toLocaleString()}
+                shuffleKey={statsShuffleKey}
+                spinDir={statsSpinDir}
+                delayMs={110}
+              />
+            </span>
             <span className="chart-stat-label">Buy txs</span>
           </div>
           <div className="chart-stat">
-            <span className="chart-stat-value">{headerStats.sellTxs.toLocaleString()}</span>
+            <span className="chart-stat-value">
+              <RouletteStat
+                value={headerStats.sellTxs}
+                format={(v) => Number(v).toLocaleString()}
+                shuffleKey={statsShuffleKey}
+                spinDir={statsSpinDir}
+                delayMs={140}
+              />
+            </span>
             <span className="chart-stat-label">Sell txs</span>
           </div>
         </div>

@@ -1061,9 +1061,9 @@
     --discovery-row-height: auto;
     --discovery-row-pad-y: 6px;
     --discovery-row-pad-x: 6px;
-    --discovery-thumb-stack-width: 96px;
-    --discovery-thumb-stack-height: 64px;
-    --discovery-thumb-size: 60px;
+    --discovery-thumb-stack-width: 102px;
+    --discovery-thumb-stack-height: 56px;
+    --discovery-thumb-size: 50px;
     --discovery-gap: 8px;
     --discovery-title-size: var(--type-body);
     --discovery-meta-size: var(--type-meta);
@@ -1319,9 +1319,9 @@
 /* Slim phones: same even tracks, slightly denser. */
 @media (max-width: 390px) {
   .discovery-panel {
-    --discovery-thumb-stack-width: 88px;
-    --discovery-thumb-stack-height: 60px;
-    --discovery-thumb-size: 56px;
+    --discovery-thumb-stack-width: 94px;
+    --discovery-thumb-stack-height: 52px;
+    --discovery-thumb-size: 46px;
     --discovery-row-pad-x: 5px;
     --discovery-row-pad-y: 5px;
     --discovery-cell-gap: 6px;

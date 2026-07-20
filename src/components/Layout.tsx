@@ -80,6 +80,10 @@ const Layout = () => {
   const [outcomeSide, setOutcomeSide] = useState<'no' | 'yes'>('yes')
   const [chartNow] = useState(() => Date.now())
   const [wagerSelectedOdds, setWagerSelectedOdds] = useState(50)
+  const [statsShuffle, setStatsShuffle] = useState<{ key: number; dir: -1 | 1 }>({
+    key: 0,
+    dir: 1
+  })
   const [wagerFillTarget, setWagerFillTarget] = useState<OpenBet | undefined>(undefined)
 
   const selectedMarketId = appState.ui.selectedMarketId ?? 'legacy-1'
@@ -116,7 +120,9 @@ const Layout = () => {
   const openAdjacentMarket = useCallback(
     (delta: -1 | 1) => {
       const nextId = getAdjacentMarketId(selectedMarketId, delta)
-      if (nextId) openMarket(nextId)
+      if (!nextId) return
+      setStatsShuffle((s) => ({ key: s.key + 1, dir: delta }))
+      openMarket(nextId)
     },
     [selectedMarketId, openMarket]
   )
@@ -387,6 +393,8 @@ const Layout = () => {
         timeLeftLabel={effectiveMarket.timeLeftLabel}
         resolutionTimestamp={effectiveMarket.resolutionTimestamp}
         volume24h={effectiveMarket.volume24h}
+        statsShuffleKey={statsShuffle.key}
+        statsSpinDir={statsShuffle.dir}
       />
       <RulesPanel
         rules={marketData.rules}
@@ -407,6 +415,8 @@ const Layout = () => {
           priceChange={displayPriceChange}
           longUsd={longUsd}
           shortUsd={shortUsd}
+          statsShuffleKey={statsShuffle.key}
+          statsSpinDir={statsShuffle.dir}
           onLongClick={() => openTrade('long')}
           onShortClick={() => openTrade('short')}
           onShareClick={() => {

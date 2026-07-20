@@ -12,13 +12,13 @@
 
 .discovery-preview-card {
   position: absolute;
-  bottom: 0;
+  top: 50%;
   left: 50%;
   height: var(--discovery-thumb-size, 58px);
   width: auto;
   aspect-ratio: 9 / 16;
   border-radius: 6px;
-  transform-origin: bottom center;
+  transform-origin: center center;
   overflow: hidden;
   background: #1a1a1a;
   border: 1px solid rgba(255, 255, 255, 0.1);

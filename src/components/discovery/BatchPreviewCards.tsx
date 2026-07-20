@@ -41,30 +41,30 @@ const PreviewCardImage = ({ item }: { item: BatchPreviewItem }) => {
 
 type FanSlot = { left: number; rotate: number; zIndex: number }
 
-/** Idle pack — tight overlap so slim rows keep title room. */
+/** Idle pack — slight spread so cards read as a fan, not a single brick. */
 const FAN_BY_COUNT: FanSlot[][] = [
   [{ left: 50, rotate: 0, zIndex: 5 }],
   [
-    { left: 46, rotate: -5, zIndex: 3 },
-    { left: 54, rotate: 5, zIndex: 5 }
+    { left: 44, rotate: -5, zIndex: 3 },
+    { left: 56, rotate: 5, zIndex: 5 }
   ],
   [
-    { left: 44, rotate: -6, zIndex: 2 },
+    { left: 40, rotate: -6, zIndex: 2 },
     { left: 50, rotate: 0, zIndex: 5 },
-    { left: 56, rotate: 6, zIndex: 3 }
+    { left: 60, rotate: 6, zIndex: 3 }
   ],
   [
-    { left: 42, rotate: -7, zIndex: 1 },
-    { left: 47, rotate: -3, zIndex: 3 },
-    { left: 53, rotate: 3, zIndex: 5 },
-    { left: 58, rotate: 7, zIndex: 2 }
+    { left: 38, rotate: -7, zIndex: 1 },
+    { left: 46, rotate: -3, zIndex: 3 },
+    { left: 54, rotate: 3, zIndex: 5 },
+    { left: 62, rotate: 7, zIndex: 2 }
   ],
   [
-    { left: 40, rotate: -7, zIndex: 1 },
-    { left: 45, rotate: -3.5, zIndex: 2 },
+    { left: 36, rotate: -7, zIndex: 1 },
+    { left: 43, rotate: -3.5, zIndex: 2 },
     { left: 50, rotate: 0, zIndex: 5 },
-    { left: 55, rotate: 3.5, zIndex: 3 },
-    { left: 60, rotate: 7, zIndex: 2 }
+    { left: 57, rotate: 3.5, zIndex: 3 },
+    { left: 64, rotate: 7, zIndex: 2 }
   ]
 ]
 
@@ -235,7 +235,7 @@ export const BatchPreviewCards = ({ items }: { items: BatchPreviewItem[] }) => {
             className={`discovery-preview-card${active && hot ? ' is-front' : ''}`}
             style={{
               left: `${style.left}%`,
-              transform: `translateX(calc(-50% + ${motion.popX}px)) translateY(${motion.popY}px) rotate(${rotate}deg) scale(${motion.scale})`,
+              transform: `translateX(calc(-50% + ${motion.popX}px)) translateY(calc(-50% + ${motion.popY}px)) rotate(${rotate}deg) scale(${motion.scale})`,
               zIndex: active ? 999 : style.zIndex
             }}
           >

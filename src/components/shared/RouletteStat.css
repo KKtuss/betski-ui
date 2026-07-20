@@ -1,0 +1,67 @@
+.roulette-stat {
+  display: inline-block;
+  overflow: hidden;
+  height: 1.1em;
+  line-height: 1.1em;
+  vertical-align: -0.05em;
+  max-width: 100%;
+  isolation: isolate;
+}
+
+.roulette-stat-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.roulette-stat-strip {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  will-change: transform, filter;
+  transform-origin: center center;
+}
+
+.roulette-stat-item {
+  display: block;
+  height: 1.1em;
+  line-height: 1.1em;
+  white-space: nowrap;
+  flex: 0 0 1.1em;
+}
+
+.roulette-stat.is-spinning {
+  /* Soft mask so the smeared reel edges dissolve instead of hard-clipping. */
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 14%,
+    #000 86%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 14%,
+    #000 86%,
+    transparent 100%
+  );
+}
+
+/* Price buttons: keep the reel centered in the face. */
+.market-action-price .roulette-stat {
+  display: block;
+  width: 100%;
+}
+
+.market-action-price .roulette-stat-strip {
+  align-items: center;
+}
+
+.chart-main-value .roulette-stat,
+.chart-change-chip .roulette-stat,
+.chart-stat-value .roulette-stat {
+  display: inline-block;
+}
