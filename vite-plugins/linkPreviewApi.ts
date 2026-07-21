@@ -135,6 +135,11 @@ const thumbnailProxyMiddleware: Connect.NextHandleFunction = async (req, res, ne
       res.statusCode = 200
       res.setHeader('Content-Type', cached.contentType)
       res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+      if (req.method === 'HEAD') {
+        res.setHeader('Content-Length', String(cached.buffer.length))
+        res.end()
+        return
+      }
       res.end(cached.buffer)
       return
     }
@@ -151,6 +156,11 @@ const thumbnailProxyMiddleware: Connect.NextHandleFunction = async (req, res, ne
     res.statusCode = 200
     res.setHeader('Content-Type', fetched.contentType)
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+    if (req.method === 'HEAD') {
+      res.setHeader('Content-Length', String(fetched.buffer.length))
+      res.end()
+      return
+    }
     res.end(fetched.buffer)
   } catch {
     res.statusCode = 502

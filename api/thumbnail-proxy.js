@@ -2,7 +2,8 @@ import { fetchThumbnailBuffer } from '../lib/linkPreviewCore.js'
 
 /** Vercel serverless handler — proxies hotlink-blocked CDN thumbnails (TikTok, IG, etc.). */
 export default async function handler(req, res) {
-  if (req.method && req.method !== 'GET') {
+  const method = req.method || 'GET'
+  if (method !== 'GET' && method !== 'HEAD') {
     res.status(405).end('Method not allowed')
     return
   }
@@ -24,6 +25,12 @@ export default async function handler(req, res) {
     res.status(200)
     res.setHeader('Content-Type', fetched.contentType)
     res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=604800')
+    // Client hydrate uses HEAD to verify proxy URLs — return headers only.
+    if (method === 'HEAD') {
+      res.setHeader('Content-Length', String(fetched.buffer.length))
+      res.end()
+      return
+    }
     res.send(fetched.buffer)
   } catch {
     res.status(502).end('Thumbnail proxy error')

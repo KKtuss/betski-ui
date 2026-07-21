@@ -159,7 +159,7 @@ function toResolved(url: string, platform: ContentPlatform, data: LinkPreviewPay
   return {
     url,
     platform,
-    thumbnailUrl: proxiedThumbnailUrl(data.thumbnailUrl ?? FALLBACK_THUMB(seed)),
+    thumbnailUrl: proxiedThumbnailUrl(data.thumbnailUrl || FALLBACK_THUMB(seed)),
     videoUrl: data.videoUrl ?? undefined,
     embedUrl: data.embedUrl ?? undefined,
     title: data.title ?? undefined,
@@ -198,12 +198,7 @@ async function resolveContentLinkUncached(url: string): Promise<ResolvedContentL
   const preview = await fetchLinkPreview(url)
 
   if (preview?.thumbnailUrl || preview?.embedUrl || preview?.videoUrl) {
-    return toResolved(url, platform, {
-      thumbnailUrl: preview.thumbnailUrl
-        ? proxiedThumbnailUrl(preview.thumbnailUrl)
-        : proxiedThumbnailUrl(FALLBACK_THUMB(url.split('').reduce((h, c) => h + c.charCodeAt(0), 0))),
-      ...preview
-    })
+    return toResolved(url, platform, preview)
   }
 
   // TikTok blocks server-side scraping — embed iframe still works in the browser.

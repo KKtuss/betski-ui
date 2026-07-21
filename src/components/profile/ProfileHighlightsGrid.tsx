@@ -1,3 +1,4 @@
+import { getDisplayThumbnailUrl } from '../../utils/thumbnailProxy'
 import { buildTradeSparkline } from '../../utils/profileChart'
 import { formatUsdSigned } from '../../utils/profileFormat'
 import {
@@ -40,9 +41,10 @@ const ProfileHighlightsGrid = ({ rows }: ProfileHighlightsGridProps) => (
           >
             <img
               className="profile-highlight-bg"
-              src={row.thumbnailUrl ?? PROFILE_MARKET_THUMB_FALLBACK}
+              src={getDisplayThumbnailUrl(row.thumbnailUrl ?? PROFILE_MARKET_THUMB_FALLBACK)}
               alt=""
               loading="lazy"
+              referrerPolicy="no-referrer"
               onError={onProfileMarketThumbError}
             />
             <div className="profile-highlight-overlay" aria-hidden />

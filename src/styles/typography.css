@@ -77,6 +77,31 @@
     --type-meta: 9px;         /* 12 */
     --type-label: 8px;        /* 10 */
   }
+
+  /*
+   * Socials + Home were reading much smaller than Discovery (lots of
+   * caption/micro/label usage). Lift their local scale toward Discovery
+   * density without changing the global phone tokens Discovery relies on.
+   * Re-declare aliases here — :root aliases already resolved to px.
+   */
+  .socials-shell,
+  .home-panel {
+    --type-hero: 22px;
+    --type-title: 15px;
+    --type-stat-lg: 13px;
+    --type-body: 13px;
+    --type-card-header: 12px;
+    --type-meta: 11px;
+    --type-label: 10px;
+    --type-body-sm: 11px;
+    --type-caption: 10px;
+    --type-caption-sm: 10px;
+    --type-micro: 10px;
+    --type-nano: 10px;
+    --type-heading-page: 12px;
+    --type-heading-section: 11px;
+    --type-heading-card: 12px;
+  }
 }
 
 /* ── Semantic utilities ── */

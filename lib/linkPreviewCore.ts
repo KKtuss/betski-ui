@@ -191,7 +191,15 @@ function getTikTokEmbedUrl(videoId: string): string {
 async function resolveTikTokCanonicalUrl(url: string): Promise<string> {
   const lower = url.toLowerCase()
   if (!lower.includes('vm.tiktok.com') && !lower.includes('/t/') && extractTikTokVideoId(url)) {
-    return url
+    // Strip tracking query/hash so TikTok oembed accepts the URL.
+    try {
+      const parsed = new URL(url)
+      parsed.search = ''
+      parsed.hash = ''
+      return parsed.toString()
+    } catch {
+      return url
+    }
   }
   try {
     const res = await fetch(url, {
@@ -199,7 +207,15 @@ async function resolveTikTokCanonicalUrl(url: string): Promise<string> {
       redirect: 'follow',
       signal: AbortSignal.timeout(10000)
     })
-    return res.url || url
+    const resolved = res.url || url
+    try {
+      const parsed = new URL(resolved)
+      parsed.search = ''
+      parsed.hash = ''
+      return parsed.toString()
+    } catch {
+      return resolved
+    }
   } catch {
     return url
   }
@@ -349,9 +365,9 @@ export async function resolveLinkPreview(targetUrl: string): Promise<LinkPreview
       extractHandleFromUrl(tiktokOembed?.author_url) ||
       extractHandleFromUrl(canonicalUrl)
 
-    if (thumbUrl || og?.thumbnail_url || tiktokId) {
+    if (thumbUrl || og?.thumbnail_url) {
       return withProxiedMedia({
-        thumbnailUrl: thumbUrl ?? og?.thumbnail_url ?? 'https://picsum.photos/360/640?random=42',
+        thumbnailUrl: thumbUrl ?? og?.thumbnail_url ?? '',
         title: parsed?.thumb.title ?? tiktokOembed?.title ?? og?.title,
         views: s?.playCount,
         likes: s?.diggCount,
@@ -363,6 +379,17 @@ export async function resolveLinkPreview(targetUrl: string): Promise<LinkPreview
         videoUrl: parsed?.videoUrl,
         embedUrl: tiktokId ? getTikTokEmbedUrl(tiktokId) : undefined
       })
+    }
+
+    // Embed still works without a scrapeable cover — don't fake a picsum "thumb".
+    if (tiktokId) {
+      return {
+        thumbnailUrl: '',
+        embedUrl: getTikTokEmbedUrl(tiktokId),
+        title: tiktokOembed?.title,
+        authorName: tiktokOembed?.author_name || undefined,
+        authorHandle: handle
+      }
     }
   }
 

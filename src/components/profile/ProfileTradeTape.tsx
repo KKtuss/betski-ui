@@ -8,6 +8,7 @@ import {
   onProfileMarketThumbError,
   PROFILE_MARKET_THUMB_FALLBACK
 } from '../../utils/profileThumbnails'
+import { getDisplayThumbnailUrl } from '../../utils/thumbnailProxy'
 import './ProfileTradeTape.css'
 
 export type ProfileHistoryRow = {
@@ -90,9 +91,10 @@ const ProfileTradeTape = ({
               <div className="profile-trade-thumb-wrap">
                 <img
                   className="profile-trade-thumb"
-                  src={t.thumbnailUrl ?? discoveryStyleThumbnailUrl(t.pairId)}
+                  src={getDisplayThumbnailUrl(t.thumbnailUrl ?? discoveryStyleThumbnailUrl(t.pairId))}
                   alt=""
                   loading="lazy"
+                  referrerPolicy="no-referrer"
                   onError={onProfileMarketThumbError}
                 />
               </div>
@@ -122,9 +124,10 @@ const ProfileTradeTape = ({
               <div className="profile-trade-thumb-wrap">
                 <img
                   className="profile-trade-thumb"
-                  src={row.thumbnailUrl ?? discoveryStyleThumbnailUrl(row.pairId)}
+                  src={getDisplayThumbnailUrl(row.thumbnailUrl ?? discoveryStyleThumbnailUrl(row.pairId))}
                   alt=""
                   loading="lazy"
+                  referrerPolicy="no-referrer"
                   onError={onProfileMarketThumbError}
                 />
               </div>
@@ -156,7 +159,9 @@ const ProfileTradeTape = ({
                       pnlUsd: row.pnlUsd,
                       pnlPct,
                       chart,
-                      thumbnailSrc: row.thumbnailUrl ?? discoveryStyleThumbnailUrl(row.pairId),
+                      thumbnailSrc: getDisplayThumbnailUrl(
+                        row.thumbnailUrl ?? discoveryStyleThumbnailUrl(row.pairId)
+                      ),
                       thumbnailFallbackSrc: PROFILE_MARKET_THUMB_FALLBACK
                     })
                   }}

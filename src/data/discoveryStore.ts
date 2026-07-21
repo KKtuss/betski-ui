@@ -3,7 +3,7 @@ import type { BatchPreviewItem } from '../types/discovery'
 import { buildBatches, buildWagers } from './discoveryMock'
 import { CURRENT_USER_HANDLE } from './appStore'
 import { resolveContentLink } from '../utils/resolveContentLink'
-import { isPlaceholderThumbnail, needsThumbnailProxy, proxiedThumbnailUrl, PLACEHOLDER_THUMB } from '../utils/thumbnailProxy'
+import { isPlaceholderThumbnail, needsThumbnailProxy, proxiedThumbnailUrl } from '../utils/thumbnailProxy'
 import { clamp } from '../utils/math'
 import { getWindowStartValue } from '../utils/marketHistory'
 
@@ -288,7 +288,7 @@ async function resolveThumbForSource(sourceUrl: string): Promise<string | null> 
   if (cached) return cached
   try {
     const resolved = await resolveContentLink(sourceUrl)
-    if (resolved.thumbnailUrl) {
+    if (resolved.thumbnailUrl && !isPlaceholderThumbnail(resolved.thumbnailUrl)) {
       thumbResolveCache.set(sourceUrl, resolved.thumbnailUrl)
       return resolved.thumbnailUrl
     }
@@ -320,8 +320,10 @@ function normalizePreview(preview: BatchPreviewItem): { preview: BatchPreviewIte
 async function repairStaleCachedPreview(preview: BatchPreviewItem): Promise<BatchPreviewItem | null> {
   const thumb = preview.thumbnailUrl
   const sourceUrl = preview.sourceUrl?.trim()
-  const needsVerify =
-    thumb.startsWith('/cache/thumbnails/') || thumb.startsWith('/api/thumbnail-proxy')
+  // Local disk cache paths do not exist on Vercel — re-resolve those.
+  // Live /api/thumbnail-proxy URLs are verified by <img onError>, not proactive HEAD
+  // (HEAD used to 405 on Vercel and overwrite good thumbs with the Betski placeholder).
+  const needsVerify = thumb.startsWith('/cache/thumbnails/')
 
   if (needsVerify) {
     try {
@@ -339,7 +341,8 @@ async function repairStaleCachedPreview(preview: BatchPreviewItem): Promise<Batc
       }
     }
 
-    return { ...preview, thumbnailUrl: PLACEHOLDER_THUMB }
+    // Keep the existing URL on transient failure — never force PLACEHOLDER into storage.
+    return null
   }
 
   return null
@@ -406,8 +409,8 @@ function catalogHasMissingThumbs(catalog: DiscoveryCatalog): boolean {
     previews.some((p) => {
       if (!p.sourceUrl?.trim()) return false
       if (isPlaceholderThumbnail(p.thumbnailUrl)) return true
+      // Dev-only disk cache paths are missing on Vercel static hosting.
       if (p.thumbnailUrl.startsWith('/cache/thumbnails/')) return true
-      if (p.thumbnailUrl.startsWith('/api/thumbnail-proxy')) return true
       return false
     })
   return catalog.batches.some((b) => check(b.previews)) || catalog.wagers.some((w) => check(w.previews))
