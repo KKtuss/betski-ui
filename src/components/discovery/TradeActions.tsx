@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import ActionButton from './ActionButton'
+import ActionButton, { type ActionLabelStyle } from './ActionButton'
 import { triggerCollectionFly } from '../../utils/collectionFlyBus'
 import './TradeActions.css'
 
@@ -23,7 +23,8 @@ export const TradeActions = ({
   marketId,
   marketName,
   thumbnailUrls,
-  onExecuteTrade
+  onExecuteTrade,
+  labelStyle = 'yn'
 }: {
   yesPrice: number
   noPrice: number
@@ -32,6 +33,8 @@ export const TradeActions = ({
   marketName?: string
   thumbnailUrls?: string[]
   onExecuteTrade?: OnExecuteTrade
+  /** Wagers keep Y/N; batch markets use ↑/↓. */
+  labelStyle?: ActionLabelStyle
 }) => {
   const rootRef = useRef<HTMLDivElement>(null)
   const dismissTimerRef = useRef<number | null>(null)
@@ -39,14 +42,21 @@ export const TradeActions = ({
   const [anchor, setAnchor] = useState<ToastAnchor | null>(null)
 
   const measureAnchor = () => {
-    const row = rootRef.current?.closest('.discovery-row') as HTMLElement | null
-    if (!row) return null
-    const rect = row.getBoundingClientRect()
-    return {
-      top: rect.top,
-      height: Math.max(36, rect.height),
-      width: Math.max(96, rect.width / 3)
-    }
+    const root = rootRef.current
+    const row = root?.closest('.discovery-row') as HTMLElement | null
+    if (!root || !row) return null
+    const rowRect = row.getBoundingClientRect()
+    const rootRect = root.getBoundingClientRect()
+    const isWager = row.classList.contains('discovery-row--wager')
+    // Same width for market + wager — don't let tall stacked wager cards inflate the toast.
+    const width = Math.round(Math.min(128, Math.max(104, Math.min(rowRect.width, 400) / 3)))
+    const height = isWager
+      ? Math.round(Math.max(52, Math.min(64, rootRect.height + 4)))
+      : Math.round(Math.max(36, rowRect.height))
+    const top = isWager
+      ? rootRect.top + rootRect.height / 2 - height / 2
+      : rowRect.top
+    return { top, height, width }
   }
 
   useEffect(() => {
@@ -139,9 +149,21 @@ export const TradeActions = ({
   return (
     <div className="discovery-actions" ref={rootRef}>
       <div className="discovery-actions-buttons">
-        <ActionButton type="yes" price={yesPrice} amountUsd={amountUsd} onTrade={handleTrade} />
+        <ActionButton
+          type="yes"
+          price={yesPrice}
+          amountUsd={amountUsd}
+          onTrade={handleTrade}
+          labelStyle={labelStyle}
+        />
         <span className="discovery-actions-divider" aria-hidden="true" />
-        <ActionButton type="no" price={noPrice} amountUsd={amountUsd} onTrade={handleTrade} />
+        <ActionButton
+          type="no"
+          price={noPrice}
+          amountUsd={amountUsd}
+          onTrade={handleTrade}
+          labelStyle={labelStyle}
+        />
       </div>
       {toast}
     </div>

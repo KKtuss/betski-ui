@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { animate, motion, useMotionValue } from 'framer-motion'
 import './RouletteStat.css'
 
@@ -57,7 +57,8 @@ const makeDecoy = (
 
 /**
  * Casino-style vertical reel for a single stat.
- * Spins through decoy values on shuffleKey/value change, then lands on the real one.
+ * Spins through decoy values on shuffleKey/value change, then lands on plain text
+ * (no leftover Framer transforms — those were escaping into the overlay title).
  */
 export const RouletteStat = ({
   value,
@@ -66,72 +67,55 @@ export const RouletteStat = ({
   spinDir = 1,
   delayMs = 0,
   className,
-  spinMs = 560,
-  steps = 12
+  spinMs = 380,
+  steps = 7
 }: RouletteStatProps) => {
   const finalLabel = format(value)
-  const filterUid = useId().replace(/:/g, '')
-  const filterId = `roulette-motion-blur-${filterUid}`
   const [strip, setStrip] = useState<string[]>([finalLabel])
   const [offset, setOffset] = useState(0)
   const [spinning, setSpinning] = useState(false)
   const itemRef = useRef<HTMLSpanElement>(null)
-  const blurNodeRef = useRef<SVGFEGaussianBlurElement | null>(null)
-  const [itemH, setItemH] = useState(0)
+  const itemHRef = useRef(16)
   const prevKeyRef = useRef<string | null>(null)
   const delayTimerRef = useRef<number | null>(null)
   const endTimerRef = useRef<number | null>(null)
-  const blurY = useMotionValue(0)
   const smearY = useMotionValue(1)
 
   useLayoutEffect(() => {
     const el = itemRef.current
     if (!el) return
-    const measure = () => setItemH(el.offsetHeight || el.getBoundingClientRect().height)
+    const measure = () => {
+      itemHRef.current = el.offsetHeight || el.getBoundingClientRect().height || 16
+    }
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
     return () => ro.disconnect()
-  }, [finalLabel])
-
-  // Drive SVG vertical-only blur from the motion value (true motion blur, not isotropic).
-  useEffect(() => {
-    const syncBlur = (v: number) => {
-      blurNodeRef.current?.setAttribute('stdDeviation', `0 ${Math.max(0, v).toFixed(2)}`)
-    }
-    syncBlur(blurY.get())
-    const unsub = blurY.on('change', syncBlur)
-    return unsub
-  }, [blurY])
+  }, [finalLabel, spinning])
 
   useEffect(() => {
     const key = `${shuffleKey ?? ''}::${finalLabel}`
-    const isFirst = prevKeyRef.current == null
+    const prev = prevKeyRef.current
     prevKeyRef.current = key
-    if (isFirst) {
+
+    // First paint or no shuffle — settle as static label.
+    if (prev == null || shuffleKey == null) {
       setStrip([finalLabel])
       setOffset(0)
       setSpinning(false)
-      blurY.set(0)
       smearY.set(1)
       return
     }
 
-    if (shuffleKey == null) {
-      setStrip([finalLabel])
-      setOffset(0)
-      setSpinning(false)
-      blurY.set(0)
-      smearY.set(1)
-      return
-    }
+    // Same key (e.g. parent re-render) — do not restart the reel.
+    if (prev === key) return
 
     const seed =
       (typeof shuffleKey === 'number' ? shuffleKey : String(shuffleKey).length * 997) * 1009 +
       finalLabel.split('').reduce((a, c) => a + c.charCodeAt(0), 0) +
       delayMs * 13
     const rand = mulberry32(seed | 0)
-    const decoys = Array.from({ length: Math.max(4, steps - 1) }, () =>
+    const decoys = Array.from({ length: Math.max(3, steps - 1) }, () =>
       makeDecoy(value, format, rand)
     )
 
@@ -144,7 +128,7 @@ export const RouletteStat = ({
     clearTimers()
 
     delayTimerRef.current = window.setTimeout(() => {
-      const h = itemRef.current?.offsetHeight || itemH || 16
+      const h = itemHRef.current || 16
       const duration = spinMs / 1000
 
       if (spinDir >= 0) {
@@ -165,23 +149,18 @@ export const RouletteStat = ({
         })
       }
 
-      // Hard streak at the start, then ease off so the land reads sharp.
-      blurY.set(3.4)
-      smearY.set(1.22)
-      void animate(blurY, 0, {
-        duration,
-        ease: [0.05, 0.55, 0.2, 1]
-      })
+      smearY.set(1.12)
       void animate(smearY, 1, {
         duration,
         ease: [0.08, 0.5, 0.2, 1]
       })
 
       endTimerRef.current = window.setTimeout(() => {
-        setStrip([finalLabel])
-        setOffset(0)
+        // Drop motion entirely on settle so a leftover translateY cannot
+        // yank the label up into the market title / TikTok chrome.
         setSpinning(false)
-        blurY.set(0)
+        setOffset(0)
+        setStrip([finalLabel])
         smearY.set(1)
       }, spinMs + 40)
     }, delayMs)
@@ -189,36 +168,24 @@ export const RouletteStat = ({
     return clearTimers
     // format/value are reflected via finalLabel; omit unstable inline format fns from deps.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finalLabel, shuffleKey, spinDir, delayMs, spinMs, steps, itemH, blurY, smearY])
+  }, [finalLabel, shuffleKey, spinDir, delayMs, spinMs, steps])
+
+  // Idle: single text node (no nested block) so baseline stays aligned in buttons/charts.
+  if (!spinning) {
+    return (
+      <span className={`roulette-stat roulette-stat--idle${className ? ` ${className}` : ''}`}>
+        {finalLabel}
+      </span>
+    )
+  }
 
   return (
-    <span className={`roulette-stat${spinning ? ' is-spinning' : ''}${className ? ` ${className}` : ''}`}>
-      <svg className="roulette-stat-defs" width="0" height="0" aria-hidden focusable="false">
-        <defs>
-          <filter
-            id={filterId}
-            x="-40%"
-            y="-80%"
-            width="180%"
-            height="260%"
-            colorInterpolationFilters="sRGB"
-          >
-            <feGaussianBlur ref={blurNodeRef} in="SourceGraphic" stdDeviation="0 0" />
-          </filter>
-        </defs>
-      </svg>
+    <span className={`roulette-stat is-spinning${className ? ` ${className}` : ''}`}>
       <motion.span
         className="roulette-stat-strip"
         animate={{ y: offset }}
-        style={{
-          filter: spinning ? `url(#${filterId})` : 'none',
-          scaleY: smearY
-        }}
-        transition={
-          spinning
-            ? { duration: spinMs / 1000, ease: [0.12, 0.75, 0.12, 1] }
-            : { duration: 0 }
-        }
+        style={{ scaleY: smearY }}
+        transition={{ duration: spinMs / 1000, ease: [0.12, 0.75, 0.12, 1] }}
       >
         {strip.map((label, i) => (
           <span

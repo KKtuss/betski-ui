@@ -41,30 +41,30 @@ const PreviewCardImage = ({ item }: { item: BatchPreviewItem }) => {
 
 type FanSlot = { left: number; rotate: number; zIndex: number }
 
-/** Idle pack — slight spread so cards read as a fan, not a single brick. */
+/** Idle pack — medium fan, nudged a touch tighter. */
 const FAN_BY_COUNT: FanSlot[][] = [
   [{ left: 50, rotate: 0, zIndex: 5 }],
   [
-    { left: 44, rotate: -5, zIndex: 3 },
-    { left: 56, rotate: 5, zIndex: 5 }
+    { left: 41, rotate: -6, zIndex: 3 },
+    { left: 59, rotate: 6, zIndex: 5 }
   ],
   [
-    { left: 40, rotate: -6, zIndex: 2 },
+    { left: 36, rotate: -7, zIndex: 2 },
     { left: 50, rotate: 0, zIndex: 5 },
-    { left: 60, rotate: 6, zIndex: 3 }
+    { left: 64, rotate: 7, zIndex: 3 }
   ],
   [
-    { left: 38, rotate: -7, zIndex: 1 },
-    { left: 46, rotate: -3, zIndex: 3 },
-    { left: 54, rotate: 3, zIndex: 5 },
-    { left: 62, rotate: 7, zIndex: 2 }
+    { left: 32, rotate: -7.5, zIndex: 1 },
+    { left: 44, rotate: -3.5, zIndex: 3 },
+    { left: 56, rotate: 3.5, zIndex: 5 },
+    { left: 68, rotate: 7.5, zIndex: 2 }
   ],
   [
-    { left: 36, rotate: -7, zIndex: 1 },
-    { left: 43, rotate: -3.5, zIndex: 2 },
+    { left: 29, rotate: -7.5, zIndex: 1 },
+    { left: 39, rotate: -4, zIndex: 2 },
     { left: 50, rotate: 0, zIndex: 5 },
-    { left: 57, rotate: 3.5, zIndex: 3 },
-    { left: 64, rotate: 7, zIndex: 2 }
+    { left: 61, rotate: 4, zIndex: 3 },
+    { left: 71, rotate: 7.5, zIndex: 2 }
   ]
 ]
 

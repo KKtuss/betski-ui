@@ -1,10 +1,29 @@
 import { useRef, useState, type MouseEvent, type PointerEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ArrowDown, ArrowUp } from 'lucide-react'
 
-const ActionButton = ({ type, price, amountUsd, onTrade }: { type: 'yes' | 'no', price: number, amountUsd: number, onTrade: (type: 'yes' | 'no', price: number, amountUsd: number) => void }) => {
+export type ActionLabelStyle = 'yn' | 'arrows'
+
+const ActionButton = ({
+  type,
+  price,
+  amountUsd,
+  onTrade,
+  labelStyle = 'yn'
+}: {
+  type: 'yes' | 'no'
+  price: number
+  amountUsd: number
+  onTrade: (type: 'yes' | 'no', price: number, amountUsd: number) => void
+  /** Wagers: Y/N. Markets: ↑ / ↓. */
+  labelStyle?: ActionLabelStyle
+}) => {
   const [ripples, setRipples] = useState<{ id: number }[]>([])
   const pointerStart = useRef<{ x: number; y: number } | null>(null)
   const movedTooFar = useRef(false)
+  const isYes = type === 'yes'
+  const label =
+    labelStyle === 'arrows' ? (isYes ? 'Long' : 'Short') : isYes ? 'Yes' : 'No'
 
   const handlePointerDown = (e: PointerEvent<HTMLButtonElement>) => {
     pointerStart.current = { x: e.clientX, y: e.clientY }
@@ -39,7 +58,8 @@ const ActionButton = ({ type, price, amountUsd, onTrade }: { type: 'yes' | 'no',
     <motion.button
       type="button"
       className={`discovery-action-btn ${type}`}
-      title={`${type === 'yes' ? 'Long (Yes)' : 'Short (No)'} • $${amountUsd}`}
+      title={`${label} • $${amountUsd}`}
+      aria-label={`${label} $${amountUsd}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerCancel={() => {
@@ -65,7 +85,7 @@ const ActionButton = ({ type, price, amountUsd, onTrade }: { type: 'yes' | 'no',
               right: 0,
               bottom: 0,
               borderRadius: 'inherit',
-              border: `2px solid ${type === 'yes' ? '#2DD56E' : '#FF4D4D'}`,
+              border: `2px solid ${isYes ? '#2DD56E' : '#FF4D4D'}`,
               pointerEvents: 'none',
               zIndex: 0
             }}
@@ -74,7 +94,15 @@ const ActionButton = ({ type, price, amountUsd, onTrade }: { type: 'yes' | 'no',
         ))}
       </AnimatePresence>
       <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <span className="discovery-action-letter">{type === 'yes' ? 'Y' : 'N'}</span>
+        {labelStyle === 'arrows' ? (
+          isYes ? (
+            <ArrowUp className="discovery-action-icon" strokeWidth={2.6} aria-hidden />
+          ) : (
+            <ArrowDown className="discovery-action-icon" strokeWidth={2.6} aria-hidden />
+          )
+        ) : (
+          <span className="discovery-action-letter">{isYes ? 'Y' : 'N'}</span>
+        )}
       </div>
     </motion.button>
   )

@@ -1,5 +1,5 @@
 .discovery-sparkline {
-  width: clamp(128px, 8.2vw, 140px);
+  width: clamp(148px, 9.5vw, 168px);
   height: clamp(26px, 2.6vh, 29px);
   margin: 0;
   transform: none;

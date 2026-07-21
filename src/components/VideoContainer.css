@@ -50,7 +50,7 @@
   background: #0a0a0a;
 }
 
-/* Single-page vertical transition — real content only, no peek thumbnails. */
+/* Single-page vertical transition ? real content only, no peek thumbnails. */
 .video-feed-page {
   position: absolute;
   inset: 0;
@@ -59,7 +59,7 @@
   will-change: transform;
 }
 
-/* Offscreen player warm — boots TikTok/YouTube JS before the next market mounts. */
+/* Offscreen player warm ? boots TikTok/YouTube JS before the next market mounts. */
 .video-embed-warmup {
   position: absolute;
   width: 1px;
@@ -226,15 +226,21 @@
   -webkit-box-orient: vertical;
 }
 
-.creator-details .market-description + .market-description,
 .market-description--meta {
-  font-size: var(--video-overlay-meta-font) !important;
-  margin-top: clamp(2px, min(0.8cqw, 0.5cqh), 4px) !important;
+  color: #ffffff;
+  font-size: var(--video-overlay-meta-font);
+  margin: clamp(4px, min(1cqw, 0.7cqh), 6px) 0 0;
   line-height: 1.25;
-  white-space: nowrap;
-  display: block;
-  opacity: 0.78;
   font-weight: 600;
+  opacity: 0.78;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .container-controls-anchor {

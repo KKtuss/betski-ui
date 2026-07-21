@@ -983,23 +983,10 @@ const VideoContainer = ({
                 </div>
                 <div className="creator-details">
                   <p className="market-description">{description}</p>
-                    <p className="market-description market-description--meta">
-                      <RouletteStat
-                        value={livePrice}
-                        format={(v) => `${Number(v).toFixed(1)}¢`}
-                        shuffleKey={statsShuffleKey}
-                        spinDir={statsSpinDir}
-                        delayMs={30}
-                      />{' '}
-                      YES ·{' '}
-                      <RouletteStat
-                        value={market.timeLeftLabel}
-                        shuffleKey={statsShuffleKey}
-                        spinDir={statsSpinDir}
-                        delayMs={70}
-                      />{' '}
-                      left
-                    </p>
+                  {/* Single text node — no reels here; they were splitting this row off-baseline. */}
+                  <p className="market-description--meta">
+                    {`${livePrice.toFixed(1)}¢ YES · ${market.timeLeftLabel} left`}
+                  </p>
                 </div>
               </div>
             </div>

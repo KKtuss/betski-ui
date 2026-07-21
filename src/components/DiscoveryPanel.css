@@ -5,8 +5,8 @@
   margin: 0;
   --discovery-row-height: clamp(52px, 5vh, 60px);
   --discovery-row-pad-y: clamp(6px, 0.6vh, 8px);
-  --discovery-row-pad-x: clamp(9px, 0.75vw, 11px);
-  --discovery-thumb-stack-width: clamp(132px, 9.5vw, 158px);
+  --discovery-row-pad-x: clamp(2px, 0.3vw, 5px);
+  --discovery-thumb-stack-width: clamp(128px, 9vw, 150px);
   --discovery-thumb-stack-height: clamp(52px, 5vh, 60px);
   --discovery-thumb-size: clamp(48px, 4.6vh, 56px);
   --discovery-title-size: var(--type-card-header);
@@ -48,7 +48,7 @@
     clamp(62px, 5.4vw, 80px)
     clamp(74px, 6.8vw, 102px)
     clamp(82px, 7.6vw, 112px)
-    clamp(66px, 5vw, 76px);
+    clamp(74px, 5.6vw, 84px);
   gap: var(--discovery-cell-gap);
   align-items: center;
   padding: 8px clamp(12px, 1.5vw, 22px);
@@ -297,10 +297,9 @@
   opacity: 0.8;
 }
 
-.discovery-content {
-  /* Fixed top gap below the header â€” sits outside the scroll area so it
-     stays visible even while the list scrolls. */
-  padding: 10px 0 0 0;
+.panel-content.discovery-content {
+  /* Flush under the header — no spacer padding from .panel-content. */
+  padding: 0;
   align-items: stretch;
   justify-content: flex-start;
   display: flex;
@@ -309,8 +308,8 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  position: relative; /* Ensure stacking context */
-  z-index: 1; /* Below header */
+  position: relative;
+  z-index: 1;
 }
 
 .discovery-list {
@@ -330,8 +329,12 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  padding: 0 12px 16px 12px;
-  padding-right: 5px;
+  padding: 0 10px 16px 2px;
+}
+
+/* Market rows sit flush in the panel; wagers keep card containers below. */
+.discovery-list-inner:has(> .discovery-row--grid) {
+  gap: 0;
 }
 
 .discovery-row {
@@ -348,6 +351,21 @@
   z-index: 0; /* ensure rows stay below header band */
 }
 
+/* Borderless markets — only a hairline between rows. */
+.discovery-row--grid {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  /* Don't clip quick-buy borders / radius on the right edge. */
+  overflow: visible;
+}
+
+.discovery-row--grid:last-child {
+  border-bottom: none;
+}
+
 .discovery-table-head {
   border-left: none;
   border-right: none;
@@ -357,6 +375,12 @@
 .discovery-row:hover {
   background: rgba(255, 255, 255, 0.035);
   border-color: rgba(255, 255, 255, 0.09);
+}
+
+.discovery-row--grid:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
 }
 
 .discovery-row--clickable {
@@ -380,7 +404,7 @@
     clamp(62px, 5.4vw, 80px)
     clamp(74px, 6.8vw, 102px)
     clamp(82px, 7.6vw, 112px)
-    clamp(66px, 5vw, 76px);
+    clamp(74px, 5.6vw, 84px);
   gap: var(--discovery-cell-gap);
   align-items: center;
 }
@@ -504,7 +528,7 @@
 }
 
 .discovery-price-main {
-  font-size: var(--type-meta);
+  font-size: var(--type-body);
   font-weight: var(--weight-bold);
   color: #fff;
   font-variant-numeric: tabular-nums;
@@ -846,9 +870,11 @@
   gap: clamp(8px, 1vw, 18px);
   align-items: center;
   width: 100%;
+  /* Keep wager cards boxed so they stay distinct when lists are shuffled. */
   border: 1px solid rgba(255, 153, 102, 0.10);
   background: rgba(255, 153, 102, 0.02);
   border-radius: 10px;
+  border-bottom: 1px solid rgba(255, 153, 102, 0.10);
   padding: var(--discovery-row-pad-y) var(--discovery-row-pad-x);
   min-height: var(--discovery-row-height);
   overflow: visible;
@@ -856,6 +882,10 @@
   position: relative;
   z-index: 0;
   transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.discovery-list-inner:has(> .discovery-row--wager) {
+  gap: var(--space-xs);
 }
 
 .discovery-row--wager:hover {
@@ -895,12 +925,14 @@
   width: 100%;
   height: 18px;
   margin-top: 2px;
+  overflow: hidden;
 }
 
 .discovery-heatmap-hint {
   position: absolute;
   top: 0;
   transform: translateX(-50%);
+  max-width: 100%;
   font-size: var(--type-meta);
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -937,6 +969,11 @@
   font-weight: 600;
   text-transform: none;
   letter-spacing: 0;
+}
+
+/* Time sits in the expires column on desktop; phone stacks it into subtext. */
+.discovery-wager-time-inline {
+  display: none;
 }
 
 .discovery-title-row--wager {
@@ -1057,20 +1094,25 @@
 
 /* Phone: even 4-track row — thumbs | title | metrics | action. */
 @media (max-width: 900px) {
+  .discovery-list {
+    /* Stable gutter was eating the right inset and clipping quick-buy. */
+    scrollbar-gutter: auto;
+  }
+
   .discovery-panel {
     --discovery-row-height: auto;
     --discovery-row-pad-y: 6px;
-    --discovery-row-pad-x: 6px;
-    --discovery-thumb-stack-width: 102px;
+    --discovery-row-pad-x: 0px;
+    --discovery-thumb-stack-width: 98px;
     --discovery-thumb-stack-height: 56px;
     --discovery-thumb-size: 50px;
-    --discovery-gap: 8px;
+    --discovery-gap: 6px;
     --discovery-title-size: var(--type-body);
     --discovery-meta-size: var(--type-meta);
     --discovery-stat-size: var(--type-meta);
-    --discovery-cell-gap: 8px;
+    --discovery-cell-gap: 5px;
     --discovery-action-size: 28px;
-    --discovery-metrics-width: 56px;
+    --discovery-metrics-width: 72px;
   }
 
   .discovery-header {
@@ -1150,7 +1192,13 @@
   }
 
   .discovery-list-inner {
-    padding: 0 6px 16px;
+    /* Keep thumbs tight on the left; give quick-buy room on the right. */
+    padding: 0 12px 16px 0;
+  }
+
+  .discovery-row--grid {
+    padding-left: 0;
+    padding-right: 2px;
   }
 
   .discovery-table-head {
@@ -1163,7 +1211,7 @@
       var(--discovery-thumb-stack-width)
       minmax(0, 1fr)
       var(--discovery-metrics-width)
-      28px;
+      38px;
     grid-template-areas: "thumbs title metrics action";
     align-items: center;
     column-gap: var(--discovery-cell-gap);
@@ -1179,7 +1227,7 @@
     grid-area: thumbs;
     align-self: center;
     justify-self: start;
-    margin: 0;
+    margin: 0 0 0 -2px;
   }
 
   .discovery-info {
@@ -1202,6 +1250,7 @@
     grid-area: metrics;
     width: 100%;
     min-width: 0;
+    padding-right: 6px;
   }
 
   .discovery-td--spark,
@@ -1214,9 +1263,10 @@
 
   .discovery-td--action {
     grid-area: action;
-    justify-self: center;
+    justify-self: end;
     align-self: center;
-    justify-content: center;
+    justify-content: flex-end;
+    min-width: 0;
   }
 
   .discovery-th--vol,
@@ -1257,9 +1307,9 @@
   }
 
   .discovery-sparkline {
-    width: 48px;
-    max-width: 48px;
-    height: 16px;
+    width: 68px;
+    max-width: 68px;
+    height: 18px;
     margin: 0;
   }
 
@@ -1281,24 +1331,122 @@
     text-align: center;
   }
 
+  .discovery-price-main {
+    font-size: var(--type-body);
+  }
+
+  .discovery-price-change {
+    font-size: var(--discovery-meta-size);
+  }
+
   .discovery-actions {
-    width: 28px;
+    width: 36px;
+    max-width: 100%;
     height: var(--discovery-thumb-stack-height);
   }
 
-  .discovery-table-head--wagers,
-  .discovery-row--wager {
-    grid-template-columns:
-      minmax(0, 1.65fr)
-      minmax(0, 0.95fr)
-      28px;
-    gap: var(--discovery-cell-gap);
+  /*
+   * Wagers phone — Proposal A stacked card:
+   * identity → full-width odds strip → pool + Y/N footer
+   */
+  .discovery-table-head--wagers {
+    display: none;
   }
 
-  .discovery-td--wager-heatmap {
-    gap: 1px;
-    justify-content: center;
+  .discovery-row--wager {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "market market"
+      "heatmap heatmap"
+      "pool action";
+    gap: 8px 10px;
+    align-items: center;
+    padding: 10px 10px;
+    row-gap: 8px;
+  }
+
+  .discovery-row--wager.is-fill-choice-open {
+    grid-template-areas:
+      "market market"
+      "heatmap heatmap"
+      "fill fill";
+  }
+
+  .discovery-row--wager .discovery-td--wager-fill-choice {
+    grid-area: fill;
+    display: flex;
+    width: 100%;
     min-width: 0;
+    align-items: stretch;
+  }
+
+  .discovery-row--wager .discovery-td--market {
+    grid-area: market;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .discovery-row--wager .discovery-preview-cards {
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  .discovery-row--wager .discovery-info {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-right: 0;
+  }
+
+  .discovery-row--wager .discovery-td--wager-heatmap {
+    grid-area: heatmap;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+  }
+
+  .discovery-row--wager .discovery-td--wager-pool {
+    grid-area: pool;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .discovery-row--wager .discovery-td--wager-expires {
+    display: none;
+  }
+
+  .discovery-row--wager .discovery-td--action {
+    grid-area: action;
+    justify-self: end;
+    align-self: center;
+    padding: 0;
+  }
+
+  .discovery-row--wager .discovery-pool-block {
+    width: 100%;
+    max-width: 200px;
+    align-items: flex-start;
+  }
+
+  .discovery-row--wager .discovery-pool-hint {
+    font-size: var(--type-meta);
+  }
+
+  .discovery-row--wager .discovery-actions {
+    width: 40px;
+    height: 52px;
+  }
+
+  .discovery-row--wager .discovery-wager-time-inline {
+    display: inline;
   }
 
   .discovery-heatmap-hint-track {
@@ -1314,22 +1462,26 @@
   .discovery-heatmap-hint-strong {
     font-size: var(--type-meta);
   }
+
+  .discovery-heatmap-hint-fill {
+    display: none;
+  }
 }
 
 /* Slim phones: same even tracks, slightly denser. */
 @media (max-width: 390px) {
   .discovery-panel {
-    --discovery-thumb-stack-width: 94px;
+    --discovery-thumb-stack-width: 90px;
     --discovery-thumb-stack-height: 52px;
     --discovery-thumb-size: 46px;
-    --discovery-row-pad-x: 5px;
+    --discovery-row-pad-x: 0px;
     --discovery-row-pad-y: 5px;
-    --discovery-cell-gap: 6px;
-    --discovery-metrics-width: 52px;
+    --discovery-cell-gap: 4px;
+    --discovery-metrics-width: 66px;
   }
 
   .discovery-list-inner {
-    padding: 0 5px 14px;
+    padding: 0 12px 14px 0;
   }
 
   .discovery-table-head,
@@ -1338,16 +1490,17 @@
       var(--discovery-thumb-stack-width)
       minmax(0, 1fr)
       var(--discovery-metrics-width)
-      26px;
+      36px;
   }
 
   .discovery-sparkline {
-    width: 44px;
-    max-width: 44px;
+    width: 60px;
+    max-width: 60px;
   }
 
   .discovery-actions {
-    width: 26px;
+    width: 34px;
+    max-width: 100%;
     height: var(--discovery-thumb-stack-height);
   }
 }

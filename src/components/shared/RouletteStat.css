@@ -1,26 +1,28 @@
 .roulette-stat {
   display: inline-block;
+  position: relative;
   overflow: hidden;
   height: 1.1em;
+  max-height: 1.1em;
   line-height: 1.1em;
-  vertical-align: -0.05em;
+  vertical-align: baseline;
   max-width: 100%;
   isolation: isolate;
+  contain: layout paint;
 }
 
-.roulette-stat-defs {
-  position: absolute;
-  width: 0;
-  height: 0;
-  overflow: hidden;
-  pointer-events: none;
+.roulette-stat--idle {
+  overflow: visible;
+  contain: none;
+  height: auto;
+  max-height: none;
 }
 
 .roulette-stat-strip {
   display: flex;
   flex-direction: column;
   align-items: inherit;
-  will-change: transform, filter;
+  will-change: transform;
   transform-origin: center center;
 }
 
@@ -48,6 +50,12 @@
     #000 86%,
     transparent 100%
   );
+}
+
+/* Inline meta line under the market title — keep baseline stable. */
+.market-description--meta .roulette-stat {
+  vertical-align: baseline;
+  overflow: hidden;
 }
 
 /* Price buttons: keep the reel centered in the face. */

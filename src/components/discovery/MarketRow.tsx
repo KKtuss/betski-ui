@@ -154,6 +154,7 @@ const MarketRow = ({
         marketName={batch.name}
         thumbnailUrls={batch.previews.map((p) => p.thumbnailUrl).filter(Boolean)}
         onExecuteTrade={onExecuteTrade}
+        labelStyle="arrows"
       />
     </div>
   </motion.div>

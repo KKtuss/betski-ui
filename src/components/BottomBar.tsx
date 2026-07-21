@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Home, MessageSquare, User } from 'lucide-react'
 import type { SVGProps } from 'react'
+import { useHomeMobileLayout } from '../hooks/useHomeMobileLayout'
 import './BottomBar.css'
 
 interface BottomBarProps {
@@ -43,30 +44,36 @@ const TabIcon = ({
   icon: Icon,
   active,
   size = 36,
+  strokeWidth = 2.35,
 }: {
   icon: TabIconComponent
   active: boolean
   size?: number
+  strokeWidth?: number
 }) => {
   if (Icon === StackedRows) {
     return (
       <StackedRows
         size={size}
         stroke={active ? SUNSET_STROKE : 'currentColor'}
-        strokeWidth={2.35}
+        strokeWidth={strokeWidth}
       />
     )
   }
   return (
     <Icon
       size={size}
-      strokeWidth={2.35}
+      strokeWidth={strokeWidth}
       color={active ? SUNSET_STROKE : undefined}
     />
   )
 }
 
 const BottomBar = ({ onTabClick, currentTab, hasUnreadMessages }: BottomBarProps) => {
+  const isMobile = useHomeMobileLayout()
+  // Phone: lighter strokes so side icons don’t read as heavy blocks.
+  const tabStroke = isMobile ? 1.95 : 2.35
+
   const handleTabClick = (tabName: string) => {
     console.log('Tab clicked:', tabName)
     onTabClick?.(tabName)
@@ -105,7 +112,7 @@ const BottomBar = ({ onTabClick, currentTab, hasUnreadMessages }: BottomBarProps
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.98 }}
         >
-          <TabIcon icon={tab.icon} active={currentTab === tab.id} />
+          <TabIcon icon={tab.icon} active={currentTab === tab.id} strokeWidth={tabStroke} />
         </motion.button>
       ))}
       
@@ -140,7 +147,7 @@ const BottomBar = ({ onTabClick, currentTab, hasUnreadMessages }: BottomBarProps
           style={{ position: 'relative' }}
           {...(tab.id === 'tab4' ? { 'data-bottom-tab': 'profile' } : {})}
         >
-          <TabIcon icon={tab.icon} active={currentTab === tab.id} />
+          <TabIcon icon={tab.icon} active={currentTab === tab.id} strokeWidth={tabStroke} />
           {tab.id === 'tab3' && hasUnreadMessages && (
             <span className="bottom-tab-unread-dot" aria-hidden />
           )}

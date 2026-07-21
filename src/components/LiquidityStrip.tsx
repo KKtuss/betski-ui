@@ -12,6 +12,14 @@ const NEARBY_THRESHOLD = 3
 export const oddsToStripPercent = (odds: number) =>
   ((odds - STRIP_RANGE.min) / (STRIP_RANGE.max - STRIP_RANGE.min)) * 100
 
+export type LiquidityFillChoiceState = {
+  odds: number
+  nearbyBets: OpenBet[]
+  selectFill: (bet: OpenBet) => void
+  selectCreate: () => void
+  dismiss: () => void
+}
+
 export type LiquidityStripProps = {
   wager: Pick<Wager, 'openBets'>
   selectedOdds: number
@@ -19,7 +27,74 @@ export type LiquidityStripProps = {
   onHoverChange?: (odds: number | null) => void
   /** Taller strip for main-page wager view */
   size?: 'compact' | 'large'
+  /**
+   * When true, the nearby-bets panel is not rendered inside the strip —
+   * parent should host it via onFillChoiceChange (e.g. wager footer swap).
+   */
+  externalFillChoice?: boolean
+  onFillChoiceChange?: (state: LiquidityFillChoiceState | null) => void
 }
+
+/** Nearby open-bet picker — used inline (desktop) or in the wager footer (phone). */
+export const LiquidityFillChoicePanel = ({
+  odds,
+  nearbyBets,
+  selectFill,
+  selectCreate,
+  variant = 'popover'
+}: {
+  odds: number
+  nearbyBets: OpenBet[]
+  selectFill: (bet: OpenBet) => void
+  selectCreate: () => void
+  variant?: 'popover' | 'mobile' | 'footer'
+}) => (
+  <div
+    className={
+      variant === 'footer'
+        ? 'liquidity-fill-choice liquidity-fill-choice--footer'
+        : variant === 'mobile'
+          ? 'liquidity-fill-choice liquidity-fill-choice--mobile'
+          : 'liquidity-fill-choice'
+    }
+    data-sheet-no-swipe
+    onPointerDown={stopSheetSwipe}
+    onTouchStart={stopSheetSwipe}
+    onClick={(e) => e.stopPropagation()}
+  >
+    <div className="liquidity-fill-title">Nearby open bets</div>
+    <div className="liquidity-fill-options" data-sheet-no-swipe>
+      {nearbyBets.map((bet) => (
+        <button
+          key={bet.yesOdds}
+          type="button"
+          className="liquidity-fill-option"
+          onClick={(e) => {
+            e.stopPropagation()
+            selectFill(bet)
+          }}
+        >
+          <span className="liquidity-fill-odds">
+            Fill @ {bet.yesOdds}¢/{100 - bet.yesOdds}¢
+          </span>
+          <span className="liquidity-fill-vol">{formatCompactUsd(bet.volume)}</span>
+        </button>
+      ))}
+    </div>
+    <button
+      type="button"
+      className="liquidity-fill-option liquidity-fill-new"
+      onClick={(e) => {
+        e.stopPropagation()
+        selectCreate()
+      }}
+    >
+      <span className="liquidity-fill-odds">
+        Create new @ {odds}¢/{100 - odds}¢
+      </span>
+    </button>
+  </div>
+)
 
 const stopSheetSwipe = (e: React.PointerEvent | React.TouchEvent) => {
   e.stopPropagation()
@@ -30,7 +105,9 @@ const LiquidityStrip = ({
   selectedOdds,
   onSelect,
   onHoverChange,
-  size = 'compact'
+  size = 'compact',
+  externalFillChoice = false,
+  onFillChoiceChange
 }: LiquidityStripProps) => {
   const isMobileLayout = useHomeMobileLayout()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -38,6 +115,7 @@ const LiquidityStrip = ({
   const [hoverOdds, setHoverOdds] = useState<number | null>(null)
   const [draftOdds, setDraftOdds] = useState(selectedOdds)
   const [showFillChoice, setShowFillChoice] = useState(false)
+  const hostFillExternally = externalFillChoice && isMobileLayout
 
   useEffect(() => {
     setDraftOdds(selectedOdds)
@@ -57,7 +135,11 @@ const LiquidityStrip = ({
   useEffect(() => {
     if (!showFillChoice) return
     const handlePointerDown = (e: MouseEvent) => {
-      if (!containerRef.current?.contains(e.target as Node)) closeFillChoice()
+      const target = e.target as Node | null
+      if (containerRef.current?.contains(target)) return
+      // External footer panel lives outside the strip container.
+      if (target instanceof Element && target.closest('.liquidity-fill-choice')) return
+      closeFillChoice()
     }
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') closeFillChoice()
@@ -125,6 +207,38 @@ const LiquidityStrip = ({
     setShowFillChoice(false)
     if (!isMobileLayout) setHoverOdds(null)
   }
+
+  const choiceOdds = previewOdds ?? hoverOdds
+  const onSelectRef = useRef(onSelect)
+  onSelectRef.current = onSelect
+  const onFillChoiceChangeRef = useRef(onFillChoiceChange)
+  onFillChoiceChangeRef.current = onFillChoiceChange
+
+  useEffect(() => {
+    const notify = onFillChoiceChangeRef.current
+    if (!notify) return
+    if (!showFillChoice || choiceOdds === null) {
+      notify(null)
+      return
+    }
+    const odds = choiceOdds
+    notify({
+      odds,
+      nearbyBets,
+      selectFill: (bet) => {
+        onSelectRef.current(bet.yesOdds, bet)
+        setDraftOdds(bet.yesOdds)
+        setShowFillChoice(false)
+      },
+      selectCreate: () => {
+        onSelectRef.current(odds)
+        setDraftOdds(odds)
+        setShowFillChoice(false)
+      },
+      dismiss: closeFillChoice
+    })
+    return () => notify(null)
+  }, [showFillChoice, choiceOdds, nearbyBets, closeFillChoice])
 
   const handleClick = () => {
     if (isMobileLayout) return
@@ -275,58 +389,34 @@ const LiquidityStrip = ({
       )}
 
       <AnimatePresence>
-        {showFillChoice && (previewOdds ?? hoverOdds) !== null && (
+        {!hostFillExternally && showFillChoice && choiceOdds !== null && (
           <motion.div
-            className={`liquidity-fill-choice${isMobileLayout ? ' liquidity-fill-choice--mobile' : ''}`}
-            data-sheet-no-swipe={isMobileLayout ? true : undefined}
-            onPointerDown={isMobileLayout ? stopSheetSwipe : undefined}
-            onTouchStart={isMobileLayout ? stopSheetSwipe : undefined}
+            className={isMobileLayout ? undefined : 'liquidity-fill-choice-motion'}
             style={
               isMobileLayout
                 ? undefined
-                : { left: `${oddsToStripPercent((previewOdds ?? hoverOdds)!)}%` }
+                : { left: `${oddsToStripPercent(choiceOdds)}%` }
             }
             initial={{ opacity: 0, y: 6, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.97 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="liquidity-fill-title">Nearby open bets</div>
-            {nearbyBets.map((bet) => (
-              <button
-                key={bet.yesOdds}
-                type="button"
-                className="liquidity-fill-option"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onSelect(bet.yesOdds, bet)
-                  setDraftOdds(bet.yesOdds)
-                  setShowFillChoice(false)
-                }}
-              >
-                <span className="liquidity-fill-odds">
-                  Fill @ {bet.yesOdds}¢/{100 - bet.yesOdds}¢
-                </span>
-                <span className="liquidity-fill-vol">{formatCompactUsd(bet.volume)}</span>
-              </button>
-            ))}
-            <button
-              type="button"
-              className="liquidity-fill-option liquidity-fill-new"
-              onClick={(e) => {
-                e.stopPropagation()
-                const odds = previewOdds ?? hoverOdds
-                if (odds !== null) {
-                  onSelect(odds)
-                  setDraftOdds(odds)
-                }
+            <LiquidityFillChoicePanel
+              odds={choiceOdds}
+              nearbyBets={nearbyBets}
+              selectFill={(bet) => {
+                onSelect(bet.yesOdds, bet)
+                setDraftOdds(bet.yesOdds)
                 setShowFillChoice(false)
               }}
-            >
-              <span className="liquidity-fill-odds">
-                Create new @ {(previewOdds ?? hoverOdds)!}¢/{100 - (previewOdds ?? hoverOdds)!}¢
-              </span>
-            </button>
+              selectCreate={() => {
+                onSelect(choiceOdds)
+                setDraftOdds(choiceOdds)
+                setShowFillChoice(false)
+              }}
+              variant={isMobileLayout ? 'mobile' : 'popover'}
+            />
           </motion.div>
         )}
       </AnimatePresence>

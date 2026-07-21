@@ -148,9 +148,16 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+.liquidity-fill-choice-motion {
+  position: absolute;
+  top: 0;
+  z-index: 20;
+}
+
 .liquidity-fill-choice {
   position: absolute;
   top: -8px;
+  left: 0;
   transform: translate(-50%, -100%);
   display: flex;
   flex-direction: column;
@@ -174,6 +181,31 @@
   padding: 0 4px 4px;
 }
 
+/* Cap visible fill rows at 2; scroll for the rest. Create-new stays pinned → 3 total. */
+.liquidity-fill-options {
+  --liquidity-fill-row-h: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: calc(var(--liquidity-fill-row-h) * 2 + 2px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 153, 102, 0.45) transparent;
+  min-height: 0;
+}
+
+.liquidity-fill-options::-webkit-scrollbar {
+  width: 4px;
+}
+
+.liquidity-fill-options::-webkit-scrollbar-thumb {
+  background: rgba(255, 153, 102, 0.4);
+  border-radius: 4px;
+}
+
 .liquidity-fill-option {
   display: flex;
   align-items: center;
@@ -185,6 +217,9 @@
   background: rgba(255, 255, 255, 0.04);
   color: #fff;
   cursor: pointer;
+  flex: 0 0 auto;
+  min-height: var(--liquidity-fill-row-h);
+  box-sizing: border-box;
 }
 
 .liquidity-fill-option:hover {
@@ -194,6 +229,7 @@
 
 .liquidity-fill-option.liquidity-fill-new {
   margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .liquidity-fill-odds {
@@ -393,8 +429,38 @@
 .liquidity-fill-choice--mobile {
   position: static;
   transform: none;
+  left: auto;
+  top: auto;
   margin-top: var(--space-xs);
   min-width: 0;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Phone wager footer — replaces pool + quick-buy in the same slot. */
+.liquidity-fill-choice--footer {
+  position: static;
+  transform: none;
+  left: auto;
+  top: auto;
+  margin: 0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px;
+  gap: 2px;
+  box-shadow: none;
+}
+
+.liquidity-fill-choice--footer .liquidity-fill-title {
+  padding: 0 4px 2px;
+  font-size: 9px;
+}
+
+.liquidity-fill-choice--footer .liquidity-fill-options {
+  --liquidity-fill-row-h: 30px;
+}
+
+.liquidity-fill-choice--footer .liquidity-fill-option {
+  padding: 5px 8px;
 }
