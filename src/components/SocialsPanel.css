@@ -92,13 +92,15 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 12px 10px;
+  margin: 0 12px 4px;
   padding: 0 14px;
   height: var(--control-3xl);
   border-radius: var(--radius-pill);
   border: none;
   background: rgba(255, 255, 255, 0.06);
   color: rgba(255, 255, 255, 0.4);
+  position: relative;
+  z-index: 0;
 }
 
 .socials-search input {
@@ -107,7 +109,7 @@
   outline: none;
   background: transparent;
   color: #fff;
-  font-size: var(--type-body-sm);
+  font-size: var(--type-body);
   font-weight: var(--weight-medium);
   font-family: var(--font-ui);
 }
@@ -120,9 +122,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  /* Top padding keeps the filter badge from being clipped by overflow-x */
-  padding: 4px 12px 10px;
+  /* Badge hangs above the chip (top: -5px + ring). Keep it inside the
+     scrollport — overflow-x:auto also clips the Y axis. */
+  padding: 12px 12px 10px;
   overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  z-index: 1;
 }
 
 .socials-filter {
@@ -147,16 +153,16 @@
 
 .socials-filter-badge {
   position: absolute;
-  top: -5px;
+  top: -6px;
   right: -4px;
-  z-index: 1;
+  z-index: 2;
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
   border-radius: var(--radius-pill);
   background: #ff4d4d;
   color: #fff;
-  font-size: var(--type-micro);
+  font-size: var(--type-label);
   font-weight: var(--weight-bold);
   display: inline-flex;
   align-items: center;
@@ -178,12 +184,13 @@
 .socials-chat {
   width: 100%;
   display: grid;
-  grid-template-columns: var(--control-8xl) minmax(0, 1fr) auto;
-  column-gap: 12px;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  column-gap: 10px;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border-radius: 0;
   border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   background: transparent;
   cursor: pointer;
   color: #fff;
@@ -195,11 +202,11 @@
   flex-direction: column;
   align-items: flex-end;
   justify-content: flex-start;
-  gap: 5px;
+  gap: 4px;
   align-self: stretch;
   flex-shrink: 0;
-  min-width: 2.75em;
-  padding-top: 2px;
+  min-width: 2.6em;
+  padding-top: 1px;
 }
 
 .socials-chat:hover {
@@ -212,18 +219,18 @@
 
 .socials-chat-avatar {
   position: relative;
-  width: var(--control-8xl);
-  height: var(--control-8xl);
-  border-radius: 50%;
+  width: 46px;
+  height: 46px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: transparent;
+  border: none;
   color: #cfcfcf;
   font-weight: var(--weight-bold);
   font-size: var(--type-meta);
-  overflow: hidden;
+  overflow: visible;
   flex-shrink: 0;
 }
 
@@ -236,19 +243,17 @@
 .socials-chat-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-}
-
-.socials-chat-img--round {
-  border-radius: 50%;
+  object-fit: contain;
+  object-position: center bottom;
+  border-radius: 0;
 }
 
 .socials-online-dot {
   position: absolute;
-  right: 1px;
-  bottom: 1px;
-  width: 12px;
-  height: 12px;
+  right: 0;
+  bottom: 0;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   background: #2dd56e;
   border: 2px solid #080809;
@@ -257,7 +262,7 @@
 .socials-system-icon {
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -284,28 +289,29 @@
 .presentoir-img {
   width: 28px;
   height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
+  border-radius: 0;
+  object-fit: contain;
+  object-position: center bottom;
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  border: 2px solid #080809;
+  border: none;
 }
 
 .presentoir-img:nth-child(1) {
-  left: 28%;
+  left: 26%;
   z-index: 1;
 }
 
 .presentoir-img:nth-child(2) {
-  width: 32px;
-  height: 32px;
+  width: 31px;
+  height: 31px;
   left: 50%;
   z-index: 3;
 }
 
 .presentoir-img:nth-child(3) {
-  left: 72%;
+  left: 74%;
   z-index: 2;
 }
 
@@ -313,9 +319,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   min-width: 0;
-  padding-right: 4px;
+  padding-right: 3px;
 }
 
 .socials-chat-row {
@@ -327,7 +333,7 @@
 .socials-chat-title {
   font-size: var(--type-body);
   font-weight: var(--weight-semibold);
-  line-height: var(--leading-snug);
+  line-height: 1.2;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -340,7 +346,7 @@
   font-weight: var(--weight-medium);
   color: rgba(255, 255, 255, 0.45);
   font-variant-numeric: tabular-nums;
-  line-height: var(--leading-tight);
+  line-height: 1.15;
 }
 
 .socials-chat-subtitle {
@@ -350,13 +356,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: var(--leading-snug);
+  line-height: 1.25;
 }
 
 .socials-chat-unread {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
   border-radius: var(--radius-pill);
   background: #ff4d4d;
   color: #fff;
@@ -378,7 +384,7 @@
 }
 
 .socials-snapshot-title {
-  font-size: var(--type-micro);
+  font-size: var(--type-label);
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-widest);
   color: #ff9966;
@@ -399,7 +405,7 @@
 }
 
 .socials-snapshot-label {
-  font-size: var(--type-nano);
+  font-size: var(--type-label);
   font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
@@ -408,7 +414,7 @@
 }
 
 .socials-snapshot-value {
-  font-size: var(--type-body-sm);
+  font-size: var(--type-body);
   font-weight: var(--weight-bold);
   color: #fff;
   font-variant-numeric: tabular-nums;
@@ -416,7 +422,7 @@
 }
 
 .socials-snapshot-delta {
-  font-size: var(--type-micro);
+  font-size: var(--type-meta);
   font-weight: var(--weight-semibold);
   color: #2dd56e;
 }
@@ -463,13 +469,14 @@
 .socials-chat-header-avatar {
   width: var(--avatar-md);
   height: var(--avatar-md);
-  border-radius: 50%;
-  overflow: hidden;
+  border-radius: 0;
+  overflow: visible;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
+  border: none;
 }
 
 .socials-chat-header-avatar .socials-avatar-presentoir,
@@ -505,7 +512,7 @@
 
 .socials-chat-header-subtitle {
   margin-top: 2px;
-  font-size: var(--type-caption);
+  font-size: var(--type-meta);
   font-weight: var(--weight-medium);
   color: var(--text-dim);
   line-height: var(--leading-normal);
@@ -590,7 +597,7 @@
 }
 
 .socials-catchup-toggle-label {
-  font-size: var(--type-caption-sm);
+  font-size: var(--type-label);
   font-weight: var(--weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -599,7 +606,7 @@
 }
 
 .socials-catchup-toggle-summary {
-  font-size: var(--type-caption-sm);
+  font-size: var(--type-meta);
   font-weight: var(--weight-medium);
   color: var(--text-muted);
   white-space: nowrap;
@@ -675,14 +682,14 @@
 }
 
 .socials-catchup-item-title {
-  font-size: var(--type-caption);
+  font-size: var(--type-body);
   font-weight: var(--weight-semibold);
   line-height: var(--leading-body);
   color: var(--text-primary);
 }
 
 .socials-catchup-item-meta {
-  font-size: var(--type-caption-sm);
+  font-size: var(--type-meta);
   font-weight: var(--weight-medium);
   color: var(--text-dim);
   line-height: var(--leading-normal);
@@ -690,7 +697,7 @@
 
 .socials-catchup-empty {
   margin: 10px 0 0;
-  font-size: var(--type-caption);
+  font-size: var(--type-meta);
   line-height: var(--leading-body);
   color: var(--text-dim);
 }
@@ -730,10 +737,12 @@
 .socials-msg-avatar {
   width: var(--avatar-xs);
   height: var(--avatar-xs);
-  border-radius: 50%;
-  object-fit: cover;
+  border-radius: 0;
+  object-fit: contain;
+  object-position: center bottom;
   flex-shrink: 0;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: none;
+  background: transparent;
 }
 
 /* Keeps grouped bubbles aligned when the avatar is hidden. */
@@ -826,7 +835,7 @@
   padding: 1px 7px;
   margin: 0 2px;
   border-radius: var(--radius-pill);
-  font-size: var(--type-caption);
+  font-size: var(--type-meta);
   font-weight: var(--weight-bold);
   vertical-align: baseline;
 }
@@ -886,7 +895,7 @@
   color: #fff;
   padding: 0 12px;
   outline: none;
-  font-size: var(--type-body-sm);
+  font-size: var(--type-body);
   font-weight: var(--weight-medium);
   font-family: var(--font-ui);
 }
@@ -1016,6 +1025,70 @@
 
 /* ── Mobile ── */
 @media (max-width: 900px) {
+  /*
+   * Socials list is mostly one-line titles + gray previews beside large avatars,
+   * so the shared Discovery phone scale reads optically smaller here.
+   * Lift Socials only — Discovery stays the global reference.
+   */
+  .socials-shell {
+    --type-hero: 22px;
+    --type-title: 15px;
+    --type-stat-lg: 13px;
+    --type-body: 13px;
+    --type-card-header: 12px;
+    --type-meta: 11px;
+    --type-label: 10px;
+    --type-body-sm: 11px;
+    --type-caption: 10px;
+    --type-caption-sm: 10px;
+    --type-micro: 10px;
+    --type-nano: 10px;
+    --type-heading-page: 12px;
+    --type-heading-section: 11px;
+    --type-heading-card: 12px;
+  }
+
+  .socials-chat-title {
+    font-weight: var(--weight-bold);
+    letter-spacing: 0.2px;
+    line-height: 1.15;
+  }
+
+  .socials-chat-subtitle {
+    font-size: var(--type-meta);
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.2;
+  }
+
+  .socials-chat-time {
+    font-size: var(--type-meta);
+  }
+
+  .socials-chat {
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    column-gap: 9px;
+    padding: 8px 11px;
+  }
+
+  .socials-chat-avatar {
+    width: 44px;
+    height: 44px;
+  }
+
+  .presentoir-img {
+    width: 26px;
+    height: 26px;
+  }
+
+  .presentoir-img:nth-child(2) {
+    width: 29px;
+    height: 29px;
+  }
+
+  .socials-filter {
+    font-size: var(--type-body);
+  }
+
   .mobile-tab-shell .socials-shell {
     flex: 1 1 0;
     min-height: 0;

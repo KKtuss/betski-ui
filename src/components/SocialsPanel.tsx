@@ -493,7 +493,7 @@ const SocialsPanel = ({
       )
     }
     if (chat.avatar) {
-      return <img src={normalizeAvatarUrl(chat.avatar)} alt="" className="socials-chat-img socials-chat-img--round" onError={onAvatarError} />
+      return <img src={normalizeAvatarUrl(chat.avatar)} alt="" className="socials-chat-img" onError={onAvatarError} />
     }
     return chat.title.slice(0, 1).toUpperCase()
   }

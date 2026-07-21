@@ -66,7 +66,10 @@
 
 /* ── Phone type scale ──
    Aggressive density pass: ~20–25% under desktop so phone UI reads compact
-   without changing desktop. All tokenized text follows these seven primitives. */
+   without changing desktop. All tokenized text follows these seven primitives.
+   Discovery is the phone density reference for shared :root tokens.
+   Socials may lift locally on phone (see SocialsPanel.css) because its
+   list chrome reads optically smaller at the same px. */
 @media (max-width: 900px) {
   :root {
     --type-hero: 20px;        /* 29 */
@@ -76,31 +79,6 @@
     --type-card-header: 10px; /* 13 */
     --type-meta: 9px;         /* 12 */
     --type-label: 8px;        /* 10 */
-  }
-
-  /*
-   * Socials + Home were reading much smaller than Discovery (lots of
-   * caption/micro/label usage). Lift their local scale toward Discovery
-   * density without changing the global phone tokens Discovery relies on.
-   * Re-declare aliases here — :root aliases already resolved to px.
-   */
-  .socials-shell,
-  .home-panel {
-    --type-hero: 22px;
-    --type-title: 15px;
-    --type-stat-lg: 13px;
-    --type-body: 13px;
-    --type-card-header: 12px;
-    --type-meta: 11px;
-    --type-label: 10px;
-    --type-body-sm: 11px;
-    --type-caption: 10px;
-    --type-caption-sm: 10px;
-    --type-micro: 10px;
-    --type-nano: 10px;
-    --type-heading-page: 12px;
-    --type-heading-section: 11px;
-    --type-heading-card: 12px;
   }
 }
 

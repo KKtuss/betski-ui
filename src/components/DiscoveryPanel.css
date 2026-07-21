@@ -362,9 +362,7 @@
   overflow: visible;
 }
 
-.discovery-row--grid:last-child {
-  border-bottom: none;
-}
+/* Keep the hairline under the last market row so the list edge is visible. */
 
 .discovery-table-head {
   border-left: none;
